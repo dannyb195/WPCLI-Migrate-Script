@@ -18,6 +18,13 @@
  */
 
 /**
+ * Checking that WP CLI is installed, if not bailing here
+ */
+if ( ! class_exists( 'WP_CLI_Command' ) ) {
+	return;
+}
+
+/**
  * WPCLI_Custom_Migrate_Command: Main WPCLI extension and custom function class
  */
 class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
