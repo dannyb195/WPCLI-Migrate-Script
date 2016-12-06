@@ -17,6 +17,7 @@
  * wp migrate --json_file=<path to local file>
  */
 
+
 /**
  * Checking that WP CLI is installed, if not bailing here
  */
