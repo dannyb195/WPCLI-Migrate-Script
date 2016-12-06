@@ -10,6 +10,13 @@
 
 /**
  *
+ * Usage:
+ * wp migrate --json_url=http://addactiondan.me/wp-json/wp/v2/posts?per_page=10
+ * wp migrate --json_file=<path to local file>
+ */
+
+/**
+ *
  */
 class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
