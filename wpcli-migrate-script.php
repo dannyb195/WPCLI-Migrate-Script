@@ -207,7 +207,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 		error_log( print_r( $headers, true ) );
 
-		if ( strpos( $headers[0], '200') ) {
+		if ( strpos( $headers[0], '200') || strpos( $headers[0], '301') || strpos( $headers[0], '302') ) {
 			return true;
 		} else {
 			WP_CLI::error( 'Invalide URL: ' . sanitize_text_field( $url ) );
