@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: WPCLI Migrate Script
- * Plugin URI:
- * Description:
+ * Plugin URI: https://github.com/dannyb195/WPCLI-Migrate-Script
+ * Description: This plugin provides a generic WPCLI function to allow for importing content via a JSON file or JSON endpoint. Custom code will need to be written to account for your incoming data structure
  * Author: Dan Beil
  * Version: .0
  * Author URI: http://addactiondan.me
@@ -10,13 +10,15 @@
 
 /**
  *
+ * WPCLI_Custom_Migrate_Command extends WP_CLI_Command allows for hitting a JSON file or endpoint for custom import code to be written
+ *
  * Usage:
  * wp migrate --json_url=http://addactiondan.me/wp-json/wp/v2/posts?per_page=10
  * wp migrate --json_file=<path to local file>
  */
 
 /**
- *
+ * WPCLI_Custom_Migrate_Command: Main WPCLI extension and custom function class
  */
 class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
@@ -106,6 +108,26 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 			error_log( 'we have a json file, ready to move forward and write custom code here' );
 
+			/**
+			 * Start where custom code would need to be written.
+			 * working with standard WP JSON API data for now
+			 */
+
+			// Hitting post json file, assuming JSON file is in this plugin's main directory.
+			$json = file_get_contents( __DIR__ . '/' . $user_args['json_file'] );
+			// Turning json into array.
+			$json = json_decode( $json );
+
+			/**
+			 * Do custom stuff to import data here
+			 */
+
+			error_log( 'local file: ' . print_r( $json, true ) );
+
+			/**
+			 * End where custom code would be written
+			 */
+
 		} elseif ( array_key_exists( 'json_url', $user_args ) ) {
 
 			error_log( 'we have a json url, need to parse (probably)' );
@@ -119,6 +141,10 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			$json = file_get_contents( esc_url( $user_args['json_url'] ) );
 			// Turning json into array.
 			$json = json_decode( $json );
+
+			/**
+			 * Do custom stuff to import data here
+			 */
 
 			error_log( print_r( $json, true ) );
 
