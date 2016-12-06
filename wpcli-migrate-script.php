@@ -52,7 +52,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	public function __invoke( $args, $user_args ) {
 
 		/**
-		 * Acceptible user_args:
+		 * Acceptible user_args as define in the construct:
 		 * --json_file=<file location>
 		 * --json_url=<url>
 		 */
@@ -105,6 +105,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	public function import( $user_args ) {
 
 		if ( array_key_exists( 'json_file', $user_args ) ) {
+			/**
+			 * We are dealing with a local JSON file
+			 */
 
 			error_log( 'we have a json file, ready to move forward and write custom code here' );
 
@@ -115,8 +118,18 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 			// Hitting post json file, assuming JSON file is in this plugin's main directory.
 			$json = file_get_contents( __DIR__ . '/' . $user_args['json_file'] );
+
 			// Turning json into array.
 			$json = json_decode( $json );
+
+			error_log( 'JSON ' . print_r( $json, true ) );
+
+			/**
+			 * Checking we have valid JSON
+			 */
+			if ( empty( $json ) ) {
+				WP_CLI::error( 'Invalid JSON string' );
+			}
 
 			/**
 			 * Do custom stuff to import data here
@@ -129,18 +142,31 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 */
 
 		} elseif ( array_key_exists( 'json_url', $user_args ) ) {
+			/**
+			 * We are dealing with an external URL request which should return only JSON
+			 */
 
 			error_log( 'we have a json url, need to parse (probably)' );
+
+			/**
+			 * Making sure we have a valid URL to hit
+			 * if this fails we stop here via WP_CLI::error
+			 */
+			$this->verify_url( $user_args['json_url'] );
 
 			/**
 			 * Start where custom code would need to be written.
 			 * working with standard WP JSON API data for now
 			 */
-
 			// Hitting post json feed.
 			$json = file_get_contents( esc_url( $user_args['json_url'] ) );
+
 			// Turning json into array.
 			$json = json_decode( $json );
+
+			if ( false === $json ) {
+				WP_CLI::error( 'Invalid JSON string' );
+			}
 
 			/**
 			 * Do custom stuff to import data here
@@ -151,7 +177,19 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			/**
 			 * End where custom code would be written
 			 */
+		}
+	}
 
+	private function verify_url( $url ) {
+
+		$headers = get_headers( $url );
+
+		error_log( print_r( $headers, true ) );
+
+		if ( strpos( $headers[0], '200') ) {
+			return true;
+		} else {
+			WP_CLI::error( 'Invalide URL: ' . sanitize_text_field( $url ) );
 		}
 	}
 
