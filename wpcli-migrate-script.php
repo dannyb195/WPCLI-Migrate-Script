@@ -109,7 +109,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * We are dealing with a local JSON file
 			 */
 
-			error_log( 'we have a json file, ready to move forward and write custom code here' );
+			error_log( 'we have a json file, ready to move forward and write custom code below' );
 
 			/**
 			 * Start where custom code would need to be written.
@@ -133,6 +133,16 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 			/**
 			 * Do custom stuff to import data here
+			 *
+			 *
+			 *
+			 *
+			 *
+			 *
+			 *
+			 *
+			 *
+			 *
 			 */
 
 			error_log( 'local file: ' . print_r( $json, true ) );
@@ -170,6 +180,17 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 			/**
 			 * Do custom stuff to import data here
+			 *
+			 *
+			 *
+			 *
+			 *
+			 *
+			 *
+			 *
+			 *
+			 *
+			 *
 			 */
 
 			error_log( print_r( $json, true ) );
