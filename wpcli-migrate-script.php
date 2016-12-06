@@ -15,9 +15,14 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 	/**
 	 * Placeholder for our array of acceptable arguments
+	 *
+	 * @var  array An array to hold our accepted arguments
 	 */
 	public $user_args_values;
 
+	/**
+	 * Our construct
+	 */
 	public function __construct() {
 
 		$this->user_args_values = array(
@@ -29,7 +34,12 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 	}
 
-
+	/**
+	 * [__invoke description]
+	 * @param  [type] $args      [description]
+	 * @param  [type] $user_args [description]
+	 * @return [type]            [description]
+	 */
 	public function __invoke( $args, $user_args ) {
 
 		/**
@@ -58,6 +68,11 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				if ( array_key_exists( 'json_file', $user_args ) && array_key_exists( 'json_url', $user_args ) ) {
 					WP_CLI::error( 'Please enter only one JSON source' );
 				}
+
+				/**
+				 * @todo  Make sure we have a valid file or URL to hit here
+				 */
+
 			}
 
 			/**
@@ -70,11 +85,41 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		}
 
 		// WP_CLI::success( 'Hello World' );
-
 	}
 
+	/**
+	 * [import description]
+	 *
+	 * @param  [type] $user_args [description]
+	 * @return [type]            [description]
+	 */
 	public function import( $user_args ) {
 
+		if ( array_key_exists( 'json_file', $user_args ) ) {
+
+			error_log( 'we have a json file, ready to move forward and write custom code here' );
+
+		} elseif ( array_key_exists( 'json_url', $user_args ) ) {
+
+			error_log( 'we have a json url, need to parse (probably)' );
+
+			/**
+			 * Start where custom code would need to be written.
+			 * working with standard WP JSON API data for now
+			 */
+
+			// Hitting post json feed.
+			$json = file_get_contents( esc_url( $user_args['json_url'] ) );
+			// Turning json into array.
+			$json = json_decode( $json );
+
+			error_log( print_r( $json, true ) );
+
+			/**
+			 * End where custom code would be written
+			 */
+
+		}
 	}
 
 }
