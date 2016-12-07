@@ -22,11 +22,11 @@ class WPCLI_Migration_Post {
 
 		$this->debug = isset ( $user_args['migrate_debug'] ) && 'true' == $user_args['migrate_debug'] ? true : false;
 
-		error_log( print_r( $user_args, true ) );
+		// error_log( print_r( $user_args, true ) );
 
-		error_log( 'migrate debug ' . $this->debug );
+		// error_log( 'migrate debug ' . $this->debug );
 
-		error_log( 'invoked' );
+		// error_log( 'invoked' );
 
 
 		$this->post_import( $json );
@@ -81,11 +81,10 @@ class WPCLI_Migration_Post {
 
 
 					/**
-					 * [$migration_check description]
-					 * @var [type]
+					 * Initial import is happening here
 					 */
 					$migration_check = wp_insert_post( array(
-						'post_author' => '', // @todo still need to deal with authors
+						'post_author' => $post->author, // @todo still need to deal with authors
 						'post_date' => $post->date,
 						'post_date_gmt' => $post->date_gmt,
 						'post_content' => $post->content->rendered,
@@ -94,11 +93,13 @@ class WPCLI_Migration_Post {
 						'post_type' => $post->type,
 						'post_name' => '',
 						'post_modified' => $post->modified,
+						'post_modified_gmt' => '',
 						'post_status' => 'publish',
+						'comment_status' => 'closed',
+						'ping_status' => 'open',
 						'meta_input' => array(
 							'content_origin' => $post->_links->self[0]->href,
 						),
-
 					) );
 
 					if ( true == $this->debug ) {
@@ -109,14 +110,80 @@ class WPCLI_Migration_Post {
 						}
 					}
 
-
 				} else {
 					/**
-					 * Post Updating will happen here
+					 * Post Updating happens here
 					 */
 					if ( true == $this->debug ) {
-						error_log( 'Post ' . $status_check[0] . ' already exists' );
+						error_log( 'Post ' . $status_check[0] . ' already exists, updating' );
 					}
+
+					$local_post = get_post( $status_check[0] );
+
+					$local_post_check = array();
+					$local_post_check['post_content'] = $local_post->post_content;
+					$local_post_check['post_title'] = $local_post->post_title;
+
+					// error_log( 'local post: ' . print_r( $local_post_check, true ) );
+
+					$remote_post = array();
+
+					// $remote_post['ID'] = $status_check[0]; // Faking that the remote post has the same ID as the local post
+					// $remote_post['post_date'] = $post->date;
+					// $remote_post['post_date_gmt'] = $post->date_gmt;
+					$remote_post['post_content'] = $post->content->rendered;
+					$remote_post['post_title'] = $post->title->rendered;
+					// $remote_post['post_excerpt'] = $post->excerpt->rendered;
+					// $remote_post['post_type'] = $post->type;
+					// $remote_post['post_name'] = '';
+					// $remote_post['post_modified'] = $post->modified;
+					// $remote_post['post_author'] = $post->author;
+					// $remote_post['post_status'] = 'publish';
+					// $remote_post['comment_status'] = $post->comment_status;
+					// $remote_post['ping_status'] = $post->ping_status;
+					// $remote_post['post_name'] = $post->slug;
+					// $remote_post['post_modified_gmt'] = $post->date_gmt;
+
+					// error_log( 'remote post: ' . print_r( $post, true ) );
+
+					$diff = array_diff( (array) $local_post_check, $remote_post );
+
+
+
+
+					if ( ! empty( $diff ) ) {
+
+						error_log( 'Diff: ' . print_r( $diff, true ) );
+
+						/**
+						 * Updating posts if they already exist
+						 *
+						 * @todo  need some type of check if the post has actually changed here
+						 */
+						$migration_check = wp_insert_post( array(
+							'ID' => $status_check[0], // This is the existing post ID
+							'post_author' => '', // @todo still need to deal with authors
+							'post_date' => $post->date,
+							'post_date_gmt' => $post->date_gmt,
+							'post_content' => $post->content->rendered,
+							'post_title' => $post->title->rendered,
+							'post_excerpt' => $post->excerpt->rendered,
+							'post_type' => $post->type,
+							'post_name' => '',
+							'post_modified' => $post->modified,
+							'post_status' => 'publish',
+							'meta_input' => array(
+								'content_origin' => $post->_links->self[0]->href,
+							),
+						) );
+
+						if ( false !== $migration_check ) {
+							WP_CLI::log( 'Post ' . $post->title->rendered . ' with ID ' . $status_check[0] . ' has been updated' );
+						}
+
+					}
+
+
 				}
 
 

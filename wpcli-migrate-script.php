@@ -18,6 +18,12 @@
  * wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10
  * wp migrate --json_file=<path to local file>
  *
+ * WordPress to WordPress Import:
+ * wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=100 --wp2wp=true
+ * Note that the WP JSON API defaults to a limit of 100 objects accessed to account for this
+ * you may also use the --offset parameter to get more content
+ *
+ *
  * @package wpcli-migration-script
  * @author Dan Beil
  */
@@ -244,7 +250,10 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 		$headers = get_headers( $url );
 
-		error_log( 'headers ' . print_r( $headers, true ) );
+		if ( isset ( $user_args['migrate_debug'] ) && 'true' == $user_args['migrate_debug'] ) {
+			error_log( 'headers ' . print_r( $headers, true ) );
+		}
+
 
 		if ( strpos( $headers[0], '200') || strpos( $headers[0], '301') || strpos( $headers[0], '302') ) {
 			return true;
