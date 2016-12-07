@@ -178,12 +178,14 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * Making sure we have a valid URL to hit
 			 * if this fails we stop here via WP_CLI::error
 			 */
-			// $this->verify_url( $user_args['json_url'] );
+			$this->verify_url( $user_args['json_url'] );
 
 
 			/**
 			 * Because the WP JSON API only allows for hitting 100 objects at a time we allow
 			 * for an --offset parameter to get addition content if needed
+			 *
+			 * https://github.com/WP-API/WP-API/issues/1609
 			 */
 			if ( isset( $user_args['offset'] ) ) {
 				$user_args['json_url'] = esc_url( $user_args['json_url'] ) . '&offset=' . intval( $user_args['offset'] );
@@ -246,6 +248,13 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 		if ( strpos( $headers[0], '200') || strpos( $headers[0], '301') || strpos( $headers[0], '302') ) {
 			return true;
+		} elseif ( strpos( $headers[0], '400' ) ) {
+
+			$response = wp_remote_get( $url );
+			$response = json_decode( $response['body'] );
+
+			WP_CLI::error( 'Bad Request: ' . print_r( $response) );
+
 		} else {
 			WP_CLI::error( 'Invalide URL: ' . sanitize_text_field( $url ) );
 		}
