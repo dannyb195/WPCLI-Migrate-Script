@@ -12,7 +12,7 @@
  *
  * WPCLI_Custom_Migrate_Command extends WP_CLI_Command allows for hitting a JSON file or endpoint for custom import code to be written
  *
- * Kudos to Chris Wiegman for his WCUS 2015 talk http://slides.chriswiegman.com/wcus15
+ * Kudos to Chris Wiegman for his WCUS 2015 talk http://slides.chriswiegman.com/wcus15 and Daniel Bachhuber
  *
  * Usage:
  * wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10
