@@ -12,9 +12,14 @@
  *
  * WPCLI_Custom_Migrate_Command extends WP_CLI_Command allows for hitting a JSON file or endpoint for custom import code to be written
  *
+ * Kudos to Chris Wiegman for his WCUS 2015 talk http://slides.chriswiegman.com/wcus15
+ *
  * Usage:
- * wp migrate --json_url=http://addactiondan.me/wp-json/wp/v2/posts?per_page=10
+ * wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10
  * wp migrate --json_file=<path to local file>
+ *
+ * @package wpcli-migration-script
+ * @author Dan Beil
  */
 
 
@@ -43,8 +48,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	public function __construct() {
 
 		$this->user_args_values = array(
-			'json_file',
-			'json_url',
+			'json_file', // A local JSON file location
+			'json_url', // A JSON URL endpoint
+			'wp2wp', // A WordPress to Wordpress migration
 		);
 
 		error_log( print_r( $this->user_args_values, true ) );
@@ -170,7 +176,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * Making sure we have a valid URL to hit
 			 * if this fails we stop here via WP_CLI::error
 			 */
-			$this->verify_url( $user_args['json_url'] );
+			// $this->verify_url( $user_args['json_url'] );
 
 			/**
 			 * Start where custom code would need to be written.
@@ -184,6 +190,18 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 			if ( false === $json ) {
 				WP_CLI::error( 'Invalid JSON string' );
+			}
+
+			/**
+			 * Dealing with WordPress to WordPress Migration
+			 */
+			if ( isset( $user_args['wp2wp'] ) && true == $user_args['wp2wp'] ) {
+
+				error_log( 'we are dealing with wordpress to wordpress' );
+
+				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts
+				new WPCLI_Migration_Post( $json );
+
 			}
 
 			/**
@@ -201,7 +219,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 *
 			 */
 
-			error_log( print_r( $json, true ) );
+			// error_log( print_r( $json, true ) );
 
 			/**
 			 * End where custom code would be written
@@ -213,7 +231,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 		$headers = get_headers( $url );
 
-		error_log( print_r( $headers, true ) );
+		error_log( 'headers ' . print_r( $headers, true ) );
 
 		if ( strpos( $headers[0], '200') || strpos( $headers[0], '301') || strpos( $headers[0], '302') ) {
 			return true;
