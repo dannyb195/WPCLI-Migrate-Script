@@ -51,9 +51,11 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			'json_file', // A local JSON file location
 			'json_url', // A JSON URL endpoint
 			'wp2wp', // A WordPress to Wordpress migration
+			'migrate_debug', // Used for outputting terminal logs
+			'offset',
 		);
 
-		error_log( print_r( $this->user_args_values, true ) );
+		// error_log( print_r( $this->user_args_values, true ) );
 
 	}
 
@@ -178,12 +180,21 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 */
 			// $this->verify_url( $user_args['json_url'] );
 
+
+			/**
+			 * Because the WP JSON API only allows for hitting 100 objects at a time we allow
+			 * for an --offset parameter to get addition content if needed
+			 */
+			if ( isset( $user_args['offset'] ) ) {
+				$user_args['json_url'] = esc_url( $user_args['json_url'] ) . '&offset=' . intval( $user_args['offset'] );
+			}
+
 			/**
 			 * Start where custom code would need to be written.
 			 * working with standard WP JSON API data for now
 			 */
 			// Hitting post json feed.
-			$json = file_get_contents( esc_url( $user_args['json_url'] ) );
+			$json = file_get_contents( $user_args['json_url'] );
 
 			// Turning json into array.
 			$json = json_decode( $json );
@@ -200,7 +211,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				error_log( 'we are dealing with wordpress to wordpress' );
 
 				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts
-				new WPCLI_Migration_Post( $json );
+				new WPCLI_Migration_Post( $json, $user_args );
 
 			}
 

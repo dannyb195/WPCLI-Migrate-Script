@@ -14,12 +14,19 @@ error_log( 'post.php loading' );
 class WPCLI_Migration_Post {
 
 	private $json;
+	private $debug;
 
-	public function __construct( $json ) {
+	public function __construct( $json, $user_args ) {
 
 		$this->json = $json;
 
+		$this->debug = isset ( $user_args['migrate_debug'] ) && 'true' == $user_args['migrate_debug'] ? true : false;
 
+		error_log( print_r( $user_args, true ) );
+
+		error_log( 'migrate debug ' . $this->debug );
+
+		error_log( 'invoked' );
 
 
 		$this->post_import( $json );
@@ -36,12 +43,18 @@ class WPCLI_Migration_Post {
 		 */
 		$progress = \WP_CLI\Utils\make_progress_bar( 'Migrating Posts', $count );
 
-		for ( $i = 0; $i < $count; $i++ ) {
+		$i = 0;
+		while ( $i < $count ) {
 
 			foreach ( $json as $post ) {
 
+				$i++;
+
 				// error_log( print_r( $post, true ) );
 
+				/**
+				 * Checking if our post already exists
+				 */
 				$status_check = get_posts( array(
 					'suppress_filters' => false,
 					'post_type' => $post->type,
@@ -57,7 +70,20 @@ class WPCLI_Migration_Post {
 
 				// error_log( print_r( $status_check, true ) );
 
+				/**
+				 * If our post does not exist we will create it here
+				 */
 				if ( ! isset( $status_check[0] ) || empty( $status_check[0] ) ) {
+
+					/**
+					 * Author / User stuff here
+					 */
+
+
+					/**
+					 * [$migration_check description]
+					 * @var [type]
+					 */
 					$migration_check = wp_insert_post( array(
 						'post_author' => '', // @todo still need to deal with authors
 						'post_date' => $post->date,
@@ -75,24 +101,33 @@ class WPCLI_Migration_Post {
 
 					) );
 
-					if ( false !== $migration_check ) {
-						WP_CLI::log( 'Migrated Post ID: ' . $migration_check );
-					} else {
-						WP_CLI::error( 'Failed migration of post', false ); // Setting false here not to kill the migration loop
+					if ( true == $this->debug ) {
+						if ( false !== $migration_check ) {
+							WP_CLI::log( 'Migrated Post ID: ' . $migration_check );
+						} else {
+							WP_CLI::error( 'Failed migration of post', false ); // Setting false here not to kill the migration loop
+						}
 					}
 
 
 				} else {
-					// error_log( 'Post ' . $status_check[0] . ' already exists' );
+					/**
+					 * Post Updating will happen here
+					 */
+					if ( true == $this->debug ) {
+						error_log( 'Post ' . $status_check[0] . ' already exists' );
+					}
 				}
 
 
 
-
+				$progress->tick();
 
 			}
 
-			$progress->tick();
+
+
+
 
 		}
 
