@@ -1,37 +1,50 @@
 <?php
 /**
- * Place holder file for now
+ * WPCLI_Migration_Post: Handles the basic WordPress to WordPress import process
+ *
+ * @package wpcli-migration-script
  */
 
-error_log( 'post.php loading' );
-
 /**
- * undocumented class
+ * WPCLI_Migration_Post: Handles the basic WordPress to WordPress import process
  *
  * @package wpcli-migration-script
  * @author Dan Beil
  **/
 class WPCLI_Migration_Post {
 
+	/**
+	 * Placeholder property for incoming
+	 *
+	 * @var string
+	 */
 	private $json;
+
+	/**
+	 * Placeholder propert for debug parameter
+	 *
+	 * @var string
+	 */
 	private $debug;
 
+	/**
+	 * Class Construct
+	 *
+	 * @param string $json      JSON string of incoming data.
+	 * @param array  $user_args  array of $user_args as provided by WP CLI.
+	 */
 	public function __construct( $json, $user_args ) {
-
 		$this->json = $json;
-
-		$this->debug = isset ( $user_args['migrate_debug'] ) && 'true' == $user_args['migrate_debug'] ? true : false;
-
-		// error_log( print_r( $user_args, true ) );
-
-		// error_log( 'migrate debug ' . $this->debug );
-
-		// error_log( 'invoked' );
-
-
+		$this->debug = isset( $user_args['migrate_debug'] ) && 'true' === $user_args['migrate_debug'] ? true : false;
 		$this->post_import( $json );
 	}
 
+	/**
+	 * [post_import description]
+	 *
+	 * @param  [type] $json [description]
+	 * @return [type]       [description]
+	 */
 	private function post_import( $json ) {
 
 		$count = count( $json );
@@ -51,7 +64,6 @@ class WPCLI_Migration_Post {
 				$i++;
 
 				// error_log( print_r( $post, true ) );
-
 				/**
 				 * Checking if our post already exists
 				 */
@@ -69,7 +81,6 @@ class WPCLI_Migration_Post {
 				) );
 
 				// error_log( print_r( $status_check, true ) );
-
 				/**
 				 * If our post does not exist we will create it here
 				 */
@@ -78,7 +89,6 @@ class WPCLI_Migration_Post {
 					/**
 					 * Author / User stuff here
 					 */
-
 
 					/**
 					 * Initial import is happening here
@@ -109,7 +119,6 @@ class WPCLI_Migration_Post {
 							WP_CLI::error( 'Failed migration of post', false ); // Setting false here not to kill the migration loop
 						}
 					}
-
 				} else {
 					/**
 					 * Post Updating happens here
@@ -125,7 +134,6 @@ class WPCLI_Migration_Post {
 					$local_post_check['post_title'] = $local_post->post_title;
 
 					// error_log( 'local post: ' . print_r( $local_post_check, true ) );
-
 					$remote_post = array();
 
 					// $remote_post['ID'] = $status_check[0]; // Faking that the remote post has the same ID as the local post
@@ -143,14 +151,12 @@ class WPCLI_Migration_Post {
 					// $remote_post['ping_status'] = $post->ping_status;
 					// $remote_post['post_name'] = $post->slug;
 					// $remote_post['post_modified_gmt'] = $post->date_gmt;
-
 					// error_log( 'remote post: ' . print_r( $post, true ) );
-
 					$diff = array_diff( (array) $local_post_check, $remote_post );
 
-
-
-
+					/**
+					 * The remote post has changed, we will update it here
+					 */
 					if ( ! empty( $diff ) ) {
 
 						error_log( 'Diff: ' . print_r( $diff, true ) );
@@ -180,22 +186,12 @@ class WPCLI_Migration_Post {
 						if ( false !== $migration_check ) {
 							WP_CLI::log( 'Post ' . $post->title->rendered . ' with ID ' . $status_check[0] . ' has been updated' );
 						}
-
 					}
-
-
 				}
-
-
 
 				$progress->tick();
 
 			}
-
-
-
-
-
 		}
 
 		$progress->finish();
