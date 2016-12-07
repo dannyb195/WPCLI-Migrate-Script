@@ -144,13 +144,25 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			// Turning json into array.
 			$json = json_decode( $json );
 
-			error_log( 'JSON ' . print_r( $json, true ) );
+			// error_log( 'JSON ' . print_r( $json, true ) );
 
 			/**
 			 * Checking we have valid JSON
 			 */
 			if ( empty( $json ) ) {
 				WP_CLI::error( 'Invalid JSON string' );
+			}
+
+			/**
+			 * Dealing with WordPress to WordPress Migration
+			 */
+			if ( isset( $user_args['wp2wp'] ) && true == $user_args['wp2wp'] ) {
+
+				error_log( 'we are dealing with local wordpress JSON file to import to wordpress' );
+
+				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts
+				new WPCLI_Migration_Post( $json, $user_args );
+
 			}
 
 			/**
@@ -167,7 +179,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 *
 			 */
 
-			error_log( 'local file: ' . print_r( $json, true ) );
+			// error_log( 'local file: ' . print_r( $json, true ) );
 
 			/**
 			 * End where custom code would be written
