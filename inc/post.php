@@ -90,11 +90,35 @@ class WPCLI_Migration_Post {
 					 * Author / User stuff here
 					 */
 
+					$author = wp_remote_get( $post->_links->author[0]->href );
+					$author = json_decode( $author['body'] );
+
+					$user = get_user_by( 'slug', $author->slug );
+
+					if ( false === $user ) {
+						error_log( 'user does not exist we should create them' );
+						$new_user = wp_create_user( $author->name, wp_generate_password( $length=12, $include_standard_special_chars=false ) );
+
+						if ( ! is_wp_error( $new_user ) ) {
+							wp_update_user( array(
+								$new_user,
+								'display_name' => $user->name,
+							) );
+						}
+
+
+					} else {
+						error_log( 'user already exists' );
+					}
+					error_log( print_r( $author, true ) );
+
+					// error_log( print_r( $post, true ) );
+
 					/**
 					 * Initial import is happening here
 					 */
 					$migration_check = wp_insert_post( array(
-						'post_author' => $post->author, // @todo still need to deal with authors
+						'post_author' => $new_user, // @todo still need to deal with authors
 						'post_date' => $post->date,
 						'post_date_gmt' => $post->date_gmt,
 						'post_content' => $post->content->rendered,
