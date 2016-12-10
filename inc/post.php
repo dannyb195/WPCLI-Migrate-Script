@@ -90,27 +90,59 @@ class WPCLI_Migration_Post {
 					 * Author / User stuff here
 					 */
 
+					// error_log( 'before' );
 					$author = wp_remote_get( $post->_links->author[0]->href );
 					$author = json_decode( $author['body'] );
+					// error_log( 'after' );
 
 					$user = get_user_by( 'slug', $author->slug );
 
 					if ( false === $user ) {
-						error_log( 'user does not exist we should create them' );
-						$new_user = wp_create_user( $author->name, wp_generate_password( $length=12, $include_standard_special_chars=false ) );
+						// error_log( 'user does not exist we should create them' );
 
-						if ( ! is_wp_error( $new_user ) ) {
-							wp_update_user( array(
-								$new_user,
-								'display_name' => $user->name,
-							) );
+						$new_user = wp_insert_user( array(
+							'user_login' => $author->name,
+							'user_name' => $author->name,
+							'user_pass' => wp_generate_password( 12, false ),
+						) );
+
+						// $new_user = wp_update_user( $author->name, wp_generate_password( 12, false ) );
+
+
+						// if ( ! is_wp_error( $new_user ) ) {
+						// 	if ( true === $user && property_exists( $user, 'name' ) ) {
+						// 		wp_update_user( array(
+						// 			$new_user,
+						// 			'display_name' => $user->name,
+						// 		) );
+						// 	}
+						// }
+
+
+						// $new_user = 1;
+
+						if ( is_wp_error( $new_user ) ) {
+							// error_log( 'we have an error' );
+							continue;
 						}
 
 
 					} else {
-						error_log( 'user already exists' );
+						// error_log( 'user already exists' );
+
+						// error_log( print_r( $user, true ) );
+						//
+						$new_user = $user->data->ID;
+
+						wp_update_user( array(
+							$new_user,
+							'display_name' => $user->name,
+						) );
+
+
+
 					}
-					error_log( print_r( $author, true ) );
+					// error_log( print_r( $author, true ) );
 
 					// error_log( print_r( $post, true ) );
 

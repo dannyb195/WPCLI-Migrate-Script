@@ -18,8 +18,14 @@
  * wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10
  * wp migrate --json_file=<path to local file>
  *
+ * Standar WordPress to Wordpress command:
+ * wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10 --wp2wp=true
+ *
  * Posts:
  * sample JSON data: https://demo.wp-api.org/wp-json/wp/v2/posts
+ *
+ * Demo Posts:
+ * https://demo.wp-api.org/wp-json/wp/v2/posts
  *
  * Users:
  * https://demo.wp-api.org/wp-json/wp/v2/users/<user ID>
@@ -227,6 +233,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 			if ( false === $json ) {
 				WP_CLI::error( 'Invalid JSON string' );
+			} else {
+				WP_CLI::success( 'Valid JSON' );
 			}
 
 			/**
@@ -239,6 +247,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts
 				new WPCLI_Migration_Post( $json, $user_args );
 
+			} else {
+				WP_CLI::warning( '--wp2wp is not ste to true' );
 			}
 
 			/**
