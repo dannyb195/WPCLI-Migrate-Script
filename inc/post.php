@@ -90,20 +90,10 @@ class WPCLI_Migration_Post {
 					/**
 					 * Author / User stuff here
 					 */
-
-					// error_log( 'before' );
 					$author = wp_remote_get( $import_post->_links->author[0]->href );
 					$author = json_decode( $author['body'] );
-					// error_log( 'after' );
 
 					$user = get_user_by( 'slug', $author->slug );
-
-					/**
-					 * If user already exists skipping and continuing
-					 */
-					// if ( $user ) ) {
-						// continue;
-					// }
 
 					// if ( false === $post ) {
 					// 	error_log( 'this is a false post' );
