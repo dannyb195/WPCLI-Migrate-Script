@@ -106,32 +106,16 @@ class WPCLI_Migration_Post {
 							'user_pass' => wp_generate_password( 12, false ),
 						) );
 
-						// $new_user = wp_update_user( $author->name, wp_generate_password( 12, false ) );
-
-
-						// if ( ! is_wp_error( $new_user ) ) {
-						// 	if ( true === $user && property_exists( $user, 'name' ) ) {
-						// 		wp_update_user( array(
-						// 			$new_user,
-						// 			'display_name' => $user->name,
-						// 		) );
-						// 	}
-						// }
-
-
-						// $new_user = 1;
-
+						/**
+						 * If user already exists skipping and continuing
+						 */
 						if ( is_wp_error( $new_user ) ) {
-							// error_log( 'we have an error' );
 							continue;
 						}
 
 
 					} else {
-						// error_log( 'user already exists' );
 
-						// error_log( print_r( $user, true ) );
-						//
 						$new_user = $user->data->ID;
 
 						wp_update_user( array(
