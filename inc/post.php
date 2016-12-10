@@ -57,9 +57,10 @@ class WPCLI_Migration_Post {
 		$progress = \WP_CLI\Utils\make_progress_bar( 'Migrating Posts', $count );
 
 		$i = 0;
+
 		while ( $i < $count ) {
 
-			foreach ( $json as $post ) {
+			foreach ( $json as $import_post ) {
 
 				$i++;
 
@@ -69,13 +70,13 @@ class WPCLI_Migration_Post {
 				 */
 				$status_check = get_posts( array(
 					'suppress_filters' => false,
-					'post_type' => $post->type,
+					'post_type' => $import_post->type,
 					'fields' => 'ids',
 					'posts_per_page' => 1,
 					'meta_query' => array(
 						array(
 							'key' => 'content_origin',
-							'value' => $post->_links->self[0]->href,
+							'value' => $import_post->_links->self[0]->href,
 						),
 					),
 				) );
@@ -91,14 +92,33 @@ class WPCLI_Migration_Post {
 					 */
 
 					// error_log( 'before' );
-					$author = wp_remote_get( $post->_links->author[0]->href );
+					$author = wp_remote_get( $import_post->_links->author[0]->href );
 					$author = json_decode( $author['body'] );
 					// error_log( 'after' );
 
 					$user = get_user_by( 'slug', $author->slug );
 
+					/**
+					 * If user already exists skipping and continuing
+					 */
+					// if ( $user ) ) {
+						// continue;
+					// }
+
+					// if ( false === $post ) {
+					// 	error_log( 'this is a false post' );
+					// }
+					//
+
+
+					// error_log( 'author ' .  print_r( $author, true ) );
+
+
+
+
 					if ( false === $user ) {
-						// error_log( 'user does not exist we should create them' );
+
+						error_log( 'user does not exist we should create them' );
 
 						$new_user = wp_insert_user( array(
 							'user_login' => $author->name,
@@ -106,11 +126,12 @@ class WPCLI_Migration_Post {
 							'user_pass' => wp_generate_password( 12, false ),
 						) );
 
-						/**
-						 * If user already exists skipping and continuing
-						 */
-						if ( is_wp_error( $new_user ) ) {
-							continue;
+						if ( $new_user instanceof WP_Error ) {
+							// error_log( 'we have an error' );
+							// error_log( $import_post->_links->author[0]->href );
+							// error_log( print_r( $import_post, true ) );
+
+							// continue;
 						}
 
 
@@ -135,20 +156,20 @@ class WPCLI_Migration_Post {
 					 */
 					$migration_check = wp_insert_post( array(
 						'post_author' => $new_user, // @todo still need to deal with authors
-						'post_date' => $post->date,
-						'post_date_gmt' => $post->date_gmt,
-						'post_content' => $post->content->rendered,
-						'post_title' => $post->title->rendered,
-						'post_excerpt' => $post->excerpt->rendered,
-						'post_type' => $post->type,
+						'post_date' => $import_post->date,
+						'post_date_gmt' => $import_post->date_gmt,
+						'post_content' => $import_post->content->rendered,
+						'post_title' => ! empty( $import_post->title->rendered ) ? $import_post->title->rendered : 'no title',
+						'post_excerpt' => $import_post->excerpt->rendered,
+						'post_type' => $import_post->type,
 						'post_name' => '',
-						'post_modified' => $post->modified,
+						'post_modified' => $import_post->modified,
 						'post_modified_gmt' => '',
 						'post_status' => 'publish',
 						'comment_status' => 'closed',
 						'ping_status' => 'open',
 						'meta_input' => array(
-							'content_origin' => $post->_links->self[0]->href,
+							'content_origin' => $import_post->_links->self[0]->href,
 						),
 					) );
 
@@ -179,8 +200,8 @@ class WPCLI_Migration_Post {
 					// $remote_post['ID'] = $status_check[0]; // Faking that the remote post has the same ID as the local post
 					// $remote_post['post_date'] = $post->date;
 					// $remote_post['post_date_gmt'] = $post->date_gmt;
-					$remote_post['post_content'] = $post->content->rendered;
-					$remote_post['post_title'] = $post->title->rendered;
+					$remote_post['post_content'] = $import_post->content->rendered;
+					$remote_post['post_title'] = $import_post->title->rendered;
 					// $remote_post['post_excerpt'] = $post->excerpt->rendered;
 					// $remote_post['post_type'] = $post->type;
 					// $remote_post['post_name'] = '';
@@ -209,22 +230,22 @@ class WPCLI_Migration_Post {
 						$migration_check = wp_insert_post( array(
 							'ID' => $status_check[0], // This is the existing post ID
 							'post_author' => '', // @todo still need to deal with authors
-							'post_date' => $post->date,
-							'post_date_gmt' => $post->date_gmt,
-							'post_content' => $post->content->rendered,
-							'post_title' => $post->title->rendered,
-							'post_excerpt' => $post->excerpt->rendered,
-							'post_type' => $post->type,
+							'post_date' => $import_post->date,
+							'post_date_gmt' => $import_post->date_gmt,
+							'post_content' => $import_post->content->rendered,
+							'post_title' => $import_post->title->rendered,
+							'post_excerpt' => $import_post->excerpt->rendered,
+							'post_type' => $import_post->type,
 							'post_name' => '',
-							'post_modified' => $post->modified,
+							'post_modified' => $import_post->modified,
 							'post_status' => 'publish',
 							'meta_input' => array(
-								'content_origin' => $post->_links->self[0]->href,
+								'content_origin' => $import_post->_links->self[0]->href,
 							),
 						) );
 
 						if ( false !== $migration_check ) {
-							WP_CLI::log( 'Post ' . $post->title->rendered . ' with ID ' . $status_check[0] . ' has been updated' );
+							WP_CLI::log( 'Post ' . $import_post->title->rendered . ' with ID ' . $status_check[0] . ' has been updated' );
 						}
 					}
 				}
