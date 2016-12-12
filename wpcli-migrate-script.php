@@ -61,6 +61,13 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	public $user_args_values;
 
 	/**
+	 * Placeholder propert for debug parameter
+	 *
+	 * @var string
+	 */
+	private $debug;
+
+	/**
 	 * Our construct
 	 */
 	public function __construct() {
@@ -75,6 +82,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 		// error_log( print_r( $this->user_args_values, true ) );
 
+
+
 	}
 
 	/**
@@ -85,12 +94,19 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	 */
 	public function __invoke( $args, $user_args ) {
 
+		$this->debug = isset( $user_args['migrate_debug'] ) && 'true' === $user_args['migrate_debug'] ? true : false;
+
 		/**
 		 * Acceptible user_args as define in the construct:
 		 * --json_file=<file location>
 		 * --json_url=<url>
+		 * --wp2wp=true
+		 * --migrate_debug=true
+		 * --offset=<integer>
 		 */
-		WP_CLI::success( 'user_args' . print_r( $user_args, true ) );
+		if ( true == $this->debug ) {
+			WP_CLI::success( 'user_args' . print_r( $user_args, true ) );
+		}
 
 		/**
 		 * Making sure the user input arguments
@@ -113,7 +129,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				}
 
 				/**
-				 * @todo  Make sure we have a valid file or URL to hit here
+				 * @todo  Make sure we have a valid file or URL to hit here probably via $headers reponse
 				 */
 
 			}
@@ -124,7 +140,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			$this->import( $user_args );
 
 		} else {
-			WP_CLI::error( 'Either --json_file=<file> or --json_url=<url> must be defined' );
+			if ( true == $this->debug ) {
+				WP_CLI::error( 'Either --json_file=<file> or --json_url=<url> must be defined' );
+			}
 		}
 
 		// WP_CLI::success( 'Hello World' );
@@ -143,7 +161,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * We are dealing with a local JSON file
 			 */
 
-			error_log( 'we have a json file, ready to move forward and write custom code below' );
+			if ( true == $this->debug ) {
+				WP_CLI::log( 'we have a json file, ready to move forward and write custom code below' );
+			}
 
 			/**
 			 * Start where custom code would need to be written.
@@ -170,7 +190,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 */
 			if ( isset( $user_args['wp2wp'] ) && true == $user_args['wp2wp'] ) {
 
-				error_log( 'we are dealing with local wordpress JSON file to import to wordpress' );
+				if ( true == $this->debug ) {
+					WP_CLI::log( 'we are dealing with local wordpress JSON file to import to wordpress' );
+				}
 
 				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts
 				new WPCLI_Migration_Post( $json, $user_args );
@@ -202,7 +224,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * We are dealing with an external URL request which should return only JSON
 			 */
 
-			error_log( 'we have a json url, need to parse (probably)' );
+			if ( true == $this->debug ) {
+				WP_CLI::log( 'we have a json url' );
+			}
 
 			/**
 			 * Making sure we have a valid URL to hit
@@ -248,7 +272,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				new WPCLI_Migration_Post( $json, $user_args );
 
 			} else {
-				WP_CLI::warning( '--wp2wp is not ste to true' );
+				WP_CLI::warning( '--wp2wp is not set to true' );
 			}
 
 			/**
@@ -278,10 +302,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 		$headers = get_headers( $url );
 
-		if ( isset ( $user_args['migrate_debug'] ) && 'true' == $user_args['migrate_debug'] ) {
-			error_log( 'headers ' . print_r( $headers, true ) );
+		if ( true == $this->debug ) {
+			WP_CLI::log( 'headers ' . print_r( $headers, true ) );
 		}
-
 
 		if ( strpos( $headers[0], '200') || strpos( $headers[0], '301') || strpos( $headers[0], '302') ) {
 			return true;
@@ -290,7 +313,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			$response = wp_remote_get( $url );
 			$response = json_decode( $response['body'] );
 
-			WP_CLI::error( 'Bad Request: ' . print_r( $response) );
+			WP_CLI::error( 'Bad Request: ' . print_r( $response ) );
 
 		} else {
 			WP_CLI::error( 'Invalide URL: ' . sanitize_text_field( $url ) );

@@ -108,7 +108,9 @@ class WPCLI_Migration_Post {
 
 					if ( false === $user ) {
 
-						error_log( 'user does not exist we should create them' );
+						if ( true == $this->debug ) {
+							error_log( 'user does not exist we should create them' );
+						}
 
 						$new_user = wp_insert_user( array(
 							'user_login' => $author->name,
