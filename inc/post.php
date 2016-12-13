@@ -143,6 +143,19 @@ class WPCLI_Migration_Post {
 
 					// error_log( print_r( $post, true ) );
 
+					preg_match_all( '#(?:<img .* src=")(https?.*.jpg|jpeg|png|gif)(?:")#', $import_post->content->rendered, $matches );
+
+					if ( true == $this->debug && ! empty( $matches ) ) {
+						WP_CLI::log( 'images: ' . print_r( $matches, true ) );
+					} else {
+						WP_CLI::log( 'no images found in content' );
+					}
+
+					if ( ! empty( $matches[1] ) ) {
+						require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
+						new WPCLI_Migration_Attachment( $matches[1] );
+					}
+
 					/**
 					 * Initial import is happening here
 					 */
