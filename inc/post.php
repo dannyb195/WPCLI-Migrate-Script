@@ -49,7 +49,7 @@ class WPCLI_Migration_Post {
 
 		$count = count( $json );
 
-		error_log( 'importing ' . $count . ' posts' );
+		WP_CLI::log( 'importing ' . $count . ' posts' );
 
 		/**
 		 * https://wp-cli.org/docs/internal-api/wp-cli-utils-make-progress-bar/
@@ -95,17 +95,6 @@ class WPCLI_Migration_Post {
 
 					$user = get_user_by( 'slug', $author->slug );
 
-					// if ( false === $post ) {
-					// 	error_log( 'this is a false post' );
-					// }
-					//
-
-
-					// error_log( 'author ' .  print_r( $author, true ) );
-
-
-
-
 					if ( false === $user ) {
 
 						if ( true == $this->debug ) {
@@ -122,22 +111,15 @@ class WPCLI_Migration_Post {
 							// error_log( 'we have an error' );
 							// error_log( $import_post->_links->author[0]->href );
 							// error_log( print_r( $import_post, true ) );
-
 							// continue;
 						}
-
-
 					} else {
-
 						$new_user = $user->data->ID;
 
 						wp_update_user( array(
 							$new_user,
 							'display_name' => $user->name,
 						) );
-
-
-
 					}
 					// error_log( print_r( $author, true ) );
 
@@ -145,15 +127,13 @@ class WPCLI_Migration_Post {
 
 					preg_match_all( '#(?:<img .* src=")(https?.*.jpg|jpeg|png|gif)(?:")#', $import_post->content->rendered, $matches );
 
-					if ( true == $this->debug && ! empty( $matches ) ) {
-						WP_CLI::log( 'images: ' . print_r( $matches, true ) );
-					} else {
+					if ( true == $this->debug && empty( $matches ) ) {
 						WP_CLI::log( 'no images found in content' );
 					}
 
 					if ( ! empty( $matches[1] ) ) {
 						require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
-						new WPCLI_Migration_Attachment( $matches[1] );
+						new WPCLI_Migration_Attachment( $matches[1], $this->debug );
 					}
 
 					/**
@@ -218,6 +198,11 @@ class WPCLI_Migration_Post {
 					// $remote_post['post_name'] = $post->slug;
 					// $remote_post['post_modified_gmt'] = $post->date_gmt;
 					// error_log( 'remote post: ' . print_r( $post, true ) );
+
+
+					/**
+					 * Checking the difference between our local and remote post content
+					 */
 					$diff = array_diff( (array) $local_post_check, $remote_post );
 
 					/**
