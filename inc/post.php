@@ -93,12 +93,12 @@ class WPCLI_Migration_Post {
 					$author = wp_remote_get( $import_post->_links->author[0]->href );
 					$author = json_decode( $author['body'] );
 
-					$user = get_user_by( 'slug', $author->slug );
+					$user = get_user_by( 'login', $author->name );
 
 					if ( false === $user ) {
 
 						if ( true == $this->debug ) {
-							error_log( 'user does not exist we should create them' );
+							WP_CLI::log( 'user ' . $author->name . ' does not exist we should create them' );
 						}
 
 						$new_user = wp_insert_user( array(
@@ -107,12 +107,22 @@ class WPCLI_Migration_Post {
 							'user_pass' => wp_generate_password( 12, false ),
 						) );
 
-						if ( $new_user instanceof WP_Error ) {
-							// error_log( 'we have an error' );
-							// error_log( $import_post->_links->author[0]->href );
-							// error_log( print_r( $import_post, true ) );
-							// continue;
+						/**
+						 *
+						 */
+						if ( is_object( $new_user ) ) {
+							WP_CLI::log( 'User already exists: ' . print_r( $new_user, true ) );
+							continue;
 						}
+
+						/**
+						 *
+						 */
+						if ( true == $this->debug ) {
+							WP_CLI::log( print_r( $new_user, true ) . 'created' );
+						}
+
+
 					} else {
 						$new_user = $user->data->ID;
 
