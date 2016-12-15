@@ -175,10 +175,17 @@ class WPCLI_Migration_Post {
 
 					$local_post = get_post( $status_check[0] );
 
+					/**
+					 * Setting out local post information
+					 * @var array
+					 */
 					$local_post_check = array();
 					$local_post_check['post_content'] = $local_post->post_content;
 					$local_post_check['post_title'] = $local_post->post_title;
 
+					/**
+					 * Setting our remote post information
+					 */
 					// error_log( 'local post: ' . print_r( $local_post_check, true ) );
 					$remote_post = array();
 
@@ -211,6 +218,12 @@ class WPCLI_Migration_Post {
 					if ( ! empty( $diff ) ) {
 
 						error_log( 'Diff: ' . print_r( $diff, true ) );
+
+						preg_match_all( '#(?:<img .* src=")(https?.*.jpg|jpeg|png|gif)(?:")#', $import_post->content->rendered, $matches );
+						if ( ! empty( $matches[1] ) ) {
+							require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
+							new WPCLI_Migration_Attachment( $matches[1], $this->debug );
+						}
 
 						/**
 						 * Updating posts if they already exist
