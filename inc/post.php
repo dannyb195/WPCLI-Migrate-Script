@@ -135,7 +135,7 @@ class WPCLI_Migration_Post {
 
 					// error_log( print_r( $post, true ) );
 
-					preg_match_all( '#(?:<img .* src=")(https?.*.jpg|jpeg|png|gif)(?:")#', $import_post->content->rendered, $matches );
+					preg_match_all( '#(?:<img.*src=")(https?.*.jpg|jpeg|png|gif)(?:")#', $import_post->content->rendered, $matches );
 
 					if ( true == $this->debug && empty( $matches ) ) {
 						WP_CLI::log( 'no images found in content' );
