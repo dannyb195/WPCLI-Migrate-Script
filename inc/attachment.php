@@ -147,6 +147,13 @@ class WPCLI_Migration_Attachment {
 				}
 
 				if ( ! empty( $this->post_content ) ) {
+
+					error_log( 'media file: ' . print_r( $media_file, true ) );
+
+					error_log( 'img url: ' . print_r( $img_url, true ) );
+
+
+
 					$this->post_content = preg_replace( '#' . $media_file . '#', $img_url, $this->post_content );
 
 					// $this->post_content = 'working';
