@@ -19,6 +19,11 @@ class WPCLI_Migration_Attachment {
 	 */
 	private $media;
 
+
+
+
+	private $post_content;
+
 	/**
 	 * Placeholder propert for debug parameter
 	 *
@@ -31,8 +36,9 @@ class WPCLI_Migration_Attachment {
 	 * @param array $media array of media URLs
 	 * @param boolean $debug true|false based on the wpcli request argument of --migrate_debug=<true|false>
 	 */
-	public function __construct( $media, $debug ) {
+	public function __construct( $media, $post_content, $debug ) {
 		$this->media = $media;
+		$this->post_content = $post_content;
 		$this->debug = $debug;
 
 		if ( true == $this->debug && ! empty( $media ) ) {
@@ -42,10 +48,10 @@ class WPCLI_Migration_Attachment {
 		/**
 		 *
 		 */
-		$this->upload( $this->media );
+		$this->upload( $this->media, $this->post_content );
 	}
 
-	private function upload( $media ) {
+	public function upload( $media ) {
 
 		// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url
 		$uploaddir = wp_upload_dir();
@@ -124,15 +130,43 @@ class WPCLI_Migration_Attachment {
 				$attach_data = wp_generate_attachment_metadata( $attach_id, $fullsizepath );
 				wp_update_attachment_metadata( $attach_id, $attach_data );
 
+				$img_url = wp_get_attachment_url( $imagenew->ID );
+
+				if ( true == $this->debug ) {
+
+					WP_CLI::log( 'source URL: ' . $media_file );
+
+					WP_CLI::log( 'We have a new image: ' . print_r( $imagenew, true ) );
+
+					// $img_url = wp_get_attachment_url( $imagenew->ID );
+
+					WP_CLI::log( 'image full url: ' . print_r( $img_url, true ) );
+				}
+
+				// if ( ! empty( $post_content ) ) {
+				// 	$post_content = preg_replace( '#' . $media_file . '#', $img_url, $post_content );
+				// } else {
+				// 	continue;
+				// }
+
+
+
+
+
 
 			} // End else.
+
+			// return $post_content;
 
 		} // End foreach media_file
 
 
 
-
+		return $this->post_content;
 
 	} // End method upload
+
+
+
 
 } // END class
