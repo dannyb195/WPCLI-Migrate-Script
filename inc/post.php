@@ -151,7 +151,9 @@ class WPCLI_Migration_Post {
 
 						$post_content = new WPCLI_Migration_Attachment( $matches[1], $import_post->content->rendered, $this->debug );
 
-						// WP_CLI::log( 'new content: ' . print_r( $post_content, true ) );
+						if ( true == $this->debug ) {
+							WP_CLI::log( 'new content: ' . print_r( $post_content, true ) );
+						}
 
 
 					}
@@ -163,7 +165,7 @@ class WPCLI_Migration_Post {
 						'post_author' => $new_user, // @todo still need to deal with authors
 						'post_date' => $import_post->date,
 						'post_date_gmt' => $import_post->date_gmt,
-						'post_content' => isset( $post_content->post_content ) ? $post_content->content : $import_post->content->rendered,
+						'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,
 						'post_title' => ! empty( $import_post->title->rendered ) ? $import_post->title->rendered : 'no title',
 						'post_excerpt' => $import_post->excerpt->rendered,
 						'post_type' => $import_post->type,

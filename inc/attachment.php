@@ -22,7 +22,7 @@ class WPCLI_Migration_Attachment {
 
 
 
-	private $post_content;
+	public $post_content;
 
 	/**
 	 * Placeholder propert for debug parameter
@@ -141,13 +141,22 @@ class WPCLI_Migration_Attachment {
 					// $img_url = wp_get_attachment_url( $imagenew->ID );
 
 					WP_CLI::log( 'image full url: ' . print_r( $img_url, true ) );
+
+					// WP_CLI::log( 'post content: ' . print_r( $this->post_content, true ) );
+
 				}
 
-				// if ( ! empty( $post_content ) ) {
-				// 	$post_content = preg_replace( '#' . $media_file . '#', $img_url, $post_content );
-				// } else {
-				// 	continue;
-				// }
+				if ( ! empty( $this->post_content ) ) {
+					$this->post_content = preg_replace( '#' . $media_file . '#', $img_url, $this->post_content );
+
+					// $this->post_content = 'working';
+
+
+					// WP_CLI::log( 'new content: ' . print_r( $this->post_content ) );
+
+				} else {
+					continue;
+				}
 
 
 
