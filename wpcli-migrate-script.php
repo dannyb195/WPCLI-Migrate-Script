@@ -115,7 +115,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 */
 			foreach ( $user_args as $user_arg => $value ) {
 				if ( ! in_array( $user_arg, $this->user_args_values ) ) {
-					WP_CLI::error( 'Invalid argument -> ' . sanitize_text_field( $user_arg ) . "\nValid arguments are:\n" . print_r( $this->user_args_values, true ) );
+					WP_CLI::error( 'Invalid argument -> ' . sanitize_text_field( $user_arg ) . "\nValid arguments are:\n" . print_r( $this->user_args_values, true ) . 'Please feel free suggest additional functionality at https://github.com/dannyb195/WPCLI-Migrate-Script' );
 				}
 
 				/**

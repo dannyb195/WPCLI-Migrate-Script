@@ -73,7 +73,7 @@ class WPCLI_Migration_Attachment {
 		foreach ( $media as $media_file ) {
 
 			if ( true == $this->debug ) {
-				WP_CLI::log( 'Attachment meta value to check: ' . $sub_dir . '/' . basename( $media_file ) );
+				WP_CLI::log( 'Attachment meta value to check if it already exists: ' . $sub_dir . '/' . basename( $media_file ) );
 			}
 
 

@@ -64,7 +64,7 @@ class WPCLI_Migration_Post {
 
 				$i++;
 
-				// error_log( print_r( $post, true ) );
+				error_log( 'import post: ' . print_r( $import_post, true ) );
 				/**
 				 * Checking if our post already exists
 				 */
@@ -137,7 +137,7 @@ class WPCLI_Migration_Post {
 
 					// preg_match_all( '#(?:<img.*src=")(https?.*.jpg|jpeg|png|gif)(?:")#', $import_post->content->rendered, $matches );
 
-					preg_match_all( '#(?:img.*src=")(.*?)(?:")#', $import_post->content->rendered, $matches );
+					preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
 
 					if ( true == $this->debug && empty( $matches ) ) {
@@ -244,10 +244,14 @@ class WPCLI_Migration_Post {
 
 						error_log( 'Diff: ' . print_r( $diff, true ) );
 
-						preg_match_all( '#(?:<img .* src=")(https?.*.jpg|jpeg|png|gif)(?:")#', $import_post->content->rendered, $matches );
+						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
+
 						if ( ! empty( $matches[1] ) ) {
 							require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
-							new WPCLI_Migration_Attachment( $matches[1], $this->debug );
+							// new WPCLI_Migration_Attachment( $matches[1], $this->debug );
+
+							$post_content = new WPCLI_Migration_Attachment( $matches[1], $import_post->content->rendered, $this->debug );
+
 						}
 
 						/**
@@ -260,7 +264,7 @@ class WPCLI_Migration_Post {
 							'post_author' => '', // @todo still need to deal with authors
 							'post_date' => $import_post->date,
 							'post_date_gmt' => $import_post->date_gmt,
-							'post_content' => $import_post->content->rendered,
+							'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,
 							'post_title' => $import_post->title->rendered,
 							'post_excerpt' => $import_post->excerpt->rendered,
 							'post_type' => $import_post->type,
