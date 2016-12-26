@@ -40,10 +40,11 @@ class WPCLI_Migration_Post {
 	}
 
 	/**
-	 * [post_import description]
+	 * This method accounts for the general post import process.
+	 * It also checks for in-content images as well as a featured image and
+	 * triggers the image migrate class
 	 *
-	 * @param  [type] $json [description]
-	 * @return [type]       [description]
+	 * @param  string $json As provided by the WP JSON API /posts endpoint
 	 */
 	private function post_import( $json ) {
 
@@ -77,8 +78,10 @@ class WPCLI_Migration_Post {
 
 					error_log( $import_post->_links->{'wp:featuredmedia'}[0]->href );
 
-					// $upload_featured_img = new WPCLI_Migration_Attachment;
 
+					/**
+					 * Using a static method here as I do not need the entire WPCLI_Migration_Attachment class
+					 */
 					$featured_image_id = WPCLI_Migration_Attachment::upload_featured_image( $import_post->_links->{'wp:featuredmedia'}[0]->href );
 				}
 
