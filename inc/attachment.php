@@ -189,6 +189,8 @@ class WPCLI_Migration_Attachment {
 	} // End method upload
 
 
-
+	public static function upload_featured_image( $img_url ) {
+		error_log( 'upload featuered image is firing' );
+	}
 
 } // END class

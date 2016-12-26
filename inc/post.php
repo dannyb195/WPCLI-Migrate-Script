@@ -62,6 +62,26 @@ class WPCLI_Migration_Post {
 
 			foreach ( $json as $import_post ) {
 
+				error_log( 'post: ' . print_r( $import_post, true ) );
+
+				error_log( 'post featured media: ' .  print_r( $import_post->_links->{'wp:featuredmedia'} ) );
+
+				/**
+				 * Checking if we have a feautured image set
+				 */
+				if ( isset( $import_post->_links->{'wp:featuredmedia'}[0] ) && isset( $import_post->_links->{'wp:featuredmedia'}[0]->href ) ) {
+
+					require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
+
+
+
+					error_log( $import_post->_links->{'wp:featuredmedia'}[0]->href );
+
+					// $upload_featured_img = new WPCLI_Migration_Attachment;
+
+					$featured_image_id = WPCLI_Migration_Attachment::upload_featured_image( $import_post->_links->{'wp:featuredmedia'}[0]->href );
+				}
+
 				$i++;
 
 				// error_log( 'import post: ' . print_r( $import_post, true ) );
