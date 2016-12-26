@@ -36,7 +36,7 @@ class WPCLI_Migration_Attachment {
 	 * @param array $media array of media URLs
 	 * @param boolean $debug true|false based on the wpcli request argument of --migrate_debug=<true|false>
 	 */
-	public function __construct( $media, $post_content, $debug ) {
+	public function __construct( $media = '', $post_content = '', $debug = '' ) {
 		$this->media = $media;
 		$this->post_content = $post_content;
 		$this->debug = $debug;
@@ -49,6 +49,46 @@ class WPCLI_Migration_Attachment {
 		 *
 		 */
 		$this->upload( $this->media, $this->post_content );
+	}
+
+
+	/**
+	 * Checking if a local file with the same name as a remote file has already be imported
+	 *
+	 * @param  string $media_file URL of remote image to check against
+	 * @param  string $sub_dir    Current sub directory of local WordPress media uploads
+	 * @return integer            Media Post ID if found, else false
+	 */
+	private function media_file_check( $media_file, $sub_dir = '' ) {
+
+		if ( empty( $sub_dir ) ) {
+			// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url
+			$uploaddir = wp_upload_dir();
+			$sub_dir = preg_replace( '#(^/)#' , '', $uploaddir['subdir'] );
+		}
+
+
+		$media_check = get_posts( array(
+			'suppress_filters' => false,
+			'post_type' => 'attachment',
+			'posts_per_page' => 1,
+			'fields' => 'ids',
+			'meta_query' => array(
+				array(
+					'key' => '_wp_attached_file',
+					'value' => $sub_dir . '/' . basename( $media_file ),
+				)
+			),
+		) );
+
+		if ( true == $this->debug && ! empty( $media_check[0] ) ) {
+
+			WP_CLI::log( 'media file already exists with id: ' . print_r( $media_check, true ) );
+
+		}
+
+		return $media_check;
+
 	}
 
 	public function upload( $media ) {
@@ -69,6 +109,13 @@ class WPCLI_Migration_Attachment {
 			WP_CLI::log( 'sub_dir: ' . $sub_dir );
 		}
 
+		/**
+		 * Making sure we have in-content images else bailing here
+		 * this situation arises when uploaded featured images
+		 */
+		if ( empty( $media ) ) {
+			return;
+		}
 
 		foreach ( $media as $media_file ) {
 
@@ -76,29 +123,7 @@ class WPCLI_Migration_Attachment {
 				WP_CLI::log( 'Attachment meta value to check if it already exists: ' . $sub_dir . '/' . basename( $media_file ) );
 			}
 
-
-			/**
-			 * Checking if our media file already exists
-			 * @var [type]
-			 */
-			$media_file_check = get_posts( array(
-				'suppress_filters' => false,
-				'post_type' => 'attachment',
-				'posts_per_page' => 1,
-				'fields' => 'ids',
-				'meta_query' => array(
-					array(
-						'key' => '_wp_attached_file',
-						'value' => $sub_dir . '/' . basename( $media_file ),
-					)
-				),
-			) );
-
-			if ( true == $this->debug && ! empty( $media_file_check[0] ) ) {
-
-				WP_CLI::log( 'media file already exists with id: ' . print_r( $media_file_check, true ) );
-
-			}
+			$media_file_check = $this->media_file_check( $media_file, $sub_dir );
 
 			/**
 			 * Actually importing our images if they do not current exist
@@ -123,10 +148,10 @@ class WPCLI_Migration_Attachment {
 				$wp_filetype = wp_check_filetype(basename( $media_file ), null );
 
 				$attachment = array(
-				    'post_mime_type' => $wp_filetype['type'],
-				    'post_title' => basename( $media_file ),
-				    'post_content' => '',
-				    'post_status' => 'inherit'
+					'post_mime_type' => $wp_filetype['type'],
+					'post_title' => basename( $media_file ),
+					'post_content' => '',
+					'post_status' => 'inherit',
 				);
 
 				$attach_id = wp_insert_attachment( $attachment, $uploadfile );
@@ -189,8 +214,48 @@ class WPCLI_Migration_Attachment {
 	} // End method upload
 
 
-	public static function upload_featured_image( $img_url ) {
-		error_log( 'upload featuered image is firing' );
+	public function upload_featured_image( $img_json_url ) {
+
+		error_log( 'upload featuered image is firing for: ' . $img_json_url );
+
+		$img_url = wp_remote_get( $img_json_url );
+		$img_url = json_decode( $img_url['body'] );
+		$img_url = $img_url->source_url;
+
+		// error_log( 'img json: ' . print_r( $img_url->source_url, true ) );
+
+		$media_file_check = $this->media_file_check( $img_url );
+
+		if ( empty( $media_file_check ) ) {
+			// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url
+			$uploaddir = wp_upload_dir();
+
+			$uploadfile = $uploaddir['path'] . '/' . basename( $img_url );
+
+			$contents= file_get_contents( $img_url );
+			$savefile = fopen( $uploadfile, 'w' );
+			fwrite( $savefile, $contents );
+			fclose( $savefile );
+
+			$wp_filetype = wp_check_filetype(basename( $img_url ), null );
+
+			$attachment = array(
+				'post_mime_type' => $wp_filetype['type'],
+				'post_title' => basename( $img_url ),
+				'post_content' => '',
+				'post_status' => 'inherit',
+			);
+
+			$attach_id = wp_insert_attachment( $attachment, $uploadfile );
+
+			$imagenew = get_post( $attach_id );
+			$fullsizepath = get_attached_file( $imagenew->ID );
+			$attach_data = wp_generate_attachment_metadata( $attach_id, $fullsizepath );
+			wp_update_attachment_metadata( $attach_id, $attach_data );
+
+			return $attach_id;
+		}
+
 	}
 
 } // END class

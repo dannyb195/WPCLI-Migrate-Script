@@ -33,7 +33,7 @@ class WPCLI_Migration_Post {
 	 * @param string $json      JSON string of incoming data.
 	 * @param array  $user_args  array of $user_args as provided by WP CLI.
 	 */
-	public function __construct( $json, $user_args ) {
+	public function __construct( $json = '', $user_args = '' ) {
 		$this->json = $json;
 		$this->debug = isset( $user_args['migrate_debug'] ) && 'true' === $user_args['migrate_debug'] ? true : false;
 		$this->post_import( $json );
@@ -63,26 +63,23 @@ class WPCLI_Migration_Post {
 
 			foreach ( $json as $import_post ) {
 
-				error_log( 'post: ' . print_r( $import_post, true ) );
+				// error_log( 'post: ' . print_r( $import_post, true ) );
 
-				error_log( 'post featured media: ' .  print_r( $import_post->_links->{'wp:featuredmedia'} ) );
+				// error_log( 'post featured media: ' .  print_r( $import_post->_links->{'wp:featuredmedia'} ) );
 
 				/**
-				 * Checking if we have a feautured image set
+				 * Checking if we have a feautured image set on from the remote endpoint
 				 */
 				if ( isset( $import_post->_links->{'wp:featuredmedia'}[0] ) && isset( $import_post->_links->{'wp:featuredmedia'}[0]->href ) ) {
 
 					require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
 
-
-
 					error_log( $import_post->_links->{'wp:featuredmedia'}[0]->href );
 
+					$upload_featured_image = new WPCLI_Migration_Attachment;
+					$featured_image_id = $upload_featured_image->upload_featured_image( $import_post->_links->{'wp:featuredmedia'}[0]->href );
 
-					/**
-					 * Using a static method here as I do not need the entire WPCLI_Migration_Attachment class
-					 */
-					$featured_image_id = WPCLI_Migration_Attachment::upload_featured_image( $import_post->_links->{'wp:featuredmedia'}[0]->href );
+					error_log( 'featured_image_id: ' . $featured_image_id );
 				}
 
 				$i++;
@@ -154,11 +151,6 @@ class WPCLI_Migration_Post {
 							'display_name' => $user->name,
 						) );
 					}
-					// error_log( print_r( $author, true ) );
-
-					// error_log( print_r( $post, true ) );
-
-					// preg_match_all( '#(?:<img.*src=")(https?.*.jpg|jpeg|png|gif)(?:")#', $import_post->content->rendered, $matches );
 
 					preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
@@ -203,6 +195,7 @@ class WPCLI_Migration_Post {
 						'ping_status' => 'open',
 						'meta_input' => array(
 							'content_origin' => $import_post->_links->self[0]->href,
+							'_thumbnail_id' => ! empty( $featured_image_id ) ? intval( $featured_image_id ) : '',
 						),
 					) );
 
@@ -265,7 +258,7 @@ class WPCLI_Migration_Post {
 					 */
 					if ( ! empty( $diff ) ) {
 
-						error_log( 'Diff: ' . print_r( $diff, true ) );
+						// error_log( 'Diff: ' . print_r( $diff, true ) );
 
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
