@@ -93,11 +93,17 @@ class WPCLI_Migration_Attachment {
 					)
 				),
 			) );
+
 			if ( true == $this->debug && ! empty( $media_file_check[0] ) ) {
 
 				WP_CLI::log( 'media file already exists with id: ' . print_r( $media_file_check, true ) );
 
-			} else {
+			}
+
+			/**
+			 * Actually importing our images if they do not current exist
+			 */
+			if ( empty( $media_file_check ) ) {
 				/**
 				 * If our media file does not exist we create / import it here
 				 */
@@ -148,9 +154,9 @@ class WPCLI_Migration_Attachment {
 
 				if ( ! empty( $this->post_content ) ) {
 
-					error_log( 'media file: ' . print_r( $media_file, true ) );
+					// error_log( 'media file: ' . print_r( $media_file, true ) );
 
-					error_log( 'img url: ' . print_r( $img_url, true ) );
+					// error_log( 'img url: ' . print_r( $img_url, true ) );
 
 
 
@@ -170,7 +176,7 @@ class WPCLI_Migration_Attachment {
 
 
 
-			} // End else.
+			} // End if we are uploading the image.
 
 			// return $post_content;
 

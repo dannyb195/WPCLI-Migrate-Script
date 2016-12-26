@@ -273,23 +273,6 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			}
 
 			/**
-			 * Do custom stuff to import data here
-			 *
-			 *
-			 *
-			 *
-			 *
-			 *
-			 *
-			 *
-			 *
-			 *
-			 *
-			 */
-
-			// error_log( print_r( $json, true ) );
-
-			/**
 			 * End where custom code would be written
 			 */
 		}

@@ -64,7 +64,7 @@ class WPCLI_Migration_Post {
 
 				$i++;
 
-				error_log( 'import post: ' . print_r( $import_post, true ) );
+				// error_log( 'import post: ' . print_r( $import_post, true ) );
 				/**
 				 * Checking if our post already exists
 				 */
