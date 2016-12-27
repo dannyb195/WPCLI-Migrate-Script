@@ -26,6 +26,6 @@ https://demo.wp-api.org/wp-json/wp/v2/posts
 https://demo.wp-api.org/wp-json/wp/v2/users/<user ID>
 
 ###WordPress to WordPress Import with debugging:###
-wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=100 --wp2wp=true --migrate_debug=true
+`wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=100 --wp2wp=true --migrate_debug=true`
 Note that the WP JSON API defaults to a limit of 100 objects accessed to account for this
 you may also use the --offset parameter to get more content
