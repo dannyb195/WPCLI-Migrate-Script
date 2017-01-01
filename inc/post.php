@@ -63,6 +63,8 @@ class WPCLI_Migration_Post {
 
 			foreach ( $json as $import_post ) {
 
+				$i++;
+
 				if ( true == $this->debug ) {
 					error_log( 'post: ' . print_r( $import_post, true ) );
 				}
@@ -93,6 +95,21 @@ class WPCLI_Migration_Post {
 					error_log( 'featured_image_id: ' . $featured_image_id );
 				}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 				/**
 				 * Debug info for Terms
 				 */
@@ -107,12 +124,32 @@ class WPCLI_Migration_Post {
 				/**
 				 * Checking and assigning Terms
 				 */
-				if ( isset( $import_post->_links->{'wp:term'}[0] && isset( $import_post->_links->{'wp:term'}[0]->href ) ) ) {
-					//Assign terms here via inc/terms.php
+				if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) ) {
+
+					require_once( __DIR__ . '/../inc/terms.php' );
+
+					new WPCLI_Migration_Terms( $import_post->id, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
+
 				}
 
 
-				$i++;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 				/**
 				 * Checking if our post already exists
