@@ -63,9 +63,21 @@ class WPCLI_Migration_Post {
 
 			foreach ( $json as $import_post ) {
 
-				// error_log( 'post: ' . print_r( $import_post, true ) );
+				if ( true == $this->debug ) {
+					error_log( 'post: ' . print_r( $import_post, true ) );
+				}
 
-				// error_log( 'post featured media: ' .  print_r( $import_post->_links->{'wp:featuredmedia'} ) );
+				if ( true == $this->debug ) {
+					if ( isset( $import_post->_links->{'wp:featuredmedia'} ) ) {
+						WP_CLI::log( WP_CLI::colorize( '%Gpost featured media%n: ' .  print_r( $import_post->_links->{'wp:featuredmedia'}, true ) ) );
+					} else {
+						// WP_CLI::colorize( "%Rno featured image%n" );
+						WP_CLI::log( WP_CLI::colorize( '%RNo featured image%n' ) );
+					}
+
+				}
+
+
 
 				/**
 				 * Checking if we have a feautured image set on from the remote endpoint

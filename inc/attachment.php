@@ -41,10 +41,6 @@ class WPCLI_Migration_Attachment {
 		$this->post_content = $post_content;
 		$this->debug = $debug;
 
-		if ( true == $this->debug && ! empty( $media ) ) {
-			WP_CLI::log( print_r( $this->media, true ) );
-		}
-
 		/**
 		 *
 		 */
@@ -186,11 +182,6 @@ class WPCLI_Migration_Attachment {
 
 
 					$this->post_content = preg_replace( '#' . $media_file . '#', $img_url, $this->post_content );
-
-					// $this->post_content = 'working';
-
-
-					// WP_CLI::log( 'new content: ' . print_r( $this->post_content ) );
 
 				} else {
 					continue;
