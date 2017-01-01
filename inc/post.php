@@ -183,13 +183,19 @@ class WPCLI_Migration_Post {
 						) );
 					}
 
+					/**
+					 * Checking for in-content images
+					 * @var Rendered post_content
+					 */
 					preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
-
 
 					if ( true == $this->debug && empty( $matches ) ) {
 						WP_CLI::log( 'no images found in content' );
 					}
 
+					/**
+					 * We have in-content images, migrating them here
+					 */
 					if ( ! empty( $matches[1] ) ) {
 						require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
 
@@ -197,13 +203,20 @@ class WPCLI_Migration_Post {
 							WP_CLI::log( 'These image URLs need to be updated. ' . print_r( $matches[1], true ) );
 						}
 
-
+						/**
+						 * Sending the array of in-content images to our Attachment Mirgation class
+						 *
+						 * $post_content is returned to allow for updating of asset URLs and is used below as seen in
+						 * wp_insert_post
+						 */
 						$post_content = new WPCLI_Migration_Attachment( $matches[1], $import_post->content->rendered, $this->debug );
 
+						/**
+						 * Debugging info which should include local URLs for in-content assets
+						 */
 						if ( true == $this->debug ) {
 							WP_CLI::log( 'new content: ' . print_r( $post_content, true ) );
 						}
-
 
 					}
 
