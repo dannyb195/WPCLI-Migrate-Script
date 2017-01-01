@@ -67,17 +67,16 @@ class WPCLI_Migration_Post {
 					error_log( 'post: ' . print_r( $import_post, true ) );
 				}
 
+				/**
+				 * Debug info for feataured image
+				 */
 				if ( true == $this->debug ) {
 					if ( isset( $import_post->_links->{'wp:featuredmedia'} ) ) {
 						WP_CLI::log( WP_CLI::colorize( '%Gpost featured media%n: ' .  print_r( $import_post->_links->{'wp:featuredmedia'}, true ) ) );
 					} else {
-						// WP_CLI::colorize( "%Rno featured image%n" );
 						WP_CLI::log( WP_CLI::colorize( '%RNo featured image%n' ) );
 					}
-
 				}
-
-
 
 				/**
 				 * Checking if we have a feautured image set on from the remote endpoint
@@ -94,9 +93,27 @@ class WPCLI_Migration_Post {
 					error_log( 'featured_image_id: ' . $featured_image_id );
 				}
 
+				/**
+				 * Debug info for Terms
+				 */
+				if ( true == $this->debug ) {
+					if ( isset( $import_post->_links->{'wp:term'}[0] ) ) {
+						WP_CLI::log( WP_CLI::colorize( '%GTerms%n: ' .  print_r( $import_post->_links->{'wp:term'}[0], true ) ) );
+					} else {
+						WP_CLI::log( WP_CLI::colorize( '%RNo Terms found%n' ) );
+					}
+				}
+
+				/**
+				 * Checking and assigning Terms
+				 */
+				if ( isset( $import_post->_links->{'wp:term'}[0] && isset( $import_post->_links->{'wp:term'}[0]->href ) ) ) {
+					//Assign terms here via inc/terms.php
+				}
+
+
 				$i++;
 
-				// error_log( 'import post: ' . print_r( $import_post, true ) );
 				/**
 				 * Checking if our post already exists
 				 */
@@ -121,6 +138,8 @@ class WPCLI_Migration_Post {
 
 					/**
 					 * Author / User stuff here
+					 *
+					 * @todo  move this to inc/author.php because I  should have put it there in the first place
 					 */
 					$author = wp_remote_get( $import_post->_links->author[0]->href );
 					$author = json_decode( $author['body'] );
