@@ -268,6 +268,13 @@ class WPCLI_Migration_Post {
 						}
 					}
 
+					/**
+					 * Checking and assigning Terms
+					 */
+					if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) && ! empty( $migration_check ) ) {
+						WPCLI_Migration_Helper::initiate_terms( $migration_check, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
+					}
+
 				} else {
 					/**
 					 * Post Updating happens here
@@ -373,12 +380,8 @@ class WPCLI_Migration_Post {
 					/**
 					 * Checking and assigning Terms
 					 */
-					if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) ) {
-
-						require_once( __DIR__ . '/../inc/terms.php' );
-
-						new WPCLI_Migration_Terms( $migration_check, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
-
+					if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) && ! empty( $migration_check ) ) {
+						WPCLI_Migration_Helper::initiate_terms( $migration_check, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
 					}
 
 

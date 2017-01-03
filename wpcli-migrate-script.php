@@ -79,7 +79,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 		// error_log( print_r( $this->user_args_values, true ) );
 
-
+		require_once( __DIR__ .'/inc/helper.php' );
 
 	}
 

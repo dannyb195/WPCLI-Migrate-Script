@@ -126,7 +126,7 @@ class WPCLI_Migration_Terms {
 
 		$test = wp_set_object_terms( $post_id, $term->id, $term->taxonomy, true );
 
-		error_log( 'find me ' . print_r( $test, true ) );
+		// error_log( 'find me ' . print_r( $test, true ) );
 
 	}
 
