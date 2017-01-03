@@ -110,27 +110,7 @@ class WPCLI_Migration_Post {
 
 
 
-				/**
-				 * Debug info for Terms
-				 */
-				if ( true == $this->debug ) {
-					if ( isset( $import_post->_links->{'wp:term'}[0] ) ) {
-						WP_CLI::log( WP_CLI::colorize( '%GTerms%n: ' .  print_r( $import_post->_links->{'wp:term'}[0], true ) ) );
-					} else {
-						WP_CLI::log( WP_CLI::colorize( '%RNo Terms found%n' ) );
-					}
-				}
 
-				/**
-				 * Checking and assigning Terms
-				 */
-				if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) ) {
-
-					require_once( __DIR__ . '/../inc/terms.php' );
-
-					new WPCLI_Migration_Terms( $import_post->id, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
-
-				}
 
 
 
@@ -287,6 +267,7 @@ class WPCLI_Migration_Post {
 							WP_CLI::error( 'Failed migration of post', false ); // Setting false here not to kill the migration loop
 						}
 					}
+
 				} else {
 					/**
 					 * Post Updating happens here
@@ -377,7 +358,33 @@ class WPCLI_Migration_Post {
 							WP_CLI::log( 'Post ' . $import_post->title->rendered . ' with ID ' . $status_check[0] . ' has been updated' );
 						}
 					}
-				}
+
+					/**
+					 * Debug info for Terms
+					 */
+					if ( true == $this->debug ) {
+						if ( isset( $import_post->_links->{'wp:term'}[0] ) ) {
+							WP_CLI::log( WP_CLI::colorize( '%GTerms%n: ' .  print_r( $import_post->_links->{'wp:term'}[0], true ) ) );
+						} else {
+							WP_CLI::log( WP_CLI::colorize( '%RNo Terms found%n' ) );
+						}
+					}
+
+					/**
+					 * Checking and assigning Terms
+					 */
+					if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) ) {
+
+						require_once( __DIR__ . '/../inc/terms.php' );
+
+						new WPCLI_Migration_Terms( $migration_check, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
+
+					}
+
+
+
+
+				} // End else ( i.e. we are updating a post )
 
 				$progress->tick();
 

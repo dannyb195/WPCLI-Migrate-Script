@@ -37,11 +37,11 @@ class WPCLI_Migration_Terms {
 			WP_CLI::warning( 'Bad request for post terms' );
 		}
 
-		// if ( true == $this->debug ) {
-			// error_log( 'post id: ' . $this->post_id );
+		if ( true == $this->debug ) {
+			error_log( 'post id: ' . $this->post_id );
 
 			// error_log( 'terms:' . print_r( $this->terms, true ) );
-		// }
+		}
 
 		// Checking if the term already exists here
 		$this->terms_check( $this->terms );
@@ -62,7 +62,7 @@ class WPCLI_Migration_Terms {
 
 			$term_check = term_exists( $term->slug, $term->taxonomy );
 
-			error_log( 'term check: ' . print_r( $term_check, true ) );
+			// error_log( 'term check: ' . print_r( $term_check, true ) );
 
 
 
@@ -78,6 +78,9 @@ class WPCLI_Migration_Terms {
 					if ( true == $this->debug ) {
 						WP_CLI::log( 'term already exists' );
 					}
+
+					$this->add_term_to_post( $this->post_id, $term );
+
 				}
 
 		} // End foreach
@@ -98,7 +101,13 @@ class WPCLI_Migration_Terms {
 			error_log( 'term_create: ' . print_r( $term, true ) );
 		}
 
-		wp_insert_term( $term->name, $term->taxonomy );
+		$success_check = wp_insert_term( $term->name, $term->taxonomy );
+
+		if ( is_array( $success_check ) ) {
+
+			$this->add_term_to_post( $this->post_id, $term );
+		}
+
 	}
 
 	/**
@@ -106,9 +115,19 @@ class WPCLI_Migration_Terms {
 	 * @param [type] $post_id [description]
 	 * @param [type] $terms   [description]
 	 */
-	private function add_term_to_post( $post_id, $terms ) {
+	private function add_term_to_post( $post_id, $term ) {
 
 		// add term to post here
+
+		if ( true == $this->debug ) {
+			error_log( 'add term to post here: ' . print_r( $term, true ) );
+			error_log( 'post ID from terms file: ' . $post_id );
+		}
+
+		$test = wp_set_object_terms( $post_id, $term->id, $term->taxonomy, true );
+
+		error_log( 'find me ' . print_r( $test, true ) );
+
 	}
 
 } // END class
