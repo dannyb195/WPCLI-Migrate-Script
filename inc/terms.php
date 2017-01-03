@@ -37,24 +37,75 @@ class WPCLI_Migration_Terms {
 			WP_CLI::warning( 'Bad request for post terms' );
 		}
 
-		if ( true == $this->debug ) {
-			error_log( 'post id: ' . $this->post_id );
+		// if ( true == $this->debug ) {
+			// error_log( 'post id: ' . $this->post_id );
 
-			error_log( 'terms:' . print_r( $this->terms, true ) );
-		}
+			// error_log( 'terms:' . print_r( $this->terms, true ) );
+		// }
 
 		// Checking if the term already exists here
-		$this->terms_create( $this->terms );
+		$this->terms_check( $this->terms );
 
 		// We already know we have terms, it is safe to move forward
-		$this->add_term_to_post( $this->post_id, $this->terms );
+		// $this->add_term_to_post( $this->post_id, $this->terms );
 
 	}
 
-	private function terms_create( $terms ) {
+	/**
+	 * [terms_check description]
+	 * @param  [type] $terms [description]
+	 * @return [type]        [description]
+	 */
+	private function terms_check( $terms ) {
 
+		foreach ( $terms as $term ) {
+
+			$term_check = term_exists( $term->slug, $term->taxonomy );
+
+			error_log( 'term check: ' . print_r( $term_check, true ) );
+
+
+
+
+				if ( empty( $term_check ) ) {
+					if ( true == $this->debug ) {
+						WP_CLI::log( 'we should create this term' );
+					}
+
+					$this->term_create( $term );
+
+				} else {
+					if ( true == $this->debug ) {
+						WP_CLI::log( 'term already exists' );
+					}
+				}
+
+		} // End foreach
+
+	} // End terms_check
+
+	/**
+	 * [term_create description]
+	 * @param  [type] $term [description]
+	 * @return [type]       [description]
+	 */
+	private function term_create( $term ) {
+
+		/**
+		 * Debug info for single terms
+		 */
+		if ( true == $this->debug ) {
+			error_log( 'term_create: ' . print_r( $term, true ) );
+		}
+
+		wp_insert_term( $term->name, $term->taxonomy );
 	}
 
+	/**
+	 * [add_term_to_post description]
+	 * @param [type] $post_id [description]
+	 * @param [type] $terms   [description]
+	 */
 	private function add_term_to_post( $post_id, $terms ) {
 
 		// add term to post here
