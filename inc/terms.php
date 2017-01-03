@@ -29,14 +29,13 @@ class WPCLI_Migration_Terms {
 
 		$this->terms = wp_remote_get( $terms_url );
 
+		$this->debug = $debug;
+
 		if ( ! is_wp_error( $this->terms ) ) {
 			$this->terms = json_decode( $this->terms['body'] );
 		} else {
 			WP_CLI::warning( 'Bad request for post terms' );
 		}
-
-
-		$this->debug = $debug;
 
 		if ( true == $this->debug ) {
 			error_log( 'post id: ' . $this->post_id );
@@ -44,6 +43,21 @@ class WPCLI_Migration_Terms {
 			error_log( 'terms:' . print_r( $this->terms, true ) );
 		}
 
+		// Checking if the term already exists here
+		$this->terms_create( $this->terms );
+
+		// We already know we have terms, it is safe to move forward
+		$this->add_term_to_post( $this->post_id, $this->terms );
+
+	}
+
+	private function terms_create( $terms ) {
+
+	}
+
+	private function add_term_to_post( $post_id, $terms ) {
+
+		// add term to post here
 	}
 
 } // END class
