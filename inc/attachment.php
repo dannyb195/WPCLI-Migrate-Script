@@ -207,7 +207,10 @@ class WPCLI_Migration_Attachment {
 
 	public function upload_featured_image( $img_json_url ) {
 
-		error_log( 'upload featuered image is firing for: ' . $img_json_url );
+		if ( true == $this->debug ) {
+
+			error_log( 'upload featuered image is firing for: ' . $img_json_url );
+		}
 
 		$img_url = wp_remote_get( $img_json_url );
 		$img_url = json_decode( $img_url['body'] );

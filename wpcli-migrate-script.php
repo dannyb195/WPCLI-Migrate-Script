@@ -64,6 +64,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	 */
 	private $debug;
 
+	private $skip_images;
+
 	/**
 	 * Our construct
 	 */
@@ -74,10 +76,13 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			'json_url', // A JSON URL endpoint
 			'wp2wp', // A WordPress to Wordpress migration
 			'migrate_debug', // Used for outputting terminal logs
-			'offset',
+			'skip_images', // Set to 'true' to skip importing images
+			'offset', // offset as expected by WP_Query
 		);
 
-		// error_log( print_r( $this->user_args_values, true ) );
+		error_log( print_r( $this->user_args_values, true ) );
+
+		// die();
 
 		require_once( __DIR__ .'/inc/helper.php' );
 
@@ -99,11 +104,14 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		 * --json_url=<url>
 		 * --wp2wp=true
 		 * --migrate_debug=true
+		 * --skip_images=true
 		 * --offset=<integer>
 		 */
 		if ( true == $this->debug ) {
 			WP_CLI::success( 'user_args' . print_r( $user_args, true ) );
 		}
+
+		// die();
 
 		/**
 		 * Making sure the user input arguments
@@ -141,6 +149,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				WP_CLI::error( 'Either --json_file=<file> or --json_url=<url> must be defined' );
 			}
 		}
+
+		// die();
 
 		// WP_CLI::success( 'Hello World' );
 	}
@@ -256,6 +266,14 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				WP_CLI::error( 'Invalid JSON string' );
 			} else {
 				WP_CLI::success( 'Valid JSON' );
+			}
+
+			if ( isset( $user_args['skip_images'] ) && true == $user_args['skip_images'] ) {
+
+					WP_CLI::warning( 'Skipping Images' );
+
+			} else {
+				error_log( 'something is wrong' );
 			}
 
 			/**

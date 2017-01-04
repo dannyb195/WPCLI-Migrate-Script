@@ -28,15 +28,28 @@ class WPCLI_Migration_Post {
 	private $debug;
 
 	/**
+	 * [$skip_images description]
+	 * @var [type]
+	 */
+	private $skip_images;
+
+	/**
 	 * Class Construct
 	 *
 	 * @param string $json      JSON string of incoming data.
 	 * @param array  $user_args  array of $user_args as provided by WP CLI.
 	 */
 	public function __construct( $json = '', $user_args = '' ) {
+
+		// error_log( 'user_args: ' . print_r( $user_args, true ) );
 		$this->json = $json;
 		$this->debug = isset( $user_args['migrate_debug'] ) && 'true' === $user_args['migrate_debug'] ? true : false;
+		$this->skip_images = isset( $user_args['skip_images'] ) && 'true' === $user_args['skip_images'] ? true : false;
 		$this->post_import( $json );
+
+		// error_log( print_r( $this, true ) );
+
+		// die();
 	}
 
 	/**
@@ -87,12 +100,16 @@ class WPCLI_Migration_Post {
 
 					require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
 
-					error_log( $import_post->_links->{'wp:featuredmedia'}[0]->href );
+					if ( true == $this->debug ) {
+						error_log( $import_post->_links->{'wp:featuredmedia'}[0]->href );
+					}
 
 					$upload_featured_image = new WPCLI_Migration_Attachment;
 					$featured_image_id = $upload_featured_image->upload_featured_image( $import_post->_links->{'wp:featuredmedia'}[0]->href );
 
-					error_log( 'featured_image_id: ' . $featured_image_id );
+					if ( true == $this->debug ) {
+						error_log( 'featured_image_id: ' . $featured_image_id );
+					}
 				}
 
 
@@ -200,39 +217,43 @@ class WPCLI_Migration_Post {
 						) );
 					}
 
-					/**
-					 * Checking for in-content images
-					 * @var Rendered post_content
-					 */
-					preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
+					if ( true !== $this->skip_images ) {
 
-					if ( true == $this->debug && empty( $matches ) ) {
-						WP_CLI::log( 'no images found in content' );
-					}
+						/**
+						 * Checking for in-content images
+						 * @var Rendered post_content
+						 */
+						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
-					/**
-					 * We have in-content images, migrating them here
-					 */
-					if ( ! empty( $matches[1] ) ) {
-						require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
-
-						if ( true == $this->debug ) {
-							WP_CLI::log( 'These image URLs need to be updated. ' . print_r( $matches[1], true ) );
+						if ( true == $this->debug && empty( $matches ) ) {
+							WP_CLI::log( 'no images found in content' );
 						}
 
 						/**
-						 * Sending the array of in-content images to our Attachment Mirgation class
-						 *
-						 * $post_content is returned to allow for updating of asset URLs and is used below as seen in
-						 * wp_insert_post
+						 * We have in-content images, migrating them here
 						 */
-						$post_content = new WPCLI_Migration_Attachment( $matches[1], $import_post->content->rendered, $this->debug );
+						if ( ! empty( $matches[1] ) ) {
+							require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
 
-						/**
-						 * Debugging info which should include local URLs for in-content assets
-						 */
-						if ( true == $this->debug ) {
-							WP_CLI::log( 'new content: ' . print_r( $post_content, true ) );
+							if ( true == $this->debug ) {
+								WP_CLI::log( 'These image URLs need to be updated. ' . print_r( $matches[1], true ) );
+							}
+
+							/**
+							 * Sending the array of in-content images to our Attachment Mirgation class
+							 *
+							 * $post_content is returned to allow for updating of asset URLs and is used below as seen in
+							 * wp_insert_post
+							 */
+							$post_content = new WPCLI_Migration_Attachment( $matches[1], $import_post->content->rendered, $this->debug );
+
+							/**
+							 * Debugging info which should include local URLs for in-content assets
+							 */
+							if ( true == $this->debug ) {
+								WP_CLI::log( 'new content: ' . print_r( $post_content, true ) );
+							}
+
 						}
 
 					}
