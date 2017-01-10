@@ -297,6 +297,12 @@ class WPCLI_Migration_Post {
 					}
 
 				} else {
+
+					/**
+					 * @todo  if nothing has changed for a post we should skip all this
+					 */
+
+
 					/**
 					 * Post Updating happens here
 					 */

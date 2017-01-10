@@ -57,31 +57,43 @@ class WPCLI_Migration_Attachment {
 	 */
 	private function media_file_check( $media_file, $sub_dir = '' ) {
 
-		if ( empty( $sub_dir ) ) {
-			// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url
-			$uploaddir = wp_upload_dir();
-			$sub_dir = preg_replace( '#(^/)#' , '', $uploaddir['subdir'] );
+		/**
+		 * Checking that we actually have a valid asset to retrieve
+		 */
+		$file_check = get_headers( $media_file );
+
+		if ( false === strpos( $file_check[0], '404' ) ) {
+
+			if ( empty( $sub_dir ) ) {
+				// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url
+				$uploaddir = wp_upload_dir();
+				$sub_dir = preg_replace( '#(^/)#' , '', $uploaddir['subdir'] );
+			}
+
+
+			$media_check = get_posts( array(
+				'suppress_filters' => false,
+				'post_type' => 'attachment',
+				'posts_per_page' => 1,
+				'fields' => 'ids',
+				'meta_query' => array(
+					array(
+						'key' => '_wp_attached_file',
+						'value' => $sub_dir . '/' . basename( $media_file ),
+					)
+				),
+			) );
+
+			if ( true == $this->debug && ! empty( $media_check[0] ) ) {
+
+				WP_CLI::log( 'media file already exists with id: ' . print_r( $media_check, true ) );
+
+			}
+		} else {
+			$media_check = false;
 		}
 
 
-		$media_check = get_posts( array(
-			'suppress_filters' => false,
-			'post_type' => 'attachment',
-			'posts_per_page' => 1,
-			'fields' => 'ids',
-			'meta_query' => array(
-				array(
-					'key' => '_wp_attached_file',
-					'value' => $sub_dir . '/' . basename( $media_file ),
-				)
-			),
-		) );
-
-		if ( true == $this->debug && ! empty( $media_check[0] ) ) {
-
-			WP_CLI::log( 'media file already exists with id: ' . print_r( $media_check, true ) );
-
-		}
 
 		return $media_check;
 
@@ -95,9 +107,6 @@ class WPCLI_Migration_Attachment {
 		if ( true == $this->debug ) {
 			WP_CLI::log( 'upload dir: ' . print_r( $uploaddir, true ) );
 		}
-
-
-
 
 		$sub_dir = preg_replace( '#(^/)#' , '', $uploaddir['subdir'] );
 
@@ -124,7 +133,8 @@ class WPCLI_Migration_Attachment {
 			/**
 			 * Actually importing our images if they do not current exist
 			 */
-			if ( empty( $media_file_check ) ) {
+			if ( empty( $media_file_check ) && false !== $media_file_check ) {
+
 				/**
 				 * If our media file does not exist we create / import it here
 				 */
