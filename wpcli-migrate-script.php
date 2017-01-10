@@ -265,11 +265,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			}
 
 			if ( isset( $user_args['skip_images'] ) && true == $user_args['skip_images'] ) {
-
-					WP_CLI::warning( 'Skipping Images' );
-
-			} else {
-				error_log( 'something is wrong' );
+				WP_CLI::warning( 'Skipping Images' );
 			}
 
 			/**
