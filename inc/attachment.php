@@ -39,9 +39,9 @@ class WPCLI_Migration_Attachment {
 	/**
 	 * Our construct
 	 *
-	 * @param array   $media array of media URLs
-	 * @param string  $post_content string value of post_content
-	 * @param boolean $debug true|false based on the wpcli request argument of --migrate_debug=<true|false>
+	 * @param array   $media array of media URLs.
+	 * @param string  $post_content string value of post_content.
+	 * @param boolean $debug true|false based on the wpcli request argument of --migrate_debug=<true|false>.
 	 */
 	public function __construct( $media = '', $post_content = '', $debug = '' ) {
 		$this->media = $media;
@@ -49,7 +49,7 @@ class WPCLI_Migration_Attachment {
 		$this->debug = $debug;
 
 		/**
-		 *
+		 * Firing function upload with media URLs to be replaced / uploaded and post content
 		 */
 		$this->upload( $this->media, $this->post_content );
 	}
@@ -58,9 +58,9 @@ class WPCLI_Migration_Attachment {
 	/**
 	 * Checking if a local file with the same name as a remote file has already be imported
 	 *
-	 * @param  string $media_file URL of remote image to check against
-	 * @param  string $sub_dir    Current sub directory of local WordPress media uploads
-	 * @return integer            Media Post ID if found, else false
+	 * @param  string $media_file URL of remote image to check against.
+	 * @param  string $sub_dir    Current sub directory of local WordPress media uploads.
+	 * @return integer            Media Post ID if found, else false.
 	 */
 	private function media_file_check( $media_file, $sub_dir = '' ) {
 
@@ -72,7 +72,9 @@ class WPCLI_Migration_Attachment {
 		if ( false === strpos( $file_check[0], '404' ) ) {
 
 			if ( empty( $sub_dir ) ) {
-				// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url
+				/**
+				 * Source: http://wordpress.stackexchange.com/questions/50123/image-upload-from-url
+				 */
 				$uploaddir = wp_upload_dir();
 				$sub_dir = preg_replace( '#(^/)#' , '', $uploaddir['subdir'] );
 			}
@@ -102,6 +104,9 @@ class WPCLI_Migration_Attachment {
 
 		}
 
+		/**
+		 * Returning the media attachment post ID should we have one, else false|empty per get_posts
+		 */
 		return $media_check;
 
 	}
