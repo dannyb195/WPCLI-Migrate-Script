@@ -29,6 +29,7 @@ class WPCLI_Migration_Post {
 
 	/**
 	 * [$skip_images description]
+	 *
 	 * @var [type]
 	 */
 	private $skip_images;
@@ -48,7 +49,6 @@ class WPCLI_Migration_Post {
 		$this->post_import( $json );
 
 		// error_log( print_r( $this, true ) );
-
 		// die();
 	}
 
@@ -87,7 +87,7 @@ class WPCLI_Migration_Post {
 				 */
 				if ( true == $this->debug ) {
 					if ( isset( $import_post->_links->{'wp:featuredmedia'} ) ) {
-						WP_CLI::log( WP_CLI::colorize( '%Gpost featured media%n: ' .  print_r( $import_post->_links->{'wp:featuredmedia'}, true ) ) );
+						WP_CLI::log( WP_CLI::colorize( '%Gpost featured media%n: ' . print_r( $import_post->_links->{'wp:featuredmedia'}, true ) ) );
 					} else {
 						WP_CLI::log( WP_CLI::colorize( '%RNo featured image%n' ) );
 					}
@@ -111,42 +111,6 @@ class WPCLI_Migration_Post {
 						error_log( 'featured_image_id: ' . $featured_image_id );
 					}
 				}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 				/**
 				 * Checking if our post already exists
@@ -206,8 +170,6 @@ class WPCLI_Migration_Post {
 						if ( true == $this->debug ) {
 							WP_CLI::log( print_r( $new_user, true ) . 'created' );
 						}
-
-
 					} else {
 						$new_user = $user->data->ID;
 
@@ -221,6 +183,7 @@ class WPCLI_Migration_Post {
 
 						/**
 						 * Checking for in-content images
+						 *
 						 * @var Rendered post_content
 						 */
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
@@ -253,9 +216,7 @@ class WPCLI_Migration_Post {
 							if ( true == $this->debug ) {
 								WP_CLI::log( 'new content: ' . print_r( $post_content, true ) );
 							}
-
 						}
-
 					}
 
 					/**
@@ -295,13 +256,11 @@ class WPCLI_Migration_Post {
 					if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) && ! empty( $migration_check ) ) {
 						WPCLI_Migration_Helper::initiate_terms( $migration_check, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
 					}
-
 				} else {
 
 					/**
 					 * @todo  if nothing has changed for a post we should skip all this
 					 */
-
 
 					/**
 					 * Post Updating happens here
@@ -314,6 +273,7 @@ class WPCLI_Migration_Post {
 
 					/**
 					 * Setting out local post information
+					 *
 					 * @var array
 					 */
 					$local_post_check = array();
@@ -342,8 +302,6 @@ class WPCLI_Migration_Post {
 					// $remote_post['post_name'] = $post->slug;
 					// $remote_post['post_modified_gmt'] = $post->date_gmt;
 					// error_log( 'remote post: ' . print_r( $post, true ) );
-
-
 					/**
 					 * Checking the difference between our local and remote post content
 					 */
@@ -355,13 +313,11 @@ class WPCLI_Migration_Post {
 					if ( ! empty( $diff ) ) {
 
 						// error_log( 'Diff: ' . print_r( $diff, true ) );
-
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
 						if ( ! empty( $matches[1] ) ) {
 							require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
 							// new WPCLI_Migration_Attachment( $matches[1], $this->debug );
-
 							$post_content = new WPCLI_Migration_Attachment( $matches[1], $import_post->content->rendered, $this->debug );
 
 						}
@@ -398,7 +354,7 @@ class WPCLI_Migration_Post {
 					 */
 					if ( true == $this->debug ) {
 						if ( isset( $import_post->_links->{'wp:term'}[0] ) ) {
-							WP_CLI::log( WP_CLI::colorize( '%GTerms%n: ' .  print_r( $import_post->_links->{'wp:term'}[0], true ) ) );
+							WP_CLI::log( WP_CLI::colorize( '%GTerms%n: ' . print_r( $import_post->_links->{'wp:term'}[0], true ) ) );
 						} else {
 							WP_CLI::log( WP_CLI::colorize( '%RNo Terms found%n' ) );
 						}
@@ -410,10 +366,6 @@ class WPCLI_Migration_Post {
 					if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) && ! empty( $migration_check ) ) {
 						WPCLI_Migration_Helper::initiate_terms( $migration_check, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
 					}
-
-
-
-
 				} // End else ( i.e. we are updating a post )
 
 				$progress->tick();

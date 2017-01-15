@@ -4,7 +4,6 @@
  */
 
 // error_log( 'attachments class is firing' );
-
 /**
  * undocumented class
  *
@@ -15,6 +14,7 @@ class WPCLI_Migration_Attachment {
 
 	/**
 	 * Placeholder for media URLs
+	 *
 	 * @var array
 	 */
 	private $media;
@@ -33,7 +33,8 @@ class WPCLI_Migration_Attachment {
 
 	/**
 	 * [__construct description]
-	 * @param array $media array of media URLs
+	 *
+	 * @param array   $media array of media URLs
 	 * @param boolean $debug true|false based on the wpcli request argument of --migrate_debug=<true|false>
 	 */
 	public function __construct( $media = '', $post_content = '', $debug = '' ) {
@@ -70,7 +71,6 @@ class WPCLI_Migration_Attachment {
 				$sub_dir = preg_replace( '#(^/)#' , '', $uploaddir['subdir'] );
 			}
 
-
 			$media_check = get_posts( array(
 				'suppress_filters' => false,
 				'post_type' => 'attachment',
@@ -80,7 +80,7 @@ class WPCLI_Migration_Attachment {
 					array(
 						'key' => '_wp_attached_file',
 						'value' => $sub_dir . '/' . basename( $media_file ),
-					)
+					),
 				),
 			) );
 
@@ -91,12 +91,10 @@ class WPCLI_Migration_Attachment {
 			}
 		} else {
 
-			WP_CLI::warning( 'Missing image file: ' . $media_file  );
+			WP_CLI::warning( 'Missing image file: ' . $media_file );
 			$media_check = false;
 
 		}
-
-
 
 		return $media_check;
 
@@ -148,13 +146,12 @@ class WPCLI_Migration_Attachment {
 
 				$uploadfile = $uploaddir['path'] . '/' . basename( $media_file );
 
-				$contents= file_get_contents( $media_file );
-				$savefile = fopen($uploadfile, 'w');
-				fwrite($savefile, $contents);
-				fclose($savefile);
+				$contents = file_get_contents( $media_file );
+				$savefile = fopen( $uploadfile, 'w' );
+				fwrite( $savefile, $contents );
+				fclose( $savefile );
 
-
-				$wp_filetype = wp_check_filetype(basename( $media_file ), null );
+				$wp_filetype = wp_check_filetype( basename( $media_file ), null );
 
 				$attachment = array(
 					'post_mime_type' => $wp_filetype['type'],
@@ -179,39 +176,24 @@ class WPCLI_Migration_Attachment {
 					WP_CLI::log( 'We have a new image: ' . print_r( $imagenew, true ) );
 
 					// $img_url = wp_get_attachment_url( $imagenew->ID );
-
 					WP_CLI::log( 'image full url: ' . print_r( $img_url, true ) );
 
 					// WP_CLI::log( 'post content: ' . print_r( $this->post_content, true ) );
-
 				}
 
 				if ( ! empty( $this->post_content ) ) {
 
 					// error_log( 'media file: ' . print_r( $media_file, true ) );
-
 					// error_log( 'img url: ' . print_r( $img_url, true ) );
-
-
-
 					$this->post_content = preg_replace( '#' . $media_file . '#', $img_url, $this->post_content );
 
 				} else {
 					continue;
 				}
-
-
-
-
-
-
 			} // End if we are uploading the image.
 
 			// return $post_content;
-
 		} // End foreach media_file
-
-
 
 		return $this->post_content;
 
@@ -230,7 +212,6 @@ class WPCLI_Migration_Attachment {
 		$img_url = $img_url->source_url;
 
 		// error_log( 'img json: ' . print_r( $img_url->source_url, true ) );
-
 		$media_file_check = $this->media_file_check( $img_url );
 
 		if ( empty( $media_file_check ) && false !== $media_file_check ) {
@@ -239,12 +220,12 @@ class WPCLI_Migration_Attachment {
 
 			$uploadfile = $uploaddir['path'] . '/' . basename( $img_url );
 
-			$contents= file_get_contents( $img_url );
+			$contents = file_get_contents( $img_url );
 			$savefile = fopen( $uploadfile, 'w' );
 			fwrite( $savefile, $contents );
 			fclose( $savefile );
 
-			$wp_filetype = wp_check_filetype(basename( $img_url ), null );
+			$wp_filetype = wp_check_filetype( basename( $img_url ), null );
 
 			$attachment = array(
 				'post_mime_type' => $wp_filetype['type'],
