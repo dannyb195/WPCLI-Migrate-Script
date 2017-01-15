@@ -90,7 +90,10 @@ class WPCLI_Migration_Attachment {
 
 			}
 		} else {
+
+			WP_CLI::warning( 'Missing image file: ' . $media_file  );
 			$media_check = false;
+
 		}
 
 
@@ -230,7 +233,7 @@ class WPCLI_Migration_Attachment {
 
 		$media_file_check = $this->media_file_check( $img_url );
 
-		if ( empty( $media_file_check ) ) {
+		if ( empty( $media_file_check ) && false !== $media_file_check ) {
 			// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url
 			$uploaddir = wp_upload_dir();
 
