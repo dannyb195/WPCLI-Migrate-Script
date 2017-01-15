@@ -1,11 +1,12 @@
 <?php
 /**
- * Place holder file for now
+ * Class for handling moving attachment assets
+ *
+ * @package wpcli-migration-script
  */
 
-// error_log( 'attachments class is firing' );
 /**
- * undocumented class
+ * Class for handling moving attachment assets
  *
  * @package default
  * @author
@@ -21,7 +22,11 @@ class WPCLI_Migration_Attachment {
 
 
 
-
+	/**
+	 * Placeholder for post content
+	 *
+	 * @var string
+	 */
 	public $post_content;
 
 	/**
@@ -32,9 +37,10 @@ class WPCLI_Migration_Attachment {
 	private $debug;
 
 	/**
-	 * [__construct description]
+	 * Our construct
 	 *
 	 * @param array   $media array of media URLs
+	 * @param string  $post_content string value of post_content
 	 * @param boolean $debug true|false based on the wpcli request argument of --migrate_debug=<true|false>
 	 */
 	public function __construct( $media = '', $post_content = '', $debug = '' ) {
