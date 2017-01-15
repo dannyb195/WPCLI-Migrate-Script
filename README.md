@@ -14,6 +14,7 @@ Additional platforms will require custom code / extending the currently written 
 
 ###Usage:###
 `wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10`
+
 `wp migrate --json_file=<path to local file>`
 
 ###Standar WordPress to Wordpress command:###
