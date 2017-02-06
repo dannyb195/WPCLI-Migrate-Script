@@ -134,17 +134,18 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 			}
 
-			if ( isset( $user_args['wp2wp'] ) && true == $user_args['wp2wp'] && isset( $user_args['menus'] ) && true == $user_args['menus'] ) {
-
-				require_once( 'inc/menu.php' );
-
-				new WPCLI_Migration_Menus( $user_args );
-			}
-
 			/**
 			 * We know we have only one JSON source so starting the import process
 			 */
 			$this->import( $user_args );
+
+			/**
+			 * Getting Menus after the post import
+			 */
+			if ( isset( $user_args['wp2wp'] ) && true == $user_args['wp2wp'] && isset( $user_args['menus'] ) && true == $user_args['menus'] ) {
+				require_once( 'inc/menu.php' );
+				new WPCLI_Migration_Menus( $user_args );
+			}
 
 		} else {
 			if ( true == $this->debug ) {
