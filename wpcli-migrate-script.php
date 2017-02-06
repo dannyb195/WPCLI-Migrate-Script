@@ -77,6 +77,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			'migrate_debug', // Used for outputting terminal logs
 			'skip_images', // Set to 'true' to skip importing images
 			'offset', // offset as expected by WP_Query
+			'menus', // If preset WP menus will be migrated, requires wp2wp=true
 		);
 
 		require_once( __DIR__ .'/inc/helper.php' );
@@ -97,10 +98,11 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		 * Acceptible user_args as define in the construct:
 		 * --json_file=<file location>
 		 * --json_url=<url>
-		 * --wp2wp=true
-		 * --migrate_debug=true
-		 * --skip_images=true
+		 * --wp2wp=true|false
+		 * --migrate_debug=true|false
+		 * --skip_images=true|false
 		 * --offset=<integer>
+		 * --menus=true|false
 		 */
 		if ( true == $this->debug ) {
 			WP_CLI::success( 'user_args' . print_r( $user_args, true ) );
@@ -130,6 +132,13 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				 * @todo  Make sure we have a valid file or URL to hit here probably via $headers reponse
 				 */
 
+			}
+
+			if ( isset( $user_args['wp2wp'] ) && true == $user_args['wp2wp'] && isset( $user_args['menus'] ) && true == $user_args['menus'] ) {
+
+				require_once( 'inc/menu.php' );
+
+				new WPCLI_Migration_Menus( $user_args );
 			}
 
 			/**
