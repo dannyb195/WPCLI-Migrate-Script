@@ -32,6 +32,10 @@
  * Note that the WP JSON API defaults to a limit of 100 objects accessed to account for this
  * you may also use the --offset parameter to get more content
  *
+ * Menu Migration:
+ * wp migrate --json_url=http://<site-url>/wp-json/wp/v2/posts?per_page=1 --menus --wp2wp --skip_images
+ * ** --skip_images is included here just for speed
+ *
  *
  * @package wpcli-migration-script
  * @author Dan Beil
