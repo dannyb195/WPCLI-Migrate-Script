@@ -37,7 +37,6 @@
  * @author Dan Beil
  */
 
-
 /**
  * Checking that WP CLI is installed, if not bailing here
  */
