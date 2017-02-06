@@ -56,30 +56,45 @@ class WPCLI_Migration_Menus {
 
 		// str_replace(search, replace, subject)
 
-		echo "url\n<pre>";
-		print_r($url);
-		echo "</pre>\n\n";
+		// echo "url\n<pre>";
+		// print_r($url);
+		// echo "</pre>\n\n";
 
 		$headers = get_headers( $url );
 
-		echo "headers\n<pre>";
-		print_r($headers);
-		echo "</pre>\n\n";
+		// echo "headers\n<pre>";
+		// print_r($headers);
+		// echo "</pre>\n\n";
 
 		if ( strpos( $headers[0], '200' ) > -1 ) {
 
 			WP_CLI::success( 'We have a valid menus JSON endpoint' );
 
 			$menus = wp_remote_get( esc_url( $url ) );
-			$menus = $menus['body'];
+			$menus = json_decode( $menus['body'] );
 
-			echo "menus\n<pre>";
-			print_r($menus);
-			echo "</pre>\n\n";
+			// echo "menus\n<pre>";
+			// print_r( print_r( $menus, true ) );
+			// echo "</pre>\n\n";
 		} else {
-
 			WP_CLI::error( 'Something went wrong, please ensure you have https://github.com/dannyb195/WPCLI-Migrate-Script-Source-Site installed on the remote / source site' );
 		}
+
+		/**
+		 * Looping through our menus to create them
+		 */
+		if ( ! empty( $menus ) ) {
+			foreach ( $menus as $menu ) {
+				$error_check = wp_insert_term( $menu->name, 'nav_menu', array(
+					// 'parent' => '', Placeholder for now
+					'slug' => $menu->slug,
+				) );
+
+				if ( ! is_wp_error( $error_check ) ) {
+					WP_CLI::success( 'Created menu ' . $menu->name );
+				}
+			} // End foreach
+		} // End empty check
 
 
 
