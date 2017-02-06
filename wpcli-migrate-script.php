@@ -85,9 +85,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * [__invoke description]
-	 * @param  [type] $args      [description]
-	 * @param  [type] $user_args [description]
+	 * WPCLI / JSON Migrate script ... wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10 ... more docs found in wpcli-migrate-script.php
+	 * @param  array $args      As provided by WPCLI, non-flagged arguments ( not used )
+	 * @param  array $user_args Flagged user arguments as provided by WPCLI, accpected args are listed in the __invoke method
 	 * @return [type]            [description]
 	 */
 	public function __invoke( $args, $user_args ) {
@@ -106,8 +106,6 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		if ( true == $this->debug ) {
 			WP_CLI::success( 'user_args' . print_r( $user_args, true ) );
 		}
-
-		// die();
 
 		/**
 		 * Making sure the user input arguments
@@ -146,10 +144,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			}
 		}
 
-		// die();
-
-		// WP_CLI::success( 'Hello World' );
-	}
+	} // End __invoke
 
 	/**
 	 * [import description]
