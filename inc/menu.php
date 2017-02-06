@@ -76,6 +76,9 @@ class WPCLI_Migration_Menus {
 			echo "menus\n<pre>";
 			print_r($menus);
 			echo "</pre>\n\n";
+		} else {
+
+			WP_CLI::error( 'Something went wrong, please ensure you have https://github.com/dannyb195/WPCLI-Migrate-Script-Source-Site installed on the remote / source site' );
 		}
 
 
