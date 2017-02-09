@@ -79,6 +79,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			'json_url', // A JSON URL endpoint
 			'wp2wp', // A WordPress to Wordpress migration
 			'migrate_debug', // Used for outputting terminal logs
+			/**
+			 * @todo  add a debug_lite option here to show success / warnings though not output the post object
+			 */
 			'skip_images', // Set to 'true' to skip importing images
 			'offset', // offset as expected by WP_Query
 			'menus', // If preset WP menus will be migrated, requires wp2wp=true
