@@ -48,8 +48,12 @@ class WPCLI_Migration_Post {
 		$this->skip_images = isset( $user_args['skip_images'] ) && 'true' === $user_args['skip_images'] ? true : false;
 		$this->post_import( $json );
 
-		// error_log( print_r( $this, true ) );
-		// die();
+// echo "this\n<pre>";
+// print_r($this->skip_images);
+// echo "</pre>\n\n";
+
+// die();
+
 	}
 
 	/**
@@ -91,6 +95,8 @@ class WPCLI_Migration_Post {
 					} else {
 						WP_CLI::log( WP_CLI::colorize( '%RNo featured image%n' ) );
 					}
+
+					WP_CLI::log( print_r( $import_post, true ) );
 				}
 
 				/**
@@ -139,10 +145,24 @@ class WPCLI_Migration_Post {
 					 *
 					 * @todo  move this to inc/author.php because I  should have put it there in the first place
 					 */
-					$author = wp_remote_get( $import_post->_links->author[0]->href );
-					$author = json_decode( $author['body'] );
+// echo "import_post->_links\n<pre>";
+// print_r($import_post->_links);
+// echo "</pre>\n\n";
+					if ( property_exists( $import_post->_links, 'author' ) ) {
+						$author = wp_remote_get( $import_post->_links->author[0]->href );
+					} else {
+						$author = new WP_Error();
+					}
 
-					$user = get_user_by( 'login', $author->name );
+
+					if ( ! is_wp_error( $author ) ) {
+						$author = json_decode( $author['body'] );
+						$user = get_user_by( 'login', $author->name );
+					} else {
+						$user = false;
+					}
+
+					WP_CLI::warning( '1' );
 
 					if ( false === $user ) {
 
@@ -150,11 +170,18 @@ class WPCLI_Migration_Post {
 							WP_CLI::log( 'user ' . $author->name . ' does not exist we should create them' );
 						}
 
-						$new_user = wp_insert_user( array(
-							'user_login' => $author->name,
-							'user_name' => $author->name,
-							'user_pass' => wp_generate_password( 12, false ),
-						) );
+						if ( property_exists( $author , 'name' ) ) {
+							$new_user = wp_insert_user( array(
+								'user_login' => $author->name,
+								'user_name' => $author->name,
+								'user_pass' => wp_generate_password( 12, false ),
+							) );
+						} else {
+							continue;
+						}
+
+						WP_CLI::warning( '2' );
+
 
 						/**
 						 *
@@ -164,6 +191,9 @@ class WPCLI_Migration_Post {
 							continue;
 						}
 
+						WP_CLI::warning( '3' );
+
+
 						/**
 						 *
 						 */
@@ -171,6 +201,9 @@ class WPCLI_Migration_Post {
 							WP_CLI::log( print_r( $new_user, true ) . 'created' );
 						}
 					} else {
+
+						WP_CLI::warning( '4' );
+
 						$new_user = $user->data->ID;
 
 						wp_update_user( array(
@@ -179,7 +212,14 @@ class WPCLI_Migration_Post {
 						) );
 					}
 
-					if ( true !== $this->skip_images ) {
+					WP_CLI::warning( '5' );
+
+
+					WP_CLI::warning( $this->skip_images . ' find me' );
+
+					if ( 1 !== intval( $this->skip_images ) ) {
+
+						WP_CLI::log( 'We are importing images' );
 
 						/**
 						 * Checking for in-content images
@@ -217,6 +257,8 @@ class WPCLI_Migration_Post {
 								WP_CLI::log( 'new content: ' . print_r( $post_content, true ) );
 							}
 						}
+					} else {
+						WP_CLI::warning( '6' );
 					}
 
 					/**
