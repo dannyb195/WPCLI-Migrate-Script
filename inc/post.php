@@ -147,7 +147,13 @@ class WPCLI_Migration_Post {
 
 					if ( ! is_wp_error( $author ) ) {
 						$author = json_decode( $author['body'] );
-						$user = get_user_by( 'login', $author->name );
+						if ( property_exists( $author, 'name' ) ) {
+							$user = get_user_by( 'login', $author->name );
+						} else {
+							$author->name = 'null';
+						}
+
+
 					} else {
 						$user = false;
 					}
@@ -230,8 +236,6 @@ class WPCLI_Migration_Post {
 								WP_CLI::log( 'new content: ' . print_r( $post_content, true ) );
 							}
 						}
-					} else {
-						WP_CLI::warning( '6' );
 					}
 
 					/**

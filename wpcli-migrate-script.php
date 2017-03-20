@@ -99,9 +99,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	 */
 	public function __invoke( $args, $user_args ) {
 
-echo "user_args\n<pre>";
-print_r($user_args);
-echo "</pre>\n\n";
+// echo "user_args\n<pre>";
+// print_r($user_args);
+// echo "</pre>\n\n";
 
 // die();
 
