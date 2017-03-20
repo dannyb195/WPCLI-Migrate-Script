@@ -42,17 +42,10 @@ class WPCLI_Migration_Post {
 	 */
 	public function __construct( $json = '', $user_args = '' ) {
 
-		// error_log( 'user_args: ' . print_r( $user_args, true ) );
 		$this->json = $json;
 		$this->debug = isset( $user_args['migrate_debug'] ) && 'true' === $user_args['migrate_debug'] ? true : false;
 		$this->skip_images = isset( $user_args['skip_images'] ) && 'true' === $user_args['skip_images'] ? true : false;
 		$this->post_import( $json );
-
-// echo "this\n<pre>";
-// print_r($this->skip_images);
-// echo "</pre>\n\n";
-
-// die();
 
 	}
 
@@ -134,7 +127,6 @@ class WPCLI_Migration_Post {
 					),
 				) );
 
-				// error_log( print_r( $status_check, true ) );
 				/**
 				 * If our post does not exist we will create it here
 				 */
@@ -145,9 +137,7 @@ class WPCLI_Migration_Post {
 					 *
 					 * @todo  move this to inc/author.php because I  should have put it there in the first place
 					 */
-// echo "import_post->_links\n<pre>";
-// print_r($import_post->_links);
-// echo "</pre>\n\n";
+
 					if ( property_exists( $import_post->_links, 'author' ) ) {
 						$author = wp_remote_get( $import_post->_links->author[0]->href );
 					} else {
@@ -161,8 +151,6 @@ class WPCLI_Migration_Post {
 					} else {
 						$user = false;
 					}
-
-					WP_CLI::warning( '1' );
 
 					if ( false === $user ) {
 
@@ -180,9 +168,6 @@ class WPCLI_Migration_Post {
 							continue;
 						}
 
-						WP_CLI::warning( '2' );
-
-
 						/**
 						 *
 						 */
@@ -190,9 +175,6 @@ class WPCLI_Migration_Post {
 							WP_CLI::log( 'User already exists: ' . print_r( $new_user, true ) );
 							continue;
 						}
-
-						WP_CLI::warning( '3' );
-
 
 						/**
 						 *
@@ -202,8 +184,6 @@ class WPCLI_Migration_Post {
 						}
 					} else {
 
-						WP_CLI::warning( '4' );
-
 						$new_user = $user->data->ID;
 
 						wp_update_user( array(
@@ -212,14 +192,7 @@ class WPCLI_Migration_Post {
 						) );
 					}
 
-					WP_CLI::warning( '5' );
-
-
-					WP_CLI::warning( $this->skip_images . ' find me' );
-
 					if ( 1 !== intval( $this->skip_images ) ) {
-
-						WP_CLI::log( 'We are importing images' );
 
 						/**
 						 * Checking for in-content images
