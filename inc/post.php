@@ -144,7 +144,6 @@ class WPCLI_Migration_Post {
 						$author = new WP_Error();
 					}
 
-
 					if ( ! is_wp_error( $author ) ) {
 						$author = json_decode( $author['body'] );
 						if ( property_exists( $author, 'name' ) ) {
@@ -152,8 +151,6 @@ class WPCLI_Migration_Post {
 						} else {
 							$author->name = 'null';
 						}
-
-
 					} else {
 						$user = false;
 					}
@@ -196,7 +193,7 @@ class WPCLI_Migration_Post {
 							$new_user,
 							'display_name' => $user->name,
 						) );
-					}
+					}// End if().
 
 					if ( 1 !== intval( $this->skip_images ) ) {
 
@@ -236,7 +233,7 @@ class WPCLI_Migration_Post {
 								WP_CLI::log( 'new content: ' . print_r( $post_content, true ) );
 							}
 						}
-					}
+					}// End if().
 
 					/**
 					 * Initial import is happening here
@@ -366,7 +363,7 @@ class WPCLI_Migration_Post {
 						if ( false !== $migration_check ) {
 							WP_CLI::log( 'Post ' . $import_post->title->rendered . ' with ID ' . $status_check[0] . ' has been updated' );
 						}
-					}
+					}// End if().
 
 					/**
 					 * Debug info for Terms
@@ -385,12 +382,12 @@ class WPCLI_Migration_Post {
 					if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) && ! empty( $migration_check ) ) {
 						WPCLI_Migration_Helper::initiate_terms( $migration_check, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
 					}
-				} // End else ( i.e. we are updating a post )
+				} // End if().
 
 				$progress->tick();
 
-			}
-		}
+			}// End foreach().
+		}// End while().
 
 		$progress->finish();
 	}

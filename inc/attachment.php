@@ -201,10 +201,8 @@ class WPCLI_Migration_Attachment {
 				} else {
 					continue;
 				}
-			} // End if we are uploading the image.
-
-			// return $post_content;
-		} // End foreach media_file
+			}// End if().
+		} // End foreach().
 
 		return $this->post_content;
 

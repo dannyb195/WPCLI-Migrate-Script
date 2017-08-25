@@ -1,28 +1,51 @@
 <?php
 /**
- * undocumented class
+ * WPCLI_Migration_Terms handles term mirgation and updates
  *
- * @package default
- * @author
+ * @package wpcli-migration-script
+ */
+
+/**
+ * WPCLI_Migration_Terms handles term mirgation and updates
+ *
+ * @package wpcli-migration-script
  **/
-
-
 class WPCLI_Migration_Terms {
 
+	/**
+	 * Post ID of current post being mirgated or updated
+	 *
+	 * @var integer
+	 */
 	private $post_id;
 
+	/**
+	 * Remote API URL endpoint for terms
+	 *
+	 * @var string
+	 */
 	private $terms_url;
 
+	/**
+	 * Terms as recieved by the $term_url property
+	 *
+	 * @var array
+	 */
 	private $terms;
 
+	/**
+	 * Debug options
+	 *
+	 * @var integer
+	 */
 	private $debug;
 
 	/**
 	 * [__construct description]
 	 *
-	 * @param string $post      [description]
-	 * @param string $terms_url [description]
-	 * @param string $debug     [description]
+	 * @param integer $post_id   [description]
+	 * @param string  $terms_url [description]
+	 * @param string  $debug     [description]
 	 */
 	public function __construct( $post_id = 0, $terms_url = '', $debug = '' ) {
 
@@ -79,7 +102,7 @@ class WPCLI_Migration_Terms {
 				$this->add_term_to_post( $this->post_id, $term );
 
 			}
-		} // End foreach
+		} // End foreach().
 
 	} // End terms_check
 

@@ -13,12 +13,14 @@ class WPCLI_Migration_Menus {
 
 	/**
 	 * [$menus_json_endpoint description]
+	 *
 	 * @var [type]
 	 */
 	private $menus_json_endpoint;
 
 	/**
 	 * [__construct description]
+	 *
 	 * @param [type] $user_args [description]
 	 */
 	public function __construct( $user_args ) {
@@ -26,7 +28,6 @@ class WPCLI_Migration_Menus {
 		// echo "user args in menus\n<pre>";
 		// print_r($user_args);
 		// echo "</pre>\n\n";
-
 		/**
 		 *
 		 */
@@ -45,27 +46,22 @@ class WPCLI_Migration_Menus {
 		// echo "url\n<pre>";
 		// print_r($url);
 		// echo "</pre>\n\n";
-
 		preg_match( '#(?:http.*/v2/)(.*)?(?)#', $url, $matches );
 
 		// echo "url\n<pre>";
 		// print_r($matches);
 		// echo "</pre>\n\n";
-
 		$url = str_replace( $matches['1'], 'nav_menu', $matches[0] );
 
 		// str_replace(search, replace, subject)
-
 		// echo "url\n<pre>";
 		// print_r($url);
 		// echo "</pre>\n\n";
-
 		$headers = get_headers( $url );
 
 		// echo "headers\n<pre>";
 		// print_r($headers);
 		// echo "</pre>\n\n";
-
 		if ( strpos( $headers[0], '200' ) > -1 ) {
 
 			WP_CLI::success( 'We have a valid menus JSON endpoint' );
@@ -85,11 +81,8 @@ class WPCLI_Migration_Menus {
 		 */
 		$this->create_menus( $menus );
 
-
-
 		// Dev code to stop actual import
 		// die();
-
 	} // End $update_menus_endpoint
 
 	private function create_menus( $menus ) {
@@ -113,10 +106,8 @@ class WPCLI_Migration_Menus {
 				 */
 				$this->add_menu_items( $menu->menu_items, $menu_term );
 
-
-			} // End foreach
-
-		} // End empty check
+			}
+		} // End if().
 
 	} // End create_menus
 
@@ -168,21 +159,17 @@ class WPCLI_Migration_Menus {
 					// 'menu-item-classes' => '',
 					// 'menu-item-xfn' => '',
 					// 'menu-item-status' => '',
-
 				) );
-			}
-
+			}// End if().
 
 			if ( ! is_wp_error( $item ) ) {
 				WP_CLI::success( 'Create menu item with ID of: ' . $item );
 			} else {
 				echo "item\n<pre>";
-				print_r($item);
+				print_r( $item );
 				echo "</pre>\n\n";
 			}
-		}
-
-
+		}// End foreach().
 
 	} // End add_menu_items
 
