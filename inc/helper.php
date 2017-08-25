@@ -9,7 +9,7 @@ class WPCLI_Migration_Helper {
 
 	public static function initiate_terms( $migration_check, $terms_href, $debug ) {
 
-		require_once( __DIR__ . '/../inc/terms.php' );
+		require_once( __DIR__ . '/../inc/class-wpcli-migration-terms.php' );
 
 		if ( true == $debug ) {
 			error_log( 'terms_href: ' . $terms_href );
