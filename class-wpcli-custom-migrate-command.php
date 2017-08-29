@@ -95,26 +95,30 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			'menus', // If preset WP menus will be migrated, requires wp2wp=true
 		);
 
-		WP_CLI::warning( 'working' );
-
-
 		require_once( __DIR__ . '/inc/helper.php' );
 
-	}
+	} // End __construct
 
 	/**
 	 * WPCLI / JSON Migrate script ... wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10 ... more docs found in wpcli-migrate-script.php
 	 *
 	 * @param  array $args      As provided by WPCLI, non-flagged arguments ( not used )
 	 * @param  array $user_args Flagged user arguments as provided by WPCLI, accpected args are listed in the __invoke method
-	 * @return [type]            [description]
 	 */
 	public function __invoke( $args, $user_args ) {
 
-		// echo "user_args\n<pre>";
-		// print_r($user_args);
-		// echo "</pre>\n\n";
-		// die();
+		if ( empty( $user_args ) ) {
+			WP_CLI::error( 'You must supply arguments:
+				--json_file     A local JSON file location
+				--json_url      A JSON URL endpoint
+				--wp2wp         A WordPress to Wordpress migration
+				--migrate_debug Used for outputting terminal logs
+				--skip_images   Set to \'true\' to skip importing images
+				--offset        Offset as expected by WP_Query
+				--menus         If preset WP menus will be migrated, requires wp2wp=true
+			' );
+		}
+
 		$this->debug = isset( $user_args['migrate_debug'] ) && 'true' === $user_args['migrate_debug'] ? true : false;
 
 		/**
