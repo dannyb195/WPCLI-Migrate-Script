@@ -6,6 +6,8 @@
  * Author: Dan Beil
  * Version: .0
  * Author URI: http://addactiondan.me
+ *
+ * @package wpcli-migration-script
  */
 
 /**
@@ -18,7 +20,7 @@
  * wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10
  * wp migrate --json_file=<path to local file>
  *
- * Standar WordPress to Wordpress command:
+ * Standar WordPress to WordPress command:
  * wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10 --wp2wp=true
  *
  * Demo Posts:
@@ -36,13 +38,14 @@
  * wp migrate --json_url=http://<site-url>/wp-json/wp/v2/posts?per_page=1 --menus --wp2wp --skip_images
  * ** --skip_images is included here just for speed
  *
- *
  * @package wpcli-migration-script
  * @author Dan Beil
  */
 
 /**
  * Checking that WP CLI is installed, if not bailing here
+ *
+ * @package wpcli-migration-script
  */
 if ( ! class_exists( 'WP_CLI_Command' ) ) {
 	return;
@@ -67,6 +70,11 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	 */
 	private $debug;
 
+	/**
+	 * Placeholder property for skipping image migration
+	 *
+	 * @var Boolean
+	 */
 	private $skip_images;
 
 	/**
@@ -87,24 +95,26 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			'menus', // If preset WP menus will be migrated, requires wp2wp=true
 		);
 
-		require_once( __DIR__ .'/inc/helper.php' );
+		WP_CLI::warning( 'working' );
+
+
+		require_once( __DIR__ . '/inc/helper.php' );
 
 	}
 
 	/**
 	 * WPCLI / JSON Migrate script ... wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10 ... more docs found in wpcli-migrate-script.php
+	 *
 	 * @param  array $args      As provided by WPCLI, non-flagged arguments ( not used )
 	 * @param  array $user_args Flagged user arguments as provided by WPCLI, accpected args are listed in the __invoke method
 	 * @return [type]            [description]
 	 */
 	public function __invoke( $args, $user_args ) {
 
-// echo "user_args\n<pre>";
-// print_r($user_args);
-// echo "</pre>\n\n";
-
-// die();
-
+		// echo "user_args\n<pre>";
+		// print_r($user_args);
+		// echo "</pre>\n\n";
+		// die();
 		$this->debug = isset( $user_args['migrate_debug'] ) && 'true' === $user_args['migrate_debug'] ? true : false;
 
 		/**
@@ -159,7 +169,6 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				require_once( 'inc/menu.php' );
 				new WPCLI_Migration_Menus( $user_args );
 			}
-
 		} else {
 			if ( true == $this->debug ) {
 				WP_CLI::error( 'Either --json_file=<file> or --json_url=<url> must be defined' );
@@ -169,10 +178,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	} // End __invoke
 
 	/**
-	 * [import description]
-	 *
-	 * @param  [type] $user_args [description]
-	 * @return [type]            [description]
+	 * Base functionality for import process
+	 * @param  arry $user_args Array of options / flags sent to the WP-CLI command
 	 */
 	public function import( $user_args ) {
 
@@ -197,7 +204,6 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			$json = json_decode( $json );
 
 			// error_log( 'JSON ' . print_r( $json, true ) );
-
 			/**
 			 * Checking we have valid JSON
 			 */
@@ -211,7 +217,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			if ( isset( $user_args['wp2wp'] ) && true == $user_args['wp2wp'] ) {
 
 				if ( true == $this->debug ) {
-					WP_CLI::log( 'we are dealing with local wordpress JSON file to import to wordpress' );
+					WP_CLI::log( 'we are dealing with local WordPress JSON file to import to WordPress' );
 				}
 
 				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts
@@ -221,20 +227,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 			/**
 			 * Do custom stuff to import data here
-			 *
-			 *
-			 *
-			 *
-			 *
-			 *
-			 *
-			 *
-			 *
-			 *
 			 */
 
 			// error_log( 'local file: ' . print_r( $json, true ) );
-
 			/**
 			 * End where custom code would be written
 			 */
@@ -242,6 +237,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		} elseif ( array_key_exists( 'json_url', $user_args ) ) {
 			/**
 			 * We are dealing with an external URL request which should return only JSON
+			 *
+			 * Typically uses for a WordPress to Wordpress migration
 			 */
 
 			if ( true == $this->debug ) {
@@ -253,7 +250,6 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * if this fails we stop here via WP_CLI::error
 			 */
 			$this->verify_url( $user_args['json_url'] );
-
 
 			/**
 			 * Because the WP JSON API only allows for hitting 100 objects at a time we allow
@@ -291,7 +287,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 */
 			if ( isset( $user_args['wp2wp'] ) && true == $user_args['wp2wp'] ) {
 
-				error_log( 'we are dealing with wordpress to wordpress' );
+				error_log( 'we are dealing with WordPress to WordPress' );
 
 				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts
 				new WPCLI_Migration_Post( $json, $user_args );
@@ -304,30 +300,38 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * End where custom code would be written
 			 */
 		}
-	}
+
+	} // End import().
 
 	private function verify_url( $url ) {
 
 		$headers = get_headers( $url );
 
-		if ( true == $this->debug ) {
+		if ( true === $this->debug ) {
+			// @codingStandardsIgnoreStart
 			WP_CLI::log( 'headers ' . print_r( $headers, true ) );
+			// @codingStandardsIgnoreEnd
 		}
 
-		if ( strpos( $headers[0], '200') || strpos( $headers[0], '301') || strpos( $headers[0], '302') ) {
+		if ( strpos( $headers[0], '200' ) || strpos( $headers[0], '301' ) || strpos( $headers[0], '302' ) ) {
 			return true;
 		} elseif ( strpos( $headers[0], '400' ) ) {
 
+			// @codingStandardsIgnoreStart
 			$response = wp_remote_get( $url );
+			// @codingStandardsIgnoreEnd
 			$response = json_decode( $response['body'] );
 
+			// @codingStandardsIgnoreStart
 			WP_CLI::error( 'Bad Request: ' . print_r( $response ) );
-
+			// @codingStandardsIgnoreEnd
 		} else {
+			// @codingStandardsIgnoreStart
 			WP_CLI::error( 'Invalide URL: ' . sanitize_text_field( $url ) );
+			// @codingStandardsIgnoreEnd
 		}
-	}
+	} // End verify_url().
 
-}
+} // End WPCLI_Custom_Migrate_Command.
 
 WP_CLI::add_command( 'migrate', 'WPCLI_Custom_Migrate_Command' );
