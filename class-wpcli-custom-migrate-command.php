@@ -266,10 +266,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			}
 
 			/**
-			 * Start where custom code would need to be written.
-			 * working with standard WP JSON API data for now
+			 * Hitting post json feed.
 			 */
-			// Hitting post json feed.
 			WP_CLI::log( 'Getting data from: ' . filter_var( $user_args['json_url'], FILTER_SANITIZE_URL ) );
 			$json = wp_remote_get( esc_url( $user_args['json_url'] ) );
 			if ( is_wp_error( $json ) ) {
