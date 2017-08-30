@@ -361,7 +361,7 @@ class WPCLI_Migration_Post {
 						) );
 
 						if ( false !== $migration_check ) {
-							WP_CLI::log( 'Post ' . $import_post->title->rendered . ' with ID ' . $status_check[0] . ' has been updated' );
+							WP_CLI::log( 'Post ' . WP_CLI::colorize( '%G' . $import_post->title->rendered . '%n' ) . ' with ID ' . $status_check[0] . ' has been updated' );
 						}
 					}// End if().
 

@@ -254,7 +254,6 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * if this fails we stop here via WP_CLI::error
 			 */
 			$this->verify_url( $user_args['json_url'] );
-			echo '1';
 
 			/**
 			 * Because the WP JSON API only allows for hitting 100 objects at a time we allow
@@ -282,17 +281,16 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				WP_CLI::success( 'Valid JSON' );
 			}
 
-			if ( isset( $user_args['skip_images'] ) && true == $user_args['skip_images'] ) {
+			if ( isset( $user_args['skip_images'] ) && true === $user_args['skip_images'] ) {
 				WP_CLI::warning( 'Skipping Images' );
-				// die();
 			}
 
 			/**
 			 * Dealing with WordPress to WordPress Migration
 			 */
-			if ( isset( $user_args['wp2wp'] ) && true == $user_args['wp2wp'] ) {
+			if ( isset( $user_args['wp2wp'] ) && true === $user_args['wp2wp'] ) {
 
-				error_log( 'we are dealing with WordPress to WordPress' );
+				WP_CLI::log( 'we are dealing with WordPress to WordPress' );
 
 				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts.
 				new WPCLI_Migration_Post( $json, $user_args );
