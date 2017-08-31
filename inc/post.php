@@ -43,7 +43,7 @@ class WPCLI_Migration_Post {
 	public function __construct( $json = '', $user_args = '' ) {
 
 		$this->json = $json;
-		$this->debug = isset( $user_args['migrate_debug'] ) && 'true' === $user_args['migrate_debug'] ? true : false;
+		$this->debug = isset( $user_args['migrate_debug'] ) && true === $user_args['migrate_debug'] ? true : false;
 		$this->skip_images = isset( $user_args['skip_images'] ) && true === $user_args['skip_images'] ? true : false;
 		$this->post_import( $json );
 

@@ -83,16 +83,18 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	public function __construct() {
 
 		$this->user_args_values = array(
-			'json_file', // A local JSON file location
-			'json_url', // A JSON URL endpoint
-			'wp2wp', // A WordPress to Wordpress migration
-			'migrate_debug', // Used for outputting terminal logs
+			'json_file', // A local JSON file location.
+			'json_url', // A JSON URL endpoint.
+			'wp2wp', // A WordPress to Wordpress migration.
+			'migrate_debug', // Used for outputting terminal logs.
 			/**
+			 * We should have a debug_lite option / flag
+			 *
 			 * @todo  add a debug_lite option here to show success / warnings though not output the post object
 			 */
-			'skip_images', // Set to 'true' to skip importing images
-			'offset', // offset as expected by WP_Query
-			'menus', // If preset WP menus will be migrated, requires wp2wp=true
+			'skip_images', // Set to 'true' to skip importing images.
+			'offset', // offset as expected by WP_Query.
+			'menus', // If preset WP menus will be migrated, requires wp2wp=true.
 		);
 
 		require_once( __DIR__ . '/inc/helper.php' );
@@ -102,8 +104,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	/**
 	 * WPCLI / JSON Migrate script ... wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10 ... more docs found in wpcli-migrate-script.php
 	 *
-	 * @param  array $args      As provided by WPCLI, non-flagged arguments ( not used )
-	 * @param  array $user_args Flagged user arguments as provided by WPCLI, accpected args are listed in the __invoke method
+	 * @param  array $args      As provided by WPCLI, non-flagged arguments ( not used ).
+	 * @param  array $user_args Flagged user arguments as provided by WPCLI, accpected args are listed in the __invoke method.
 	 */
 	public function __invoke( $args, $user_args ) {
 
@@ -111,7 +113,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			WP_CLI::error( 'You must supply arguments:
 				--json_file     A local JSON file location
 				--json_url      A JSON URL endpoint
-				--wp2wp         A WordPress to Wordpress migration
+				--wp2wp         A WordPress to WordPress migration
 				--migrate_debug Used for outputting terminal logs
 				--skip_images   Set to \'true\' to skip importing images
 				--offset        Offset as expected by WP_Query
@@ -131,8 +133,10 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		 * --offset=<integer>
 		 * --menus=true|false
 		 */
-		if ( true == $this->debug ) {
+		if ( true === $this->debug ) {
+			// @codingStandardsIgnoreStart
 			WP_CLI::success( 'user_args' . print_r( $user_args, true ) );
+			// @codingStandardsIgnoreEnd
 		}
 
 		/**
@@ -144,8 +148,10 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * Making sure we have valid arguments
 			 */
 			foreach ( $user_args as $user_arg => $value ) {
-				if ( ! in_array( $user_arg, $this->user_args_values ) ) {
+				if ( ! in_array( $user_arg, $this->user_args_values, true ) ) {
+					// @codingStandardsIgnoreStart
 					WP_CLI::error( 'Invalid argument -> ' . sanitize_text_field( $user_arg ) . "\nValid arguments are:\n" . print_r( $this->user_args_values, true ) . 'Please feel free suggest additional functionality at https://github.com/dannyb195/WPCLI-Migrate-Script' );
+					// @codingStandardsIgnoreEnd
 				}
 
 				/**
@@ -156,6 +162,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				}
 
 				/**
+				 * Placeholder note to remind me to write functionality for a custom JSON file
+				 *
 				 * @todo  Make sure we have a valid file or URL to hit here probably via $headers reponse
 				 */
 
@@ -169,12 +177,12 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			/**
 			 * Getting Menus after the post import
 			 */
-			if ( isset( $user_args['wp2wp'] ) && true == $user_args['wp2wp'] && isset( $user_args['menus'] ) && true == $user_args['menus'] ) {
+			if ( isset( $user_args['wp2wp'] ) && true === $user_args['wp2wp'] && isset( $user_args['menus'] ) && true === $user_args['menus'] ) {
 				require_once( 'inc/menu.php' );
 				new WPCLI_Migration_Menus( $user_args );
 			}
 		} else {
-			if ( true == $this->debug ) {
+			if ( true === $this->debug ) {
 				WP_CLI::error( 'Either --json_file=<file> or --json_url=<url> must be defined' );
 			}
 		}
@@ -183,7 +191,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 	/**
 	 * Base functionality for import process
-	 * @param  arry $user_args Array of options / flags sent to the WP-CLI command
+	 *
+	 * @param  array $user_args Array of options / flags sent to the WP-CLI command.
 	 */
 	public function import( $user_args ) {
 
@@ -192,7 +201,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * We are dealing with a local JSON file
 			 */
 
-			if ( true == $this->debug ) {
+			if ( true === $this->debug ) {
 				WP_CLI::log( 'we have a json file, ready to move forward and write custom code below' );
 			}
 
@@ -202,12 +211,14 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 */
 
 			// Hitting post json file, assuming JSON file is in this plugin's main directory.
-			$json = file_get_contents( __DIR__ . '/' . $user_args['json_file'] );
+			$json = wp_remote_get( plugin_dir_url( __FILE__ ) . $user_args['json_file'] );
+			$json = wp_remote_retrieve_body( $json );
 
-			// Turning json into array.
+			/**
+			 * Decoding our JSON
+			 */
 			$json = json_decode( $json );
 
-			// error_log( 'JSON ' . print_r( $json, true ) );
 			/**
 			 * Checking we have valid JSON
 			 */
@@ -224,7 +235,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 					WP_CLI::log( 'we are dealing with local WordPress JSON file to import to WordPress' );
 				}
 
-				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts
+				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts.
 				new WPCLI_Migration_Post( $json, $user_args );
 
 			}
@@ -233,7 +244,6 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * Do custom stuff to import data here
 			 */
 
-			// error_log( 'local file: ' . print_r( $json, true ) );
 			/**
 			 * End where custom code would be written
 			 */
@@ -242,7 +252,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			/**
 			 * We are dealing with an external URL request which should return only JSON
 			 *
-			 * Typically uses for a WordPress to Wordpress migration
+			 * Typically uses for a WordPress to WordPress migration
 			 */
 
 			if ( true === $this->debug ) {
