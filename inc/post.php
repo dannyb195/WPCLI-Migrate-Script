@@ -135,7 +135,7 @@ class WPCLI_Migration_Post {
 					/**
 					 * Author / User stuff here
 					 *
-					 * @todo  move this to inc/author.php because I  should have put it there in the first place
+					 * @todo  move this to inc/author.php because I should have put it there in the first place
 					 */
 
 					if ( property_exists( $import_post->_links, 'author' ) ) {
@@ -182,7 +182,7 @@ class WPCLI_Migration_Post {
 						/**
 						 *
 						 */
-						if ( true == $this->debug ) {
+						if ( true === $this->debug ) {
 							WP_CLI::log( print_r( $new_user, true ) . 'created' );
 						}
 					} else {

@@ -211,7 +211,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 */
 
 			// Hitting post json file, assuming JSON file is in this plugin's main directory.
+			// @codingStandardsIgnoreStart
 			$json = wp_remote_get( plugin_dir_url( __FILE__ ) . $user_args['json_file'] );
+			// @codingStandardsIgnoreEnd
 			$json = wp_remote_retrieve_body( $json );
 
 			/**
@@ -229,9 +231,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			/**
 			 * Dealing with WordPress to WordPress Migration
 			 */
-			if ( isset( $user_args['wp2wp'] ) && true == $user_args['wp2wp'] ) {
+			if ( isset( $user_args['wp2wp'] ) && true === $user_args['wp2wp'] ) {
 
-				if ( true == $this->debug ) {
+				if ( true === $this->debug ) {
 					WP_CLI::log( 'we are dealing with local WordPress JSON file to import to WordPress' );
 				}
 
@@ -277,7 +279,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * Hitting post json feed.
 			 */
 			WP_CLI::log( 'Getting data from: ' . WP_CLI::Colorize( '%G' . filter_var( $user_args['json_url'], FILTER_SANITIZE_URL ) . '%n' ) );
+			// @codingStandardsIgnoreStart
 			$json = wp_remote_get( esc_url( $user_args['json_url'] ) );
+			// @codingStandardsIgnoreEnd
 			if ( is_wp_error( $json ) ) {
 				WP_CLI::error( 'WP_Error object returned' );
 			} else {
