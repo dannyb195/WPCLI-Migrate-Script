@@ -283,7 +283,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			$json = wp_remote_get( esc_url( $user_args['json_url'] ) );
 			// @codingStandardsIgnoreEnd
 			if ( is_wp_error( $json ) ) {
-				WP_CLI::error( 'WP_Error object returned' );
+				WP_CLI::error( 'WP_Error object returned ' . print_r( $json, 1 ) );
 			} else {
 				/**
 				 * Setting up our JSON data
@@ -332,7 +332,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	 */
 	private function verify_url( $url ) {
 
-		$headers = get_headers( $url );
+		$headers = get_headers( filter_var( $url, FILTER_SANITIZE_URL ) );
 
 		if ( true === $this->debug ) {
 			// @codingStandardsIgnoreStart
