@@ -119,7 +119,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			' );
 		}
 
-		$this->debug = isset( $user_args['migrate_debug'] ) && 'true' === $user_args['migrate_debug'] ? true : false;
+		$this->debug = isset( $user_args['migrate_debug'] ) && true === $user_args['migrate_debug'] ? true : false;
 
 		/**
 		 * Acceptible user_args as define in the construct:
@@ -245,7 +245,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * Typically uses for a WordPress to Wordpress migration
 			 */
 
-			if ( true == $this->debug ) {
+			if ( true === $this->debug ) {
 				WP_CLI::log( 'we have a json url' );
 			}
 
@@ -257,9 +257,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 			/**
 			 * Because the WP JSON API only allows for hitting 100 objects at a time we allow
-			 * for an --offset parameter to get addition content if needed
-			 *
-			 * https://github.com/WP-API/WP-API/issues/1609
+			 * for an --offset parameter to get addition content if needed. https://github.com/WP-API/WP-API/issues/1609
 			 */
 			if ( isset( $user_args['offset'] ) ) {
 				$user_args['json_url'] = esc_url( $user_args['json_url'] ) . '&offset=' . intval( $user_args['offset'] );
@@ -268,7 +266,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			/**
 			 * Hitting post json feed.
 			 */
-			WP_CLI::log( 'Getting data from: ' . filter_var( $user_args['json_url'], FILTER_SANITIZE_URL ) );
+			WP_CLI::log( 'Getting data from: ' . WP_CLI::Colorize( '%G' . filter_var( $user_args['json_url'], FILTER_SANITIZE_URL ) . '%n' ) );
 			$json = wp_remote_get( esc_url( $user_args['json_url'] ) );
 			if ( is_wp_error( $json ) ) {
 				WP_CLI::error( 'WP_Error object returned' );
