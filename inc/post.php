@@ -140,6 +140,7 @@ class WPCLI_Migration_Post {
 
 					if ( property_exists( $import_post->_links, 'author' ) ) {
 						$author = wp_remote_get( $import_post->_links->author[0]->href );
+
 					} else {
 						$author = new WP_Error();
 					}
@@ -167,6 +168,11 @@ class WPCLI_Migration_Post {
 								'user_name' => $author->name,
 								'user_pass' => wp_generate_password( 12, false ),
 							) );
+
+							/**
+							 * Adding user meta which is later used to determine if a post author has changed.
+							 */
+							add_user_meta( intval( $new_user ), 'origin_id', $author->id );
 						} else {
 							continue;
 						}
@@ -186,7 +192,6 @@ class WPCLI_Migration_Post {
 							WP_CLI::log( print_r( $new_user, true ) . 'created' );
 						}
 					} else {
-
 						$new_user = $user->data->ID;
 
 						wp_update_user( array(
@@ -233,7 +238,7 @@ class WPCLI_Migration_Post {
 								WP_CLI::log( 'new content: ' . print_r( $post_content, true ) );
 							}
 						}
-					}// End if().
+					} // End if().
 
 					/**
 					 * Initial import is happening here
@@ -272,7 +277,10 @@ class WPCLI_Migration_Post {
 					if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) && ! empty( $migration_check ) ) {
 						WPCLI_Migration_Helper::initiate_terms( $migration_check, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
 					}
+
 				} else {
+
+					echo "updating post, need to check on author \n\n";
 
 					/**
 					 * @todo  if nothing has changed for a post we should skip all this
@@ -295,12 +303,38 @@ class WPCLI_Migration_Post {
 					$local_post_check = array();
 					$local_post_check['post_content'] = $local_post->post_content;
 					$local_post_check['post_title'] = $local_post->post_title;
+					$local_post_check['post_author'] = $local_post->post_author;
 
 					/**
 					 * Setting our remote post information
 					 */
-					// error_log( 'local post: ' . print_r( $local_post_check, true ) );
 					$remote_post = array();
+
+					$author = wp_remote_get( $import_post->_links->author[0]->href );
+					$author = json_decode( $author['body'] );
+
+					$local_user = get_users( array(
+						'meta_key' => 'origin_id',
+						'meta_value' => intval( $author->id ),
+					) );
+
+					if ( empty( $local_user ) ) {
+						echo "no local user with origin id \n\n";
+
+						$local_user = wp_insert_user( array(
+							'user_login' => $author->name,
+							'user_name' => $author->name,
+							'user_pass' => wp_generate_password( 12, false ),
+						) );
+
+						add_user_meta( intval( $local_user ), 'origin_id', $author->id );
+
+						$local_user = get_users( array(
+							'meta_key' => 'origin_id',
+							'meta_value' => intval( $author->id ),
+						) );
+
+					} // End if empty local_user
 
 					// $remote_post['ID'] = $status_check[0]; // Faking that the remote post has the same ID as the local post
 					// $remote_post['post_date'] = $post->date;
@@ -311,7 +345,7 @@ class WPCLI_Migration_Post {
 					// $remote_post['post_type'] = $post->type;
 					// $remote_post['post_name'] = '';
 					// $remote_post['post_modified'] = $post->modified;
-					// $remote_post['post_author'] = $post->author;
+					$remote_post['post_author'] = $local_user[0]->ID;
 					// $remote_post['post_status'] = 'publish';
 					// $remote_post['comment_status'] = $post->comment_status;
 					// $remote_post['ping_status'] = $post->ping_status;
@@ -343,9 +377,10 @@ class WPCLI_Migration_Post {
 						 *
 						 * @todo  need some type of check if the post has actually changed here
 						 */
+
 						$migration_check = wp_insert_post( array(
 							'ID' => $status_check[0], // This is the existing post ID
-							'post_author' => '', // @todo still need to deal with authors
+							'post_author' => $local_user[0]->ID, // @todo still need to deal with authors
 							'post_date' => $import_post->date,
 							'post_date_gmt' => $import_post->date_gmt,
 							'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,
@@ -386,8 +421,9 @@ class WPCLI_Migration_Post {
 
 				$progress->tick();
 
-			}// End foreach().
-		}// End while().
+			} // End foreach().
+
+		} // End while().
 
 		$progress->finish();
 	}
