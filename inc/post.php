@@ -327,15 +327,27 @@ class WPCLI_Migration_Post {
 							'user_pass' => wp_generate_password( 12, false ),
 						) );
 
+						/**
+						 * update_user_attribute() would be prefered here rather using add_user_meta
+						 * than though it is only available on VIP.
+						 */
+						// @codingStandardsIgnoreStart
 						add_user_meta( intval( $local_user ), 'origin_id', $author->id );
+						// @codingStandardsIgnoreEnd
 
+						// @codingStandardsIgnoreStart
 						$local_user = get_users( array(
 							'meta_key' => 'origin_id',
 							'meta_value' => intval( $author->id ),
 						) );
+						// @codingStandardsIgnoreEnd
 
 					} // End if empty local_user
 
+					/**
+					 * Leaving this all in place for future work on comparing post changes
+					 */
+					// @codingStandardsIgnoreStart
 					// $remote_post['ID'] = $status_check[0]; // Faking that the remote post has the same ID as the local post
 					// $remote_post['post_date'] = $post->date;
 					// $remote_post['post_date_gmt'] = $post->date_gmt;
@@ -352,6 +364,8 @@ class WPCLI_Migration_Post {
 					// $remote_post['post_name'] = $post->slug;
 					// $remote_post['post_modified_gmt'] = $post->date_gmt;
 					// error_log( 'remote post: ' . print_r( $post, true ) );
+					// @codingStandardsIgnoreEnd
+
 					/**
 					 * Checking the difference between our local and remote post content
 					 */
@@ -362,14 +376,11 @@ class WPCLI_Migration_Post {
 					 */
 					if ( ! empty( $diff ) ) {
 
-						// error_log( 'Diff: ' . print_r( $diff, true ) );
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
 						if ( ! empty( $matches[1] ) ) {
-							require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
-							// new WPCLI_Migration_Attachment( $matches[1], $this->debug );
+							require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments.
 							$post_content = new WPCLI_Migration_Attachment( $matches[1], $import_post->content->rendered, $this->debug );
-
 						}
 
 						/**
@@ -379,8 +390,8 @@ class WPCLI_Migration_Post {
 						 */
 
 						$migration_check = wp_insert_post( array(
-							'ID' => $status_check[0], // This is the existing post ID
-							'post_author' => $local_user[0]->ID, // @todo still need to deal with authors
+							'ID' => $status_check[0], // This is the existing post ID.
+							'post_author' => $local_user[0]->ID,
 							'post_date' => $import_post->date,
 							'post_date_gmt' => $import_post->date_gmt,
 							'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,
@@ -403,9 +414,11 @@ class WPCLI_Migration_Post {
 					/**
 					 * Debug info for Terms
 					 */
-					if ( true == $this->debug ) {
+					if ( true === $this->debug ) {
 						if ( isset( $import_post->_links->{'wp:term'}[0] ) ) {
+							// @codingStandardsIgnoreStart
 							WP_CLI::log( WP_CLI::colorize( '%GTerms%n: ' . print_r( $import_post->_links->{'wp:term'}[0], true ) ) );
+							// @codingStandardsIgnoreEnd
 						} else {
 							WP_CLI::log( WP_CLI::colorize( '%RNo Terms found%n' ) );
 						}
@@ -420,9 +433,7 @@ class WPCLI_Migration_Post {
 				} // End if().
 
 				$progress->tick();
-
 			} // End foreach().
-
 		} // End while().
 
 		$progress->finish();
