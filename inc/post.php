@@ -263,34 +263,37 @@ class WPCLI_Migration_Post {
 						),
 					) );
 
-					if ( true == $this->debug ) {
+					if ( true === $this->debug ) {
 						if ( false !== $migration_check ) {
 							WP_CLI::log( 'Migrated Post ID: ' . $migration_check );
 						} else {
-							WP_CLI::error( 'Failed migration of post', false ); // Setting false here not to kill the migration loop
+							WP_CLI::error( 'Failed migration of post', false ); // Setting false here not to kill the migration loop.
 						}
 					}
 
 					/**
 					 * Checking and assigning Terms
+					 *
+					 * @todo Terms are not currently being assigned ( 8/1/17 )
 					 */
 					if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) && ! empty( $migration_check ) ) {
 						WPCLI_Migration_Helper::initiate_terms( $migration_check, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
 					}
-
 				} else {
 
 					echo "updating post, need to check on author \n\n";
 
 					/**
-					 * @todo  if nothing has changed for a post we should skip all this
+					 * If nothing has changed for a post we should skip all this
+					 *
+					 * @todo make sure none of this fires if a post has not changed
 					 */
 
 					/**
 					 * Post Updating happens here
 					 */
-					if ( true == $this->debug ) {
-						error_log( 'Post ' . $status_check[0] . ' already exists, updating' );
+					if ( true === $this->debug ) {
+						WP_CLI::log( 'Post ' . $status_check[0] . ' already exists, updating' );
 					}
 
 					$local_post = get_post( $status_check[0] );
@@ -310,13 +313,17 @@ class WPCLI_Migration_Post {
 					 */
 					$remote_post = array();
 
+					// @codingStandardsIgnoreStart
 					$author = wp_remote_get( $import_post->_links->author[0]->href );
+					// @codingStandardsIgnoreEnd
 					$author = json_decode( $author['body'] );
 
+					// @codingStandardsIgnoreStart
 					$local_user = get_users( array(
 						'meta_key' => 'origin_id',
 						'meta_value' => intval( $author->id ),
 					) );
+					// @codingStandardsIgnoreEnd
 
 					if ( empty( $local_user ) ) {
 						echo "no local user with origin id \n\n";
@@ -328,7 +335,7 @@ class WPCLI_Migration_Post {
 						) );
 
 						/**
-						 * update_user_attribute() would be prefered here rather using add_user_meta
+						 * We should use update_user_attribute() here rather using add_user_meta
 						 * than though it is only available on VIP.
 						 */
 						// @codingStandardsIgnoreStart
