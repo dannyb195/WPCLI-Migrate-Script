@@ -281,8 +281,6 @@ class WPCLI_Migration_Post {
 					}
 				} else {
 
-					echo "updating post, need to check on author \n\n";
-
 					/**
 					 * If nothing has changed for a post we should skip all this
 					 *
@@ -293,6 +291,7 @@ class WPCLI_Migration_Post {
 					 * Post Updating happens here
 					 */
 					if ( true === $this->debug ) {
+						WP_CLI::log( "updating post, need to check on author \n\n" );
 						WP_CLI::log( 'Post ' . $status_check[0] . ' already exists, updating' );
 					}
 
@@ -318,15 +317,13 @@ class WPCLI_Migration_Post {
 					// @codingStandardsIgnoreEnd
 					$author = json_decode( $author['body'] );
 
-					// @codingStandardsIgnoreStart
-					$local_user = get_users( array(
-						'meta_key' => 'origin_id',
-						'meta_value' => intval( $author->id ),
-					) );
-					// @codingStandardsIgnoreEnd
+					/**
+					 * Getting our local user via user meta
+					 */
+					$local_user = WPCLI_Migration_Helper::local_user( $author->id );
 
 					if ( empty( $local_user ) ) {
-						echo "no local user with origin id \n\n";
+						WP_CLI::warning( 'no local user with origin id: ' . $author->id . ' we will create them' );
 
 						$local_user = wp_insert_user( array(
 							'user_login' => $author->name,
@@ -342,12 +339,10 @@ class WPCLI_Migration_Post {
 						add_user_meta( intval( $local_user ), 'origin_id', $author->id );
 						// @codingStandardsIgnoreEnd
 
-						// @codingStandardsIgnoreStart
-						$local_user = get_users( array(
-							'meta_key' => 'origin_id',
-							'meta_value' => intval( $author->id ),
-						) );
-						// @codingStandardsIgnoreEnd
+						/**
+						 * Getting our local user via user meta
+						 */
+						$local_user = WPCLI_Migration_Helper::local_user( $author->id );
 
 					} // End if empty local_user
 
