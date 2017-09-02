@@ -2,5 +2,5 @@
 /**
  * Place holder file for now
  *
- * Note post.php ~line 150
+ * Note class-wpcli-migration-post.php ~line 150
  */

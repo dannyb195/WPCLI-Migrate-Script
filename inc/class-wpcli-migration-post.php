@@ -54,7 +54,7 @@ class WPCLI_Migration_Post {
 	 * It also checks for in-content images as well as a featured image and
 	 * triggers the image migrate class
 	 *
-	 * @param  string $json As provided by the WP JSON API /posts endpoint
+	 * @param  string $json As provided by the WP JSON API /posts endpoint.
 	 */
 	private function post_import( $json ) {
 
@@ -63,7 +63,7 @@ class WPCLI_Migration_Post {
 		WP_CLI::log( 'importing ' . $count . ' posts' );
 
 		/**
-		 * https://wp-cli.org/docs/internal-api/wp-cli-utils-make-progress-bar/
+		 * Https://wp-cli.org/docs/internal-api/wp-cli-utils-make-progress-bar/
 		 */
 		$progress = \WP_CLI\Utils\make_progress_bar( 'Migrating Posts', $count );
 
@@ -76,20 +76,27 @@ class WPCLI_Migration_Post {
 				$i++;
 
 				if ( true == $this->debug ) {
-					error_log( 'post: ' . print_r( $import_post, true ) );
+					// @codingStandardsIgnoreStart
+					WP_CLI::log( 'post: ' . print_r( $import_post, true ) );
+					// @codingStandardsIgnoreEnd
 				}
 
 				/**
 				 * Debug info for feataured image
 				 */
-				if ( true == $this->debug ) {
+				if ( true === $this->debug ) {
 					if ( isset( $import_post->_links->{'wp:featuredmedia'} ) ) {
+						// @codingStandardsIgnoreStart
 						WP_CLI::log( WP_CLI::colorize( '%Gpost featured media%n: ' . print_r( $import_post->_links->{'wp:featuredmedia'}, true ) ) );
+						// @codingStandardsIgnoreEnd
 					} else {
 						WP_CLI::log( WP_CLI::colorize( '%RNo featured image%n' ) );
 					}
 
+					// @codingStandardsIgnoreStart
 					WP_CLI::log( print_r( $import_post, true ) );
+					// @codingStandardsIgnoreEnd
+
 				}
 
 				/**
@@ -97,17 +104,17 @@ class WPCLI_Migration_Post {
 				 */
 				if ( isset( $import_post->_links->{'wp:featuredmedia'}[0] ) && isset( $import_post->_links->{'wp:featuredmedia'}[0]->href ) ) {
 
-					require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
+					require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments.
 
-					if ( true == $this->debug ) {
-						error_log( $import_post->_links->{'wp:featuredmedia'}[0]->href );
+					if ( true === $this->debug ) {
+						WP_CLI::log( $import_post->_links->{'wp:featuredmedia'}[0]->href );
 					}
 
-					$upload_featured_image = new WPCLI_Migration_Attachment;
+					$upload_featured_image = new WPCLI_Migration_Attachment();
 					$featured_image_id = $upload_featured_image->upload_featured_image( $import_post->_links->{'wp:featuredmedia'}[0]->href );
 
-					if ( true == $this->debug ) {
-						error_log( 'featured_image_id: ' . $featured_image_id );
+					if ( true === $this->debug ) {
+						WP_CLI::log( 'featured_image_id: ' . $featured_image_id );
 					}
 				}
 
@@ -133,14 +140,16 @@ class WPCLI_Migration_Post {
 				if ( ! isset( $status_check[0] ) || empty( $status_check[0] ) ) {
 
 					/**
+					 * Start move this
 					 * Author / User stuff here
 					 *
 					 * @todo  move this to inc/author.php because I should have put it there in the first place
 					 */
 
 					if ( property_exists( $import_post->_links, 'author' ) ) {
+						// @codingStandardsIgnoreStart
 						$author = wp_remote_get( $import_post->_links->author[0]->href );
-
+						// @codingStandardsIgnoreEnd
 					} else {
 						$author = new WP_Error();
 					}
@@ -158,7 +167,7 @@ class WPCLI_Migration_Post {
 
 					if ( false === $user ) {
 
-						if ( true == $this->debug ) {
+						if ( true === $this->debug ) {
 							WP_CLI::log( 'user ' . $author->name . ' does not exist we should create them' );
 						}
 
@@ -172,24 +181,27 @@ class WPCLI_Migration_Post {
 							/**
 							 * Adding user meta which is later used to determine if a post author has changed.
 							 */
+							// @codingStandardsIgnoreStart
 							add_user_meta( intval( $new_user ), 'origin_id', $author->id );
+							// @codingStandardsIgnoreEnd
 						} else {
 							continue;
 						}
 
 						/**
-						 *
+						 * If the $new_user is an object the user already exists
 						 */
 						if ( is_object( $new_user ) ) {
+							// @codingStandardsIgnoreStart
 							WP_CLI::log( 'User already exists: ' . print_r( $new_user, true ) );
+							// @codingStandardsIgnoreEnd
 							continue;
 						}
 
-						/**
-						 *
-						 */
 						if ( true === $this->debug ) {
+							// @codingStandardsIgnoreStart
 							WP_CLI::log( print_r( $new_user, true ) . 'created' );
+							// @codingStandardsIgnoreEnd
 						}
 					} else {
 						$new_user = $user->data->ID;
@@ -200,6 +212,10 @@ class WPCLI_Migration_Post {
 						) );
 					}// End if().
 
+					/**
+					 * End move this
+					 */
+
 					if ( 1 !== intval( $this->skip_images ) ) {
 
 						/**
@@ -209,7 +225,7 @@ class WPCLI_Migration_Post {
 						 */
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
-						if ( true == $this->debug && empty( $matches ) ) {
+						if ( true === $this->debug && empty( $matches ) ) {
 							WP_CLI::log( 'no images found in content' );
 						}
 
@@ -217,10 +233,12 @@ class WPCLI_Migration_Post {
 						 * We have in-content images, migrating them here
 						 */
 						if ( ! empty( $matches[1] ) ) {
-							require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments
+							require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments.
 
-							if ( true == $this->debug ) {
+							if ( true === $this->debug ) {
+								// @codingStandardsIgnoreStart
 								WP_CLI::log( 'These image URLs need to be updated. ' . print_r( $matches[1], true ) );
+								// @codingStandardsIgnoreEnd
 							}
 
 							/**
@@ -234,8 +252,10 @@ class WPCLI_Migration_Post {
 							/**
 							 * Debugging info which should include local URLs for in-content assets
 							 */
-							if ( true == $this->debug ) {
+							if ( true === $this->debug ) {
+								// @codingStandardsIgnoreStart
 								WP_CLI::log( 'new content: ' . print_r( $post_content, true ) );
+								// @codingStandardsIgnoreEnd
 							}
 						}
 					} // End if().
@@ -244,7 +264,7 @@ class WPCLI_Migration_Post {
 					 * Initial import is happening here
 					 */
 					$migration_check = wp_insert_post( array(
-						'post_author' => $new_user, // @todo still need to deal with authors
+						'post_author' => $new_user,
 						'post_date' => $import_post->date,
 						'post_date_gmt' => $import_post->date_gmt,
 						'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,

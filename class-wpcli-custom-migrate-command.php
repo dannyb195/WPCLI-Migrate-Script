@@ -237,7 +237,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 					WP_CLI::log( 'we are dealing with local WordPress JSON file to import to WordPress' );
 				}
 
-				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts.
+				require_once( __DIR__ . '/inc/class-wpcli-migration-post.php' ); // Loading our class that handles migrating posts.
 				new WPCLI_Migration_Post( $json, $user_args );
 
 			}
@@ -311,7 +311,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 				WP_CLI::log( 'we are dealing with WordPress to WordPress' );
 
-				require_once( __DIR__ . '/inc/post.php' ); // Loading our class that handles migrating posts.
+				require_once( __DIR__ . '/inc/class-wpcli-migration-post.php' ); // Loading our class that handles migrating posts.
 				new WPCLI_Migration_Post( $json, $user_args );
 
 			} else {
