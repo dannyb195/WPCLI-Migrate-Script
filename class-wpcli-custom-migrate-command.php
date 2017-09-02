@@ -98,6 +98,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		);
 
 		require_once( __DIR__ . '/inc/helper.php' );
+		require_once( __DIR__ . '/inc/class-wpcli-migration-user.php' );
 
 	} // End __construct
 
