@@ -41,19 +41,9 @@ class WPCLI_Migration_User {
 			WP_CLI::log( '3' );
 			$author = json_decode( $author['body'] );
 
-echo "remote author\n<pre>";
-print_r($author);
-echo "</pre>\n\n";
-
 			if ( property_exists( $author, 'name' ) ) {
 				WP_CLI::log( '4' );
 				$user = get_user_by( 'email', $author->user_email );
-
-				// $user = self::local_user( $author->id );
-
-echo "user\n<pre>";
-print_r($user);
-echo "</pre>\n\n";
 
 			} else {
 				WP_CLI::log( '5' );
@@ -70,10 +60,6 @@ echo "</pre>\n\n";
 			if ( true === $this->debug ) {
 				WP_CLI::log( 'user ' . $author->name . ' does not exist we should create them' );
 			}
-
-// echo "author\n<pre>";
-// print_r($author);
-// echo "</pre>\n\n";
 
 			if ( property_exists( $author , 'name' ) ) {
 				$new_user = wp_insert_user( array(
@@ -111,19 +97,8 @@ echo "</pre>\n\n";
 			}
 		} else {
 
-			WP_CLI::log( 'User already exists' );
 
-			$new_user = $user->data->ID;
-
-echo "new_user\n<pre>";
-print_r($new_user);
-echo "</pre>\n\n";
-
-			wp_update_user( array(
-				$new_user,
-				'display_name' => $user->name,
-			) );
-		}// End if().
+		} // End if().
 
 		return $new_user;
 
@@ -138,16 +113,26 @@ echo "</pre>\n\n";
 	 * @param  integer $author_id Local user ID
 	 * @return object             WP_User object
 	 */
-	public static function local_user( $author_id = null ) {
+	public static function local_user( $author = null ) {
 
-		if ( null === $author_id ) {
+		if ( null === $author ) {
+			WP_CLI::log( 'oop null' );
 			return;
 		}
 
-		return get_users( array(
-			'meta_key' => 'origin_id',
-			'meta_value' => intval( $author_id ),
+		WP_CLI::log( 'running get_user' );
+
+		$local_user = get_user_by( 'email', $author->user_email );
+
+		WP_CLI::log( 'User already exists' );
+
+		$user = wp_update_user( array(
+			'ID' => $local_user->ID,
+			'display_name' => $local_user->data->display_name,
+			'role' => $author->role,
 		) );
+
+		return get_user_by( 'ID', $user );
 
 	} // End local_user().
 }

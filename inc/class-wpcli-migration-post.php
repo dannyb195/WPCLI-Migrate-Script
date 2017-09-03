@@ -276,7 +276,7 @@ class WPCLI_Migration_Post {
 					/**
 					 * Getting our local user via user meta
 					 */
-					$local_user = WPCLI_Migration_User::local_user( $author->id );
+					$local_user = WPCLI_Migration_User::local_user( $author );
 
 					if ( empty( $local_user ) ) {
 						WP_CLI::warning( 'no local user with origin id: ' . $author->id . ' we will create them' );
@@ -285,6 +285,7 @@ class WPCLI_Migration_Post {
 							'user_login' => $author->name,
 							'user_name' => $author->name,
 							'user_pass' => wp_generate_password( 12, false ),
+							'user_email' => $author->user_email,
 						) );
 
 						/**
@@ -315,7 +316,7 @@ class WPCLI_Migration_Post {
 					// $remote_post['post_type'] = $post->type;
 					// $remote_post['post_name'] = '';
 					// $remote_post['post_modified'] = $post->modified;
-					$remote_post['post_author'] = $local_user[0]->ID;
+					$remote_post['post_author'] = $local_user->ID;
 					// $remote_post['post_status'] = 'publish';
 					// $remote_post['comment_status'] = $post->comment_status;
 					// $remote_post['ping_status'] = $post->ping_status;
@@ -349,7 +350,7 @@ class WPCLI_Migration_Post {
 
 						$migration_check = wp_insert_post( array(
 							'ID' => $status_check[0], // This is the existing post ID.
-							'post_author' => $local_user[0]->ID,
+							'post_author' => $local_user->ID,
 							'post_date' => $import_post->date,
 							'post_date_gmt' => $import_post->date_gmt,
 							'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,
