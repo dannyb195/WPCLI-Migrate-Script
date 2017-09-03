@@ -145,10 +145,6 @@ class WPCLI_Migration_Post {
 					$new_user = new WPCLI_Migration_User( $this->debug );
 					$new_user = $new_user->check_create_user( $import_post );
 
-// echo "import_post\n<pre>";
-// print_r($import_post);
-// echo "</pre>\n\n";
-
 					if ( 1 !== intval( $this->skip_images ) ) {
 
 						/**
@@ -278,7 +274,7 @@ class WPCLI_Migration_Post {
 					 */
 					$local_user = WPCLI_Migration_User::local_user( $author );
 
-					if ( empty( $local_user ) ) {
+					if ( empty( $local_user && ! is_wp_error( $local_user ) ) ) {
 						WP_CLI::warning( 'no local user with origin id: ' . $author->id . ' we will create them' );
 
 						$local_user = wp_insert_user( array(
@@ -292,6 +288,9 @@ class WPCLI_Migration_Post {
 						 * We should use update_user_attribute() here rather using add_user_meta
 						 * than though it is only available on VIP.
 						 */
+						if ( is_wp_error( $local_user ) ) {
+							continue;
+						}
 						// @codingStandardsIgnoreStart
 						add_user_meta( intval( $local_user ), 'origin_id', $author->id );
 						// @codingStandardsIgnoreEnd

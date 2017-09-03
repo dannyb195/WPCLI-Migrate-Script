@@ -14,48 +14,45 @@ class WPCLI_Migration_User {
 	public $debug;
 
 	public function __construct( $debug ) {
-		WP_CLI::log( 'WPCLI_Migration_User' );
 		$this->debug = $debug;
 	}
 
 	public function check_create_user( $import_post ) {
 
 		/**
-		 * Start move this
+		 * Setting empty default
+		 * @var string
+		 */
+		$new_user = '';
+
+		/**
 		 * Author / User stuff here
 		 *
 		 * @todo  move this to inc/author.php because I should have put it there in the first place
 		 */
 
 		if ( property_exists( $import_post->_links, 'author' ) ) {
-			WP_CLI::log( '1' );
 			// @codingStandardsIgnoreStart
 			$author = wp_remote_get( $import_post->_links->author[0]->href );
 			// @codingStandardsIgnoreEnd
 		} else {
-			WP_CLI::log( '2' );
 			$author = new WP_Error();
 		}
 
 		if ( ! is_wp_error( $author ) ) {
-			WP_CLI::log( '3' );
 			$author = json_decode( $author['body'] );
 
 			if ( property_exists( $author, 'name' ) ) {
-				WP_CLI::log( '4' );
 				$user = get_user_by( 'email', $author->user_email );
 
 			} else {
-				WP_CLI::log( '5' );
 				$author->name = null;
 			}
 		} else {
-			WP_CLI::log( '6' );
 			$user = false;
 		}
 
 		if ( false === $user ) {
-			WP_CLI::log( '7' );
 
 			if ( true === $this->debug ) {
 				WP_CLI::log( 'user ' . $author->name . ' does not exist we should create them' );
@@ -73,22 +70,13 @@ class WPCLI_Migration_User {
 				/**
 				 * Adding user meta which is later used to determine if a post author has changed.
 				 */
-				// @codingStandardsIgnoreStart
-				add_user_meta( intval( $new_user ), 'origin_id', $author->id );
-				// @codingStandardsIgnoreEnd
-			} else {
-				// continue;
-			}
 
-			/**
-			 * If the $new_user is an object the user already exists
-			 */
-			if ( is_object( $new_user ) ) {
-				// @codingStandardsIgnoreStart
-				WP_CLI::log( 'User already exists: ' . print_r( $new_user, true ) );
-				// @codingStandardsIgnoreEnd
-				// continue;
-			}
+				if ( ! is_wp_error( $new_user ) ) {
+					// @codingStandardsIgnoreStart
+					add_user_meta( intval( $new_user ), 'origin_id', $author->id );
+					// @codingStandardsIgnoreEnd
+				}
+			} // End if $author->name
 
 			if ( true === $this->debug ) {
 				// @codingStandardsIgnoreStart
@@ -102,10 +90,6 @@ class WPCLI_Migration_User {
 
 		return $new_user;
 
-		/**
-		 * End move this
-		 */
-
 	} // End check_create_user()
 
 	/**
@@ -116,21 +100,31 @@ class WPCLI_Migration_User {
 	public static function local_user( $author = null ) {
 
 		if ( null === $author ) {
-			WP_CLI::log( 'oop null' );
 			return;
 		}
 
-		WP_CLI::log( 'running get_user' );
-
 		$local_user = get_user_by( 'email', $author->user_email );
 
-		WP_CLI::log( 'User already exists' );
+		if ( is_wp_error( $local_user ) || empty ( $local_user ) ) {
+			return;
+		}
 
 		$user = wp_update_user( array(
 			'ID' => $local_user->ID,
 			'display_name' => $local_user->data->display_name,
 			'role' => $author->role,
 		) );
+
+		/**
+		 * If the $new_user is an object the user already exists
+		 */
+		if ( ! empty( $user ) && ! is_wp_error( $user ) ) {
+			// @codingStandardsIgnoreStart
+			WP_CLI::log( 'User already exists with ID ' . print_r( $user, true ) . ' maybe updating' );
+			// @codingStandardsIgnoreEnd
+		} else {
+			return;
+		}
 
 		return get_user_by( 'ID', $user );
 
