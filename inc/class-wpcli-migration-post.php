@@ -145,9 +145,9 @@ class WPCLI_Migration_Post {
 					$new_user = new WPCLI_Migration_User( $this->debug );
 					$new_user = $new_user->check_create_user( $import_post );
 
-echo "import_post\n<pre>";
-print_r($import_post);
-echo "</pre>\n\n";
+// echo "import_post\n<pre>";
+// print_r($import_post);
+// echo "</pre>\n\n";
 
 					if ( 1 !== intval( $this->skip_images ) ) {
 
@@ -276,7 +276,7 @@ echo "</pre>\n\n";
 					/**
 					 * Getting our local user via user meta
 					 */
-					$local_user = WPCLI_Migration_Helper::local_user( $author->id );
+					$local_user = WPCLI_Migration_User::local_user( $author->id );
 
 					if ( empty( $local_user ) ) {
 						WP_CLI::warning( 'no local user with origin id: ' . $author->id . ' we will create them' );

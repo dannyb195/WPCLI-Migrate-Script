@@ -14,6 +14,7 @@ class WPCLI_Migration_User {
 	public $debug;
 
 	public function __construct( $debug ) {
+		WP_CLI::log( 'WPCLI_Migration_User' );
 		$this->debug = $debug;
 	}
 
@@ -39,9 +40,21 @@ class WPCLI_Migration_User {
 		if ( ! is_wp_error( $author ) ) {
 			WP_CLI::log( '3' );
 			$author = json_decode( $author['body'] );
+
+echo "remote author\n<pre>";
+print_r($author);
+echo "</pre>\n\n";
+
 			if ( property_exists( $author, 'name' ) ) {
 				WP_CLI::log( '4' );
-				$user = get_user_by( 'login', $author->name );
+				$user = get_user_by( 'email', $author->user_email );
+
+				// $user = self::local_user( $author->id );
+
+echo "user\n<pre>";
+print_r($user);
+echo "</pre>\n\n";
+
 			} else {
 				WP_CLI::log( '5' );
 				$author->name = null;
@@ -58,15 +71,16 @@ class WPCLI_Migration_User {
 				WP_CLI::log( 'user ' . $author->name . ' does not exist we should create them' );
 			}
 
-echo "author\n<pre>";
-print_r($author);
-echo "</pre>\n\n";
+// echo "author\n<pre>";
+// print_r($author);
+// echo "</pre>\n\n";
 
 			if ( property_exists( $author , 'name' ) ) {
 				$new_user = wp_insert_user( array(
 					'user_login' => $author->name,
 					'user_name' => $author->name,
 					'user_pass' => wp_generate_password( 12, false ),
+					'user_email' => $author->user_email,
 					'role' => $author->role,
 				) );
 
@@ -118,4 +132,22 @@ echo "</pre>\n\n";
 		 */
 
 	} // End check_create_user()
+
+	/**
+	 * Getting our local user via user meta
+	 * @param  integer $author_id Local user ID
+	 * @return object             WP_User object
+	 */
+	public static function local_user( $author_id = null ) {
+
+		if ( null === $author_id ) {
+			return;
+		}
+
+		return get_users( array(
+			'meta_key' => 'origin_id',
+			'meta_value' => intval( $author_id ),
+		) );
+
+	} // End local_user().
 }
