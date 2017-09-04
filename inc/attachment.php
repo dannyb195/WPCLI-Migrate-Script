@@ -67,7 +67,7 @@ class WPCLI_Migration_Attachment {
 		/**
 		 * Checking that we actually have a valid asset to retrieve
 		 */
-		$file_check = get_headers( $media_file );
+		$file_check = @get_headers( $media_file );
 
 		if ( false === strpos( $file_check[0], '404' ) ) {
 
