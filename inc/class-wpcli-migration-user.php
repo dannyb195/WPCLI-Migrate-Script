@@ -96,7 +96,7 @@ class WPCLI_Migration_User {
 	 * @param  integer $author_id Local user ID
 	 * @return object             WP_User object
 	 */
-	public static function local_user( $author = null ) {
+	public static function local_user( $author = null, $debug = false ) {
 
 		if ( null === $author ) {
 			return;
@@ -117,12 +117,13 @@ class WPCLI_Migration_User {
 		/**
 		 * If the $new_user is an object the user already exists
 		 */
-		if ( ! empty( $user ) && ! is_wp_error( $user ) && true === $this->debug ) {
+
+		WP_CLI::log( 'find me: ' . print_r( $debug, 1 ) );
+
+		if ( true === $debug && ! empty( $user ) && ! is_wp_error( $user ) ) {
 			// @codingStandardsIgnoreStart
 			WP_CLI::log( 'User already exists with ID ' . print_r( $user, true ) . ' maybe updating' );
 			// @codingStandardsIgnoreEnd
-		} else {
-			return;
 		}
 
 		return get_user_by( 'ID', $user );

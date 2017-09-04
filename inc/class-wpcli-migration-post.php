@@ -272,7 +272,7 @@ class WPCLI_Migration_Post {
 					/**
 					 * Getting our local user via user meta
 					 */
-					$local_user = WPCLI_Migration_User::local_user( $author );
+					$local_user = WPCLI_Migration_User::local_user( $author, $this->debug );
 
 					if ( empty( $local_user && ! is_wp_error( $local_user ) ) ) {
 						WP_CLI::warning( 'no local user with origin id: ' . $author->id . ' we will create them' );
