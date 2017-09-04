@@ -329,22 +329,13 @@ class WPCLI_Migration_Post {
 					 */
 					$diff = array_diff( (array) $local_post_check, $remote_post );
 
-					// WP_CLI::log( 'diff local : ' . json_encode( $local_post_check ) );
-					// WP_CLI::log( 'diff remote: ' . json_encode( $remote_post ) );
-
-					// WP_CLI::log( 'diff local array: ' . print_r( $local_post_check, 1 ) );
-					// WP_CLI::log( 'diff: ' . print_r( $remote_post, 1 ) );
-
-
-
-					// WP_CLI::log( 'diff: ' . print_r( $diff, 1 ) );
-
 					if ( empty( $diff ) ) {
 						WP_CLI::log( 'nothing is different' );
 					} else {
 						/**
 						 * The remote post has changed, we will update it here
 						 */
+						WP_CLI::log( 'Something is different: ' . $i . ' ' . print_r( $diff, 1 ) );
 
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
