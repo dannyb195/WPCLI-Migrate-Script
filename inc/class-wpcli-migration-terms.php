@@ -63,15 +63,13 @@ class WPCLI_Migration_Terms {
 
 		if ( true == $this->debug ) {
 			error_log( 'post id: ' . $this->post_id );
-
-			// error_log( 'terms:' . print_r( $this->terms, true ) );
 		}
 
 		// Checking if the term already exists here
 		$this->terms_check( $this->terms );
 
 		// We already know we have terms, it is safe to move forward
-		// $this->add_term_to_post( $this->post_id, $this->terms );
+		$this->add_term_to_post( $this->post_id, $this->terms );
 	}
 
 	/**
@@ -86,21 +84,16 @@ class WPCLI_Migration_Terms {
 
 			$term_check = term_exists( $term->slug, $term->taxonomy );
 
-			// error_log( 'term check: ' . print_r( $term_check, true ) );
 			if ( empty( $term_check ) ) {
 				if ( true == $this->debug ) {
 					WP_CLI::log( 'we should create this term' );
 				}
-
 				$this->term_create( $term );
-
 			} else {
 				if ( true == $this->debug ) {
 					WP_CLI::log( 'term already exists' );
 				}
-
-				$this->add_term_to_post( $this->post_id, $term );
-
+				$this->add_term_to_post( $this->post_id, $term_check );
 			}
 		} // End foreach().
 
@@ -124,29 +117,38 @@ class WPCLI_Migration_Terms {
 		$success_check = wp_insert_term( $term->name, $term->taxonomy );
 
 		if ( is_array( $success_check ) ) {
-
-			$this->add_term_to_post( $this->post_id, $term );
+			$this->add_term_to_post( $this->post_id, $success_check );
 		}
 
 	}
 
 	/**
-	 * [add_term_to_post description]
+	 * adding our term/s to the post
 	 *
-	 * @param [type] $post_id [description]
-	 * @param [type] $terms   [description]
+	 * @param integer $post_id Post ID to add terms to.
+	 * @param array $terms     Array of terms to add to the post, if there is
+	 *                         more than one term an array of objects is returned.
 	 */
 	private function add_term_to_post( $post_id, $term ) {
 
-		// add term to post here
 		if ( true == $this->debug ) {
 			error_log( 'add term to post here: ' . print_r( $term, true ) );
 			error_log( 'post ID from terms file: ' . $post_id );
 		}
 
-		$test = wp_set_object_terms( $post_id, $term->id, $term->taxonomy, true );
-
-		// error_log( 'find me ' . print_r( $test, true ) );
+		/**
+		 * We have more than one term on this post
+		 * and for some reason the JSON API returns
+		 * an array of objects in this situation
+		 */
+		if ( is_array( $term ) && array_key_exists( 0, $term ) ) {
+			WP_CLI::log( 'we have more than 1 term' );
+			foreach ( $term as $single_term ) {
+				$test = wp_set_object_terms( $post_id, $single_term->id, 'category', true );
+			}
+		} else {
+			$test = wp_set_post_terms( $post_id, array( $term['term_id'] ), 'category', true );
+		}
 	}
 
 } // END class
