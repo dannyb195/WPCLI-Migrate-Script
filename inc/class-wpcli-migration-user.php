@@ -28,7 +28,6 @@ class WPCLI_Migration_User {
 		/**
 		 * Author / User stuff here
 		 *
-		 * @todo  move this to inc/author.php because I should have put it there in the first place
 		 */
 
 		if ( property_exists( $import_post->_links, 'author' ) ) {
@@ -118,7 +117,7 @@ class WPCLI_Migration_User {
 		/**
 		 * If the $new_user is an object the user already exists
 		 */
-		if ( ! empty( $user ) && ! is_wp_error( $user ) ) {
+		if ( ! empty( $user ) && ! is_wp_error( $user ) && true === $this->debug ) {
 			// @codingStandardsIgnoreStart
 			WP_CLI::log( 'User already exists with ID ' . print_r( $user, true ) . ' maybe updating' );
 			// @codingStandardsIgnoreEnd

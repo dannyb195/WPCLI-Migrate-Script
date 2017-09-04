@@ -142,12 +142,14 @@ class WPCLI_Migration_Terms {
 		 * an array of objects in this situation
 		 */
 		if ( is_array( $term ) && array_key_exists( 0, $term ) ) {
-			WP_CLI::log( 'we have more than 1 term' );
 			foreach ( $term as $single_term ) {
 				$test = wp_set_object_terms( $post_id, $single_term->id, 'category', true );
 			}
 		} else {
-			$test = wp_set_post_terms( $post_id, array( $term['term_id'] ), 'category', true );
+			// Dealing with only one or no term.
+			if ( isset( $term['term_id'] ) ) {
+				$test = wp_set_post_terms( $post_id, array( $term['term_id'] ), 'category', true );
+			}
 		}
 	}
 
