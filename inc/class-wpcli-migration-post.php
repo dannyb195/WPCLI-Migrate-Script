@@ -254,6 +254,9 @@ class WPCLI_Migration_Post {
 					$local_post_check = array();
 					$local_post_check['post_content'] = $local_post->post_content;
 					$local_post_check['post_title'] = $local_post->post_title;
+					if ( 0 === intval( $local_post->post_author ) ) {
+						$local_post->post_author = 1;
+					}
 					$local_post_check['post_author'] = intval( $local_post->post_author );
 
 					/**
@@ -331,18 +334,29 @@ class WPCLI_Migration_Post {
 
 					if ( empty( $diff ) ) {
 						WP_CLI::log( 'nothing is different' );
-						WP_CLI::log( 'nothing is different: ' . print_r( $diff, 1 ) );
+						// WP_CLI::log( 'nothing is different: ' . print_r( $diff, 1 ) );
 
-						WP_CLI::log( 'nothing is local : ' . print_r( $local_post_check, 1 ) );
-						WP_CLI::log( 'nothing is remote: ' . print_r( $remote_post, 1 ) );
+						// WP_CLI::log( 'nothing is different local : ' . print_r( $local_post_check, 1 ) );
+						// WP_CLI::log( 'nothing is different remote: ' . print_r( $remote_post, 1 ) );
 
 					} else {
 						/**
 						 * The remote post has changed, we will update it here
 						 */
-						WP_CLI::log( 'Something is different: ' . $i . ' ' . print_r( $diff, 1 ) );
-						WP_CLI::log( 'Something is different local author : ' . $i . ' ' . print_r( $local_post_check['post_author'], 1 ) );
-						WP_CLI::log( 'Something is different remote author: ' . $i . ' ' . print_r( $remote_post['post_author'], 1 ) );
+						// WP_CLI::log( 'Something is different: ' . $i . ' ' . print_r( $diff, 1 ) );
+						if ( $local_post_check['post_author'] !== $remote_post['post_author'] ) {
+							WP_CLI::log( 'Something is different local author : ' . $i . ' ' . print_r( $local_post_check['post_author'], 1 ) );
+							WP_CLI::log( 'Something is different remote author: ' . $i . ' ' . print_r( $remote_post['post_author'], 1 ) );
+						} else {
+							WP_CLI::log( 'authors are the same for: ' . $i );
+						}
+
+						if ( $local_post_check['post_content'] !== $import_post->content->rendered ) {
+							WP_CLI::log( 'content is different for: ' . $i );
+							WP_CLI::log( 'content for local : ' . $i . md5( $local_post_check['post_content'] ));
+							WP_CLI::log( 'content for remote: ' . $i . md5( $import_post->content->rendered ) );
+						}
+
 
 
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
