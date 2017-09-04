@@ -254,7 +254,7 @@ class WPCLI_Migration_Post {
 					$local_post_check = array();
 					$local_post_check['post_content'] = $local_post->post_content;
 					$local_post_check['post_title'] = $local_post->post_title;
-					$local_post_check['post_author'] = $local_post->post_author;
+					$local_post_check['post_author'] = intval( $local_post->post_author );
 
 					/**
 					 * Setting our remote post information
@@ -329,10 +329,22 @@ class WPCLI_Migration_Post {
 					 */
 					$diff = array_diff( (array) $local_post_check, $remote_post );
 
-					/**
-					 * The remote post has changed, we will update it here
-					 */
-					if ( ! empty( $diff ) ) {
+					// WP_CLI::log( 'diff local : ' . json_encode( $local_post_check ) );
+					// WP_CLI::log( 'diff remote: ' . json_encode( $remote_post ) );
+
+					// WP_CLI::log( 'diff local array: ' . print_r( $local_post_check, 1 ) );
+					// WP_CLI::log( 'diff: ' . print_r( $remote_post, 1 ) );
+
+
+
+					// WP_CLI::log( 'diff: ' . print_r( $diff, 1 ) );
+
+					if ( empty( $diff ) ) {
+						WP_CLI::log( 'nothing is different' );
+					} else {
+						/**
+						 * The remote post has changed, we will update it here
+						 */
 
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
