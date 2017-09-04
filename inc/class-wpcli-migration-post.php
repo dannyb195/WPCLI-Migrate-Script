@@ -331,11 +331,19 @@ class WPCLI_Migration_Post {
 
 					if ( empty( $diff ) ) {
 						WP_CLI::log( 'nothing is different' );
+						WP_CLI::log( 'nothing is different: ' . print_r( $diff, 1 ) );
+
+						WP_CLI::log( 'nothing is local : ' . print_r( $local_post_check, 1 ) );
+						WP_CLI::log( 'nothing is remote: ' . print_r( $remote_post, 1 ) );
+
 					} else {
 						/**
 						 * The remote post has changed, we will update it here
 						 */
 						WP_CLI::log( 'Something is different: ' . $i . ' ' . print_r( $diff, 1 ) );
+						WP_CLI::log( 'Something is different local author : ' . $i . ' ' . print_r( $local_post_check['post_author'], 1 ) );
+						WP_CLI::log( 'Something is different remote author: ' . $i . ' ' . print_r( $remote_post['post_author'], 1 ) );
+
 
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
