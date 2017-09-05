@@ -206,6 +206,7 @@ class WPCLI_Migration_Post {
 						'post_status' => 'publish',
 						'comment_status' => 'closed',
 						'ping_status' => 'open',
+						'post_category' => array(),
 						'meta_input' => array(
 							'content_origin' => $import_post->_links->self[0]->href,
 							'_thumbnail_id' => ! empty( $featured_image_id ) ? intval( $featured_image_id ) : '',
@@ -222,8 +223,6 @@ class WPCLI_Migration_Post {
 
 					/**
 					 * Checking and assigning Terms
-					 *
-					 * @todo Terms are not currently being assigned ( 8/1/17 )
 					 */
 					if ( isset( $import_post->_links->{'wp:term'}[0] ) && isset( $import_post->_links->{'wp:term'}[0]->href ) && ! empty( $migration_check ) ) {
 						WPCLI_Migration_Helper::initiate_terms( $migration_check, $import_post->_links->{'wp:term'}[0]->href, $this->debug );
@@ -371,7 +370,6 @@ class WPCLI_Migration_Post {
 						 *
 						 * @todo  need some type of check if the post has actually changed here
 						 */
-
 						$migration_check = wp_insert_post( array(
 							'ID' => $status_check[0], // This is the existing post ID.
 							'post_author' => $local_user->ID,

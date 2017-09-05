@@ -70,6 +70,8 @@ class WPCLI_Migration_Terms {
 
 		// We already know we have terms, it is safe to move forward
 		$this->add_term_to_post( $this->post_id, $this->terms );
+
+		$this->remove_post_terms( $post_id );
 	}
 
 	/**
@@ -114,7 +116,9 @@ class WPCLI_Migration_Terms {
 			error_log( 'term_create: ' . print_r( $term, true ) );
 		}
 
-		$success_check = wp_insert_term( $term->name, $term->taxonomy );
+		$success_check = wp_insert_term( $term->name, $term->taxonomy, array(
+			'description' => $term->description,
+		) );
 
 		if ( is_array( $success_check ) ) {
 			$this->add_term_to_post( $this->post_id, $success_check );
@@ -141,9 +145,13 @@ class WPCLI_Migration_Terms {
 
 		$local_post_terms = wp_get_post_terms( $post_id, 'category' );
 
-		foreach ($local_post_terms as $key => $local_post_term ) {
+		foreach ( $local_post_terms as $key => $local_post_term ) {
+			// WP_CLI::log( '1' );
+			// WP_CLI::log( 'local post term: ' . print_r( $local_post_term, 1 ) );
 			if ( 'uncategorized' === $local_post_term->slug ) {
+				// WP_CLI::log( '2' );
 				unset( $local_post_terms[ $key ] );
+				// WP_CLI::log( print_r( $local_post_terms, 1 ) );
 			}
 		}
 
@@ -182,5 +190,22 @@ class WPCLI_Migration_Terms {
 		}
 
 	}
+
+	/**
+	 * Removing 'uncategorized' as a term on a new post as it is applied by default
+	 *
+	 * @param  integer $post_id Post ID
+	 */
+	private function remove_post_terms( $post_id ) {
+
+		$local_post_terms = wp_get_post_terms( $post_id, 'category' );
+
+		foreach ( $local_post_terms as $key => $term ) {
+			if ( 'uncategorized' === $term->slug ) {
+				$test = wp_remove_object_terms( $post_id, 1, 'category' );
+			}
+		}
+
+	} // End remove_post_terms()
 
 } // END class
