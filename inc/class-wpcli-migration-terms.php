@@ -62,7 +62,7 @@ class WPCLI_Migration_Terms {
 		}
 
 		if ( true == $this->debug ) {
-			error_log( 'post id: ' . $this->post_id );
+			WP_CLI::log( 'post id from term migration: ' . $this->post_id );
 		}
 
 		// Checking if the term already exists here
@@ -131,9 +131,25 @@ class WPCLI_Migration_Terms {
 	 */
 	private function add_term_to_post( $post_id, $term ) {
 
-		if ( true == $this->debug ) {
-			error_log( 'add term to post here: ' . print_r( $term, true ) );
-			error_log( 'post ID from terms file: ' . $post_id );
+		WP_CLI::log( 'debug: ' . $this->debug );
+
+		if ( true === $this->debug ) {
+			WP_CLI::log( 'add term to post here: ' . print_r( $term, true ) );
+			WP_CLI::log( 'post ID from terms file: ' . $post_id );
+		}
+
+		$remote_post_terms = $term;
+		// $local_post_terms = wp_get_post_terms( $post_id, 'category' );
+
+		// WP_CLI::log( 'remote post terms' . print_r($remote_post_terms, 1) );
+		// WP_CLI::log( 'local post terms' . print_r($local_post_terms, 1) );
+
+		foreach ( $remote_post_terms as $remote_post_term ) {
+			if ( has_term( $remote_post_term->slug, 'category', $post_id ) ) {
+				WP_CLI::log( 'local post has the same term as remote' );
+			} else {
+				WP_CLI::log( 'we need to update the local post terms' );
+			}
 		}
 
 		/**
