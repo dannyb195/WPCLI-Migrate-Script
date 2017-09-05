@@ -143,41 +143,39 @@ class WPCLI_Migration_Terms {
 
 		$local_post_terms = wp_get_post_terms( $post_id, 'category' );
 
-		// if ( ! isset( $remote_post_terms['term_id'] ) && empty( $remote_post_terms['term_id'] ) ) {
-			WP_CLI::log( 'good array' );
-			WP_CLI::log( 'remote post terms' . print_r($remote_post_terms, 1) );
-			WP_CLI::log( 'local post terms' . print_r($local_post_terms, 1) );
+		// WP_CLI::log( 'good array' );
+		// WP_CLI::log( 'remote post terms' . print_r($remote_post_terms, 1) );
+		// WP_CLI::log( 'local post terms' . print_r($local_post_terms, 1) );
 
-			/**
-			 * Checking to make sure our local post has the remote post terms.
-			 * If not we should update the local post terms.
-			 *
-			 * @todo updating local post if terms are different
-			 */
-			foreach ( $remote_post_terms as $remote_post_term ) {
-				if ( has_term( $remote_post_term->slug, 'category', $post_id ) ) {
-					WP_CLI::log( 'local post has the same term as remote' );
-				} else {
-					WP_CLI::log( 'we need to update the local post terms' );
-				}
-			}
-
-			/**
-			 * We have more than one term on this post
-			 * and for some reason the JSON API returns
-			 * an array of objects in this situation
-			 */
-			if ( is_array( $term ) && array_key_exists( 0, $term ) ) {
-				foreach ( $term as $single_term ) {
-					$test = wp_set_object_terms( $post_id, $single_term->id, 'category', true );
-				}
+		/**
+		 * Checking to make sure our local post has the remote post terms.
+		 * If not we should update the local post terms.
+		 *
+		 * @todo updating local post if terms are different
+		 */
+		foreach ( $remote_post_terms as $remote_post_term ) {
+			if ( isset( $remote_post_term->slug ) && has_term( $remote_post_term->slug, 'category', $post_id ) ) {
+				WP_CLI::log( 'local post has the same term as remote' );
 			} else {
-				// Dealing with only one or no term.
-				if ( isset( $term['term_id'] ) ) {
-					$test = wp_set_post_terms( $post_id, array( $term['term_id'] ), 'category', true );
-				}
+				WP_CLI::log( 'we need to update the local post terms' );
 			}
-		// } // End mkaing sure we have a valid terms array
+		}
+
+		/**
+		 * We have more than one term on this post
+		 * and for some reason the JSON API returns
+		 * an array of objects in this situation
+		 */
+		if ( is_array( $term ) && array_key_exists( 0, $term ) ) {
+			foreach ( $term as $single_term ) {
+				$test = wp_set_object_terms( $post_id, $single_term->id, 'category', true );
+			}
+		} else {
+			// Dealing with only one or no term.
+			if ( isset( $term['term_id'] ) ) {
+				$test = wp_set_post_terms( $post_id, array( $term['term_id'] ), 'category', true );
+			}
+		}
 
 	}
 
