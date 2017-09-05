@@ -131,8 +131,6 @@ class WPCLI_Migration_Terms {
 	 */
 	private function add_term_to_post( $post_id, $term ) {
 
-		WP_CLI::log( 'debug: ' . $this->debug );
-
 		if ( true === $this->debug ) {
 			WP_CLI::log( 'add term to post here: ' . print_r( $term, true ) );
 			WP_CLI::log( 'post ID from terms file: ' . $post_id );
@@ -142,6 +140,12 @@ class WPCLI_Migration_Terms {
 		unset( $remote_post_terms['_links'] );
 
 		$local_post_terms = wp_get_post_terms( $post_id, 'category' );
+
+		foreach ($local_post_terms as $key => $local_post_term ) {
+			if ( 'uncategorized' === $local_post_term->slug ) {
+				unset( $local_post_terms[ $key ] );
+			}
+		}
 
 		// WP_CLI::log( 'good array' );
 		// WP_CLI::log( 'remote post terms' . print_r($remote_post_terms, 1) );
