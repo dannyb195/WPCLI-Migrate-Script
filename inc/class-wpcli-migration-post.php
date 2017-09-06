@@ -334,7 +334,7 @@ class WPCLI_Migration_Post {
 					/**
 					 * Array of term objects associated with local post
 					 */
-					$local_post_terms = wp_get_post_terms( $status_check[0], 'category', $args );
+					$local_post_terms = wp_get_post_terms( $status_check[0], 'category' );
 					// WP_CLI::log( 'local_post_terms for postID : ' .$status_check[0] . ' ' . print_r($local_post_terms, 1) );
 
 					/**

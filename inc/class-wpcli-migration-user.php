@@ -118,8 +118,6 @@ class WPCLI_Migration_User {
 		 * If the $new_user is an object the user already exists
 		 */
 
-		WP_CLI::log( 'find me: ' . print_r( $debug, 1 ) );
-
 		if ( true === $debug && ! empty( $user ) && ! is_wp_error( $user ) ) {
 			// @codingStandardsIgnoreStart
 			WP_CLI::log( 'User already exists with ID ' . print_r( $user, true ) . ' maybe updating' );

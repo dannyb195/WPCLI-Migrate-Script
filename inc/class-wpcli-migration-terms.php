@@ -120,6 +120,12 @@ class WPCLI_Migration_Terms {
 			'description' => $term->description,
 		) );
 
+		WP_CLI::log( 'success check: ' . print_r( $success_check, 1 ) );
+
+		// WP_CLI::log( 'remote term: ' . print_r( $term, 1 ) );
+
+		add_term_meta( $success_check['term_id'], 'origin_id', $term->id );
+
 		if ( is_array( $success_check ) ) {
 			$this->add_term_to_post( $this->post_id, $success_check );
 		}

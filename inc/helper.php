@@ -48,8 +48,24 @@ class WPCLI_Migration_Helper {
 		$remote_post_terms_count = count( $remote_post_terms );
 
 		if ( $local_post_terms_count !== $remote_post_terms_count ) {
-			$term_check = true;
+			$term_check = true; // There is a difference in term counts
+		} else {
+			/**
+			 * We have the same term count but need to check if they are actually the same term
+			 */
+			foreach ($local_post_terms as $term) {
+
+				WP_CLI::log( 'single term: ' . print_r($term, 1) );
+
+				$local_term_meta_check = get_term_meta( $term->term_id, 'origin_id', true );
+
+				WP_CLI::log( 'single term meta: ' . print_r($local_term_meta_check, 1) );
+
+
+			}
 		}
+
+
 
 		/**
 		 * @todo  still need to account for if the count is the same though the term is different
