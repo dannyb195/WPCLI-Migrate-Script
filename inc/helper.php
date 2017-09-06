@@ -53,6 +53,11 @@ class WPCLI_Migration_Helper {
 			/**
 			 * We have the same term count but need to check if they are actually the same term
 			 */
+
+			/**
+			 * @todo  still need to account for if the count is the same though the term is different
+			 * probably using an additional JSON call to the remote site.
+			 */
 			foreach ($local_post_terms as $term) {
 
 				WP_CLI::log( 'single term: ' . print_r($term, 1) );
@@ -64,13 +69,6 @@ class WPCLI_Migration_Helper {
 
 			}
 		}
-
-
-
-		/**
-		 * @todo  still need to account for if the count is the same though the term is different
-		 * probably using an additional JSON call to the remote site.
-		 */
 
 		return $term_check;
 
