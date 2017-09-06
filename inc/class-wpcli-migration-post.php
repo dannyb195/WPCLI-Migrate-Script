@@ -331,6 +331,32 @@ class WPCLI_Migration_Post {
 					 */
 					$diff = array_diff( (array) $local_post_check, $remote_post );
 
+					/**
+					 * Array of term ids associated with the remote post
+					 */
+					WP_CLI::log( 'remote post terms: ' . print_r($import_post->categories, 1) );
+					$remote_post_terms = $import_post->categories;
+
+					/**
+					 * Array of term objects associated with local post
+					 */
+					$local_post_terms = wp_get_post_terms( $status_check[0], 'category', $args );
+					WP_CLI::log( 'local_post_terms for postID : ' .$status_check[0] . ' ' . print_r($local_post_terms, 1) );
+
+					/**
+					 * Counting the array lengths to determine if there is a difference
+					 * @var [type]
+					 */
+					$remote_post_terms_count = count( $remote_post_terms );
+					$local_post_terms_count = count( $local_post_terms );
+
+					/**
+					 * dev code
+					 */
+					WP_CLI::log( $remote_post_terms_count );
+					WP_CLI::log( $local_post_terms_count );
+
+
 					if ( empty( $diff ) ) {
 						WP_CLI::log( 'nothing is different' );
 						// WP_CLI::log( 'nothing is different: ' . print_r( $diff, 1 ) );
