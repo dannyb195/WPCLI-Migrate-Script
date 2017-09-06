@@ -19,4 +19,45 @@ class WPCLI_Migration_Helper {
 
 	}
 
+	/**
+	 * Check if there is a difference in term count on a post
+	 * between the remote post and the local post.
+	 * If there is a difference we remove all local post terms
+	 * here to trigger them to be reassigned.
+	 *
+	 * @param  integer $post_id           Local post ID
+	 * @param  array $local_post_terms  Array of term objects as returned by wp_get_post_terms
+	 * @param  array $remote_post_terms Array of term IDs associated with remote post
+	 * @return boolean                    True if there is a difference in post term count
+	 */
+	public static function term_diff_check( $post_id = null, $local_post_terms = null, $remote_post_terms = null ) {
+
+		$term_check = false;
+
+		if ( ! isset( $post_id, $local_post_terms, $remote_post_terms ) ) {
+			/**
+			 * WP_CLI::error fires return; to stop execution
+			 */
+			WP_CLI::error( 'A value for term_diff_check is not set, bailing here' );
+		}
+
+		/**
+		 * Counting the array lengths to determine if there is a difference
+		 */
+		$local_post_terms_count = count( $local_post_terms );
+		$remote_post_terms_count = count( $remote_post_terms );
+
+		if ( $local_post_terms_count !== $remote_post_terms_count ) {
+			$term_check = true;
+		}
+
+		/**
+		 * @todo  still need to account for if the count is the same though the term is different
+		 * probably using an additional JSON call to the remote site.
+		 */
+
+		return $term_check;
+
+	} // End term_diff_check
+
 } // END class

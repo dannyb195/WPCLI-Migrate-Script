@@ -332,30 +332,27 @@ class WPCLI_Migration_Post {
 					$diff = array_diff( (array) $local_post_check, $remote_post );
 
 					/**
-					 * Array of term ids associated with the remote post
-					 */
-					WP_CLI::log( 'remote post terms: ' . print_r($import_post->categories, 1) );
-					$remote_post_terms = $import_post->categories;
-
-					/**
 					 * Array of term objects associated with local post
 					 */
 					$local_post_terms = wp_get_post_terms( $status_check[0], 'category', $args );
-					WP_CLI::log( 'local_post_terms for postID : ' .$status_check[0] . ' ' . print_r($local_post_terms, 1) );
+					// WP_CLI::log( 'local_post_terms for postID : ' .$status_check[0] . ' ' . print_r($local_post_terms, 1) );
 
 					/**
-					 * Counting the array lengths to determine if there is a difference
-					 * @var [type]
+					 * Array of term ids associated with the remote post
 					 */
-					$remote_post_terms_count = count( $remote_post_terms );
-					$local_post_terms_count = count( $local_post_terms );
+					// WP_CLI::log( 'remote post terms: ' . print_r($import_post->categories, 1) );
+					$remote_post_terms = $import_post->categories;
 
 					/**
-					 * dev code
+					 * Checking if the remote post has a different term count than our local post
+					 *
+					 * If so, clearing out local post terms and re adding them
+					 *
+					 * $status_check[0] is our local post ID
 					 */
-					WP_CLI::log( $remote_post_terms_count );
-					WP_CLI::log( $local_post_terms_count );
+					$term_diff = WPCLI_Migration_Helper::term_diff_check( $status_check[0], $local_post_terms, $remote_post_terms );
 
+					// WP_CLI::warning( 'term_diff: ' . $term_diff );
 
 					if ( empty( $diff ) ) {
 						WP_CLI::log( 'nothing is different' );
