@@ -64,11 +64,18 @@ class WPCLI_Migration_Helper {
 
 				$local_term_meta_check = get_term_meta( $term->term_id, 'origin_id', true );
 
+
 				WP_CLI::log( 'single term meta: ' . print_r($local_term_meta_check, 1) );
 
+				WP_CLI::log( 'remote term meta: ' . print_r($remote_post_terms, 1) );
 
-			}
-		}
+				if ( $local_term_meta_check !== $remote_post_terms[0] ) {
+					$term_check = true; // We have the same term count though a different remote term
+				}
+
+			} // End foreach local_post_terms
+
+		} // End if we have the same term count
 
 		return $term_check;
 

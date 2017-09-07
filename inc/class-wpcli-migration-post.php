@@ -352,9 +352,9 @@ class WPCLI_Migration_Post {
 					 */
 					$term_diff = WPCLI_Migration_Helper::term_diff_check( $status_check[0], $local_post_terms, $remote_post_terms );
 
-					// WP_CLI::warning( 'term_diff: ' . $term_diff );
+					WP_CLI::warning( 'term_diff: ' . $term_diff );
 
-					if ( empty( $diff ) ) {
+					if ( empty( $diff ) && false === $term_diff ) {
 						WP_CLI::log( 'nothing is different' );
 						// WP_CLI::log( 'nothing is different: ' . print_r( $diff, 1 ) );
 
