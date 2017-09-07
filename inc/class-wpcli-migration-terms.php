@@ -3,12 +3,14 @@
  * WPCLI_Migration_Terms handles term mirgation and updates
  *
  * @package wpcli-migration-script
+ * @author Dan Beil
  */
 
 /**
  * WPCLI_Migration_Terms handles term mirgation and updates
  *
  * @package wpcli-migration-script
+ * @author Dan Beil
  **/
 class WPCLI_Migration_Terms {
 

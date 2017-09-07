@@ -1,12 +1,26 @@
 <?php
 /**
- * undocumented class
+ * Generic helper class
  *
- * @package default
- * @author
+ * @package wpcli-migration-script
+ * @author Dan Beil
+ **/
+
+/**
+ * Generic helper class
+ *
+ * @package wpcli-migration-script
+ * @author Dan Beil
  **/
 class WPCLI_Migration_Helper {
 
+	/**
+	 * This method initiates the term mirgation process
+	 *
+	 * @param  mixed   $migration_check Post ID or false.
+	 * @param  string  $terms_href      Remote term JSON endpoint.
+	 * @param  boolean $debug           Testing if we are in debug mode.
+	 */
 	public static function initiate_terms( $migration_check, $terms_href, $debug ) {
 
 		require_once( __DIR__ . '/../inc/class-wpcli-migration-terms.php' );
@@ -25,9 +39,9 @@ class WPCLI_Migration_Helper {
 	 * If there is a difference we remove all local post terms
 	 * here to trigger them to be reassigned.
 	 *
-	 * @param  integer $post_id           Local post ID
-	 * @param  array $local_post_terms  Array of term objects as returned by wp_get_post_terms
-	 * @param  array $remote_post_terms Array of term IDs associated with remote post
+	 * @param  integer $post_id           Local post ID.
+	 * @param  array   $local_post_terms  Array of term objects as returned by wp_get_post_terms.
+	 * @param  array   $remote_post_terms Array of term IDs associated with remote post.
 	 * @return boolean                    True if there is a difference in post term count
 	 */
 	public static function term_diff_check( $post_id = null, $local_post_terms = null, $remote_post_terms = null ) {
@@ -48,33 +62,17 @@ class WPCLI_Migration_Helper {
 		$remote_post_terms_count = count( $remote_post_terms );
 
 		if ( $local_post_terms_count !== $remote_post_terms_count ) {
-			$term_check = true; // There is a difference in term counts
+			$term_check = true; // There is a difference in term counts.
 		} else {
 			/**
 			 * We have the same term count but need to check if they are actually the same term
 			 */
-
-			/**
-			 * @todo  still need to account for if the count is the same though the term is different
-			 * probably using an additional JSON call to the remote site.
-			 */
-			foreach ($local_post_terms as $term) {
-
-				WP_CLI::log( 'single term: ' . print_r($term, 1) );
-
+			foreach ( $local_post_terms as $term ) {
 				$local_term_meta_check = get_term_meta( $term->term_id, 'origin_id', true );
-
-
-				WP_CLI::log( 'single term meta: ' . print_r($local_term_meta_check, 1) );
-
-				WP_CLI::log( 'remote term meta: ' . print_r($remote_post_terms, 1) );
-
-				if ( $local_term_meta_check !== $remote_post_terms[0] ) {
-					$term_check = true; // We have the same term count though a different remote term
+				if ( intval( $local_term_meta_check ) !== intval( $remote_post_terms[0] ) ) {
+					$term_check = true; // We have the same term count though a different remote term.
 				}
-
 			} // End foreach local_post_terms
-
 		} // End if we have the same term count
 
 		return $term_check;
