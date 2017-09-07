@@ -163,10 +163,6 @@ class WPCLI_Migration_Terms {
 			}
 		}
 
-		// WP_CLI::log( 'good array' );
-		// WP_CLI::log( 'remote post terms' . print_r($remote_post_terms, 1) );
-		// WP_CLI::log( 'local post terms' . print_r($local_post_terms, 1) );
-
 		/**
 		 * Checking to make sure our local post has the remote post terms.
 		 * If not we should update the local post terms.
@@ -175,9 +171,13 @@ class WPCLI_Migration_Terms {
 		 */
 		foreach ( $remote_post_terms as $remote_post_term ) {
 			if ( isset( $remote_post_term->slug ) && has_term( $remote_post_term->slug, 'category', $post_id ) ) {
-				WP_CLI::log( 'local post has the same term as remote' );
+				if ( true == $this->debug ) {
+					WP_CLI::log( 'local post has the same term as remote' );
+				}
 			} else {
-				WP_CLI::log( 'we need to update the local post terms' );
+				if ( true == $this->debug ) {
+					WP_CLI::log( 'we need to update the local post terms' );
+				}
 			}
 		}
 
