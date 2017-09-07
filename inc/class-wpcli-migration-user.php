@@ -9,6 +9,7 @@ class WPCLI_Migration_User {
 
 	/**
 	 * Our debugging property
+	 *
 	 * @var Boolean
 	 */
 	public $debug;
@@ -21,13 +22,13 @@ class WPCLI_Migration_User {
 
 		/**
 		 * Setting empty default
+		 *
 		 * @var string
 		 */
 		$new_user = '';
 
 		/**
 		 * Author / User stuff here
-		 *
 		 */
 
 		if ( property_exists( $import_post->_links, 'author' ) ) {
@@ -58,13 +59,15 @@ class WPCLI_Migration_User {
 			}
 
 			if ( property_exists( $author , 'name' ) ) {
-				$new_user = wp_insert_user( array(
-					'user_login' => $author->name,
-					'user_name' => $author->name,
-					'user_pass' => wp_generate_password( 12, false ),
-					'user_email' => $author->user_email,
-					'role' => $author->role,
-				) );
+				$new_user = wp_insert_user(
+					array(
+						'user_login' => $author->name,
+						'user_name' => $author->name,
+						'user_pass' => wp_generate_password( 12, false ),
+						'user_email' => $author->user_email,
+						'role' => $author->role,
+					)
+				);
 
 				/**
 				 * Adding user meta which is later used to determine if a post author has changed.
@@ -84,7 +87,6 @@ class WPCLI_Migration_User {
 			}
 		} else {
 
-
 		} // End if().
 
 		return $new_user;
@@ -93,6 +95,7 @@ class WPCLI_Migration_User {
 
 	/**
 	 * Getting our local user via user meta
+	 *
 	 * @param  integer $author_id Local user ID
 	 * @return object             WP_User object
 	 */
@@ -104,15 +107,17 @@ class WPCLI_Migration_User {
 
 		$local_user = get_user_by( 'email', $author->user_email );
 
-		if ( is_wp_error( $local_user ) || empty ( $local_user ) ) {
+		if ( is_wp_error( $local_user ) || empty( $local_user ) ) {
 			return;
 		}
 
-		$user = wp_update_user( array(
-			'ID' => $local_user->ID,
-			'display_name' => $local_user->data->display_name,
-			'role' => $author->role,
-		) );
+		$user = wp_update_user(
+			array(
+				'ID' => $local_user->ID,
+				'display_name' => $local_user->data->display_name,
+				'role' => $author->role,
+			)
+		);
 
 		/**
 		 * If the $new_user is an object the user already exists

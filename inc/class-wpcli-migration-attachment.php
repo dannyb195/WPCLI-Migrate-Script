@@ -20,8 +20,6 @@ class WPCLI_Migration_Attachment {
 	 */
 	private $media;
 
-
-
 	/**
 	 * Placeholder for post content
 	 *
@@ -30,7 +28,7 @@ class WPCLI_Migration_Attachment {
 	public $post_content;
 
 	/**
-	 * Placeholder propert for debug parameter
+	 * Placeholder property for debug parameter
 	 *
 	 * @var string
 	 */
@@ -111,9 +109,15 @@ class WPCLI_Migration_Attachment {
 
 	}
 
+	/**
+	 * Actual functionality for uploading an image
+	 *
+	 * @param  array $media  Array of media URLs to be uploaded.
+	 * @return string        The post_content with media URLs updated to the target site URL
+	 */
 	public function upload( $media ) {
 
-		// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url
+		// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url.
 		$uploaddir = wp_upload_dir();
 
 		if ( true == $this->debug ) {
@@ -181,21 +185,12 @@ class WPCLI_Migration_Attachment {
 				$img_url = wp_get_attachment_url( $imagenew->ID );
 
 				if ( true == $this->debug ) {
-
 					WP_CLI::log( 'source URL: ' . $media_file );
-
 					WP_CLI::log( 'We have a new image: ' . print_r( $imagenew, true ) );
-
-					// $img_url = wp_get_attachment_url( $imagenew->ID );
 					WP_CLI::log( 'image full url: ' . print_r( $img_url, true ) );
-
-					// WP_CLI::log( 'post content: ' . print_r( $this->post_content, true ) );
 				}
 
 				if ( ! empty( $this->post_content ) ) {
-
-					// error_log( 'media file: ' . print_r( $media_file, true ) );
-					// error_log( 'img url: ' . print_r( $img_url, true ) );
 					$this->post_content = preg_replace( '#' . $media_file . '#', $img_url, $this->post_content );
 
 				} else {
@@ -208,7 +203,12 @@ class WPCLI_Migration_Attachment {
 
 	} // End method upload
 
-
+	/**
+	 * This method upload a remote image as provided by the $img_json_url
+	 *
+	 * @param  string $img_json_url  Remote image URL.
+	 * @return integer               Media attachment post ID
+	 */
 	public function upload_featured_image( $img_json_url ) {
 
 		if ( true == $this->debug ) {
@@ -220,11 +220,10 @@ class WPCLI_Migration_Attachment {
 		$img_url = json_decode( $img_url['body'] );
 		$img_url = $img_url->source_url;
 
-		// error_log( 'img json: ' . print_r( $img_url->source_url, true ) );
 		$media_file_check = $this->media_file_check( $img_url );
 
 		if ( empty( $media_file_check ) && false !== $media_file_check ) {
-			// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url
+			// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url.
 			$uploaddir = wp_upload_dir();
 
 			$uploadfile = $uploaddir['path'] . '/' . basename( $img_url );

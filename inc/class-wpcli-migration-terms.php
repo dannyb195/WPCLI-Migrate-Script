@@ -118,13 +118,11 @@ class WPCLI_Migration_Terms {
 			error_log( 'term_create: ' . print_r( $term, true ) );
 		}
 
-		$success_check = wp_insert_term( $term->name, $term->taxonomy, array(
-			'description' => $term->description,
-		) );
-
-		WP_CLI::log( 'success check: ' . print_r( $success_check, 1 ) );
-
-		// WP_CLI::log( 'remote term: ' . print_r( $term, 1 ) );
+		$success_check = wp_insert_term(
+			$term->name, $term->taxonomy, array(
+				'description' => $term->description,
+			)
+		);
 
 		add_term_meta( $success_check['term_id'], 'origin_id', $term->id );
 
@@ -138,8 +136,8 @@ class WPCLI_Migration_Terms {
 	 * adding our term/s to the post
 	 *
 	 * @param integer $post_id Post ID to add terms to.
-	 * @param array $terms     Array of terms to add to the post, if there is
-	 *                         more than one term an array of objects is returned.
+	 * @param array   $terms     Array of terms to add to the post, if there is
+	 *                           more than one term an array of objects is returned.
 	 */
 	private function add_term_to_post( $post_id, $term ) {
 

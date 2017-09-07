@@ -92,10 +92,12 @@ class WPCLI_Migration_Menus {
 		 */
 		if ( ! empty( $menus ) ) {
 			foreach ( $menus as $menu ) {
-				$menu_term = wp_insert_term( $menu->name, 'nav_menu', array(
-					// 'parent' => '', Placeholder for now
-					'slug' => $menu->slug,
-				) );
+				$menu_term = wp_insert_term(
+					$menu->name, 'nav_menu', array(
+						// 'parent' => '', Placeholder for now
+						'slug' => $menu->slug,
+					)
+				);
 
 				if ( ! is_wp_error( $menu_term ) ) {
 					WP_CLI::success( 'Created menu ' . $menu->name );
@@ -142,16 +144,17 @@ class WPCLI_Migration_Menus {
 				/**
 				 * @link http://wordpress.stackexchange.com/questions/44736/programmatically-add-a-navigation-menu-and-menu-items
 				 */
-				$item = wp_update_nav_menu_item( $menu_id, '0', array(
+				$item = wp_update_nav_menu_item(
+					$menu_id, '0', array(
 
-					// 'post_title' =>$menu_item->post_title,
-					// 'post_type' => 'nav_menu_item',
-					'menu-item-object-id' => 0,
-					'menu-item-object' => $menu_item->object,
-					'menu-item-position' => $menu_item->menu_order,
-					'menu-item-type' => $menu_item->type,
-					'menu-item-title' => $menu_item->title,
-					'menu-item-parent-id' => 0,
+						// 'post_title' =>$menu_item->post_title,
+						// 'post_type' => 'nav_menu_item',
+						'menu-item-object-id' => 0,
+						'menu-item-object' => $menu_item->object,
+						'menu-item-position' => $menu_item->menu_order,
+						'menu-item-type' => $menu_item->type,
+						'menu-item-title' => $menu_item->title,
+						'menu-item-parent-id' => 0,
 					// 'menu-item-url' => '',
 					// 'menu-item-description' => '',
 					// 'menu-item-attr-title' => '',
@@ -159,7 +162,8 @@ class WPCLI_Migration_Menus {
 					// 'menu-item-classes' => '',
 					// 'menu-item-xfn' => '',
 					// 'menu-item-status' => '',
-				) );
+					)
+				);
 			}// End if().
 
 			if ( ! is_wp_error( $item ) ) {

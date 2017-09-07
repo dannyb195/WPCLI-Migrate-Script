@@ -104,7 +104,7 @@ class WPCLI_Migration_Post {
 				 */
 				if ( isset( $import_post->_links->{'wp:featuredmedia'}[0] ) && isset( $import_post->_links->{'wp:featuredmedia'}[0]->href ) ) {
 
-					require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments.
+					require_once( __DIR__ . '/../inc/class-wpcli-migration-attachment.php' ); // Loading our class that handles migrating media / attachments.
 
 					if ( true === $this->debug ) {
 						WP_CLI::log( $import_post->_links->{'wp:featuredmedia'}[0]->href );
@@ -121,18 +121,20 @@ class WPCLI_Migration_Post {
 				/**
 				 * Checking if our post already exists
 				 */
-				$status_check = get_posts( array(
-					'suppress_filters' => false,
-					'post_type' => $import_post->type,
-					'fields' => 'ids',
-					'posts_per_page' => 1,
-					'meta_query' => array(
-						array(
-							'key' => 'content_origin',
-							'value' => $import_post->_links->self[0]->href,
+				$status_check = get_posts(
+					array(
+						'suppress_filters' => false,
+						'post_type' => $import_post->type,
+						'fields' => 'ids',
+						'posts_per_page' => 1,
+						'meta_query' => array(
+							array(
+								'key' => 'content_origin',
+								'value' => $import_post->_links->self[0]->href,
+							),
 						),
-					),
-				) );
+					)
+				);
 
 				/**
 				 * If our post does not exist we will create it here
@@ -162,7 +164,7 @@ class WPCLI_Migration_Post {
 						 * We have in-content images, migrating them here
 						 */
 						if ( ! empty( $matches[1] ) ) {
-							require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments.
+							require_once( __DIR__ . '/../inc/class-wpcli-migration-attachment.php' ); // Loading our class that handles migrating media / attachments.
 
 							if ( true === $this->debug ) {
 								// @codingStandardsIgnoreStart
@@ -192,26 +194,28 @@ class WPCLI_Migration_Post {
 					/**
 					 * Initial import is happening here
 					 */
-					$migration_check = wp_insert_post( array(
-						'post_author' => $new_user,
-						'post_date' => $import_post->date,
-						'post_date_gmt' => $import_post->date_gmt,
-						'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,
-						'post_title' => ! empty( $import_post->title->rendered ) ? $import_post->title->rendered : 'no title',
-						'post_excerpt' => $import_post->excerpt->rendered,
-						'post_type' => $import_post->type,
-						'post_name' => '',
-						'post_modified' => $import_post->modified,
-						'post_modified_gmt' => '',
-						'post_status' => 'publish',
-						'comment_status' => 'closed',
-						'ping_status' => 'open',
-						'post_category' => array(),
-						'meta_input' => array(
-							'content_origin' => $import_post->_links->self[0]->href,
-							'_thumbnail_id' => ! empty( $featured_image_id ) ? intval( $featured_image_id ) : '',
-						),
-					) );
+					$migration_check = wp_insert_post(
+						array(
+							'post_author' => $new_user,
+							'post_date' => $import_post->date,
+							'post_date_gmt' => $import_post->date_gmt,
+							'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,
+							'post_title' => ! empty( $import_post->title->rendered ) ? $import_post->title->rendered : 'no title',
+							'post_excerpt' => $import_post->excerpt->rendered,
+							'post_type' => $import_post->type,
+							'post_name' => '',
+							'post_modified' => $import_post->modified,
+							'post_modified_gmt' => '',
+							'post_status' => 'publish',
+							'comment_status' => 'closed',
+							'ping_status' => 'open',
+							'post_category' => array(),
+							'meta_input' => array(
+								'content_origin' => $import_post->_links->self[0]->href,
+								'_thumbnail_id' => ! empty( $featured_image_id ) ? intval( $featured_image_id ) : '',
+							),
+						)
+					);
 
 					if ( true === $this->debug ) {
 						if ( false !== $migration_check ) {
@@ -279,12 +283,14 @@ class WPCLI_Migration_Post {
 					if ( empty( $local_user && ! is_wp_error( $local_user ) ) ) {
 						WP_CLI::warning( 'no local user with origin id: ' . $author->id . ' we will create them' );
 
-						$local_user = wp_insert_user( array(
-							'user_login' => $author->name,
-							'user_name' => $author->name,
-							'user_pass' => wp_generate_password( 12, false ),
-							'user_email' => $author->user_email,
-						) );
+						$local_user = wp_insert_user(
+							array(
+								'user_login' => $author->name,
+								'user_name' => $author->name,
+								'user_pass' => wp_generate_password( 12, false ),
+								'user_email' => $author->user_email,
+							)
+						);
 
 						/**
 						 * We should use update_user_attribute() here rather using add_user_meta
@@ -336,7 +342,6 @@ class WPCLI_Migration_Post {
 					 */
 					$local_post_terms = wp_get_post_terms( $status_check[0], 'category' );
 					// WP_CLI::log( 'local_post_terms for postID : ' .$status_check[0] . ' ' . print_r($local_post_terms, 1) );
-
 					/**
 					 * Array of term ids associated with the remote post
 					 */
@@ -355,11 +360,6 @@ class WPCLI_Migration_Post {
 					if ( empty( $diff ) && false === $term_diff ) {
 						continue;
 						WP_CLI::log( 'nothing is different' );
-						// WP_CLI::log( 'nothing is different: ' . print_r( $diff, 1 ) );
-
-						// WP_CLI::log( 'nothing is different local : ' . print_r( $local_post_check, 1 ) );
-						// WP_CLI::log( 'nothing is different remote: ' . print_r( $remote_post, 1 ) );
-
 					} else {
 						/**
 						 * The remote post has changed, we will update it here
@@ -374,16 +374,14 @@ class WPCLI_Migration_Post {
 
 						if ( $local_post_check['post_content'] !== $import_post->content->rendered ) {
 							WP_CLI::log( 'content is different for: ' . $i );
-							WP_CLI::log( 'content for local : ' . $i . md5( $local_post_check['post_content'] ));
+							WP_CLI::log( 'content for local : ' . $i . md5( $local_post_check['post_content'] ) );
 							WP_CLI::log( 'content for remote: ' . $i . md5( $import_post->content->rendered ) );
 						}
-
-
 
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
 						if ( ! empty( $matches[1] ) ) {
-							require_once( __DIR__ . '/../inc/attachment.php' ); // Loading our class that handles migrating media / attachments.
+							require_once( __DIR__ . '/../inc/class-wpcli-migration-attachment.php' ); // Loading our class that handles migrating media / attachments.
 							$post_content = new WPCLI_Migration_Attachment( $matches[1], $import_post->content->rendered, $this->debug );
 						}
 
@@ -392,8 +390,9 @@ class WPCLI_Migration_Post {
 						 *
 						 * @todo  need some type of check if the post has actually changed here
 						 */
-						$migration_check = wp_insert_post( array(
-							'ID' => $status_check[0], // This is the existing post ID.
+						$migration_check = wp_insert_post(
+							array(
+								'ID' => $status_check[0], // This is the existing post ID.
 							'post_author' => $local_user->ID,
 							'post_date' => $import_post->date,
 							'post_date_gmt' => $import_post->date_gmt,
@@ -406,8 +405,9 @@ class WPCLI_Migration_Post {
 							'post_status' => 'publish',
 							'meta_input' => array(
 								'content_origin' => $import_post->_links->self[0]->href,
-							),
-						) );
+							 ),
+							)
+						);
 
 						if ( false !== $migration_check ) {
 							WP_CLI::log( 'Post ' . WP_CLI::colorize( '%G' . $import_post->title->rendered . '%n' ) . ' with ID ' . $status_check[0] . ' has been updated' );
