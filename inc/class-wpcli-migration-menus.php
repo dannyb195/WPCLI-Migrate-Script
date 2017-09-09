@@ -1,14 +1,18 @@
 <?php
 /**
- * Place holder file for now
+ * WPCLI_Migration_Menus is intended to manage the migration of WP core menus
+ * it does not really work right now ( 9/9/17 ) but is a work in progress
+ *
+ * @package wpcli-migration-script
  */
 
 /**
- * undocumented class
+ * WPCLI_Migration_Menus is intended to manage the migration of WP core menus
+ * it does not really work right now ( 9/9/17 ) but is a work in progress
  *
- * @package default
- * @author
- **/
+ * @package wpcli-migration-script
+ * @author Dan Beil
+ */
 class WPCLI_Migration_Menus {
 
 	/**
@@ -19,9 +23,9 @@ class WPCLI_Migration_Menus {
 	private $menus_json_endpoint;
 
 	/**
-	 * [__construct description]
+	 * Our construct
 	 *
-	 * @param [type] $user_args [description]
+	 * @param array $user_args User_args as passed via the initial JSON call.
 	 */
 	public function __construct( $user_args ) {
 		if ( isset( $user_args['json_url'] ) && ! empty( $user_args['json_url'] ) ) {
@@ -32,6 +36,11 @@ class WPCLI_Migration_Menus {
 		}
 	} // End __construct
 
+	/**
+	 * Changing our API endpoint URL request to hit the WP nav_menu endpoint
+	 *
+	 * @param  string $url Requested URL JSON endpoint.
+	 */
 	private function update_menus_endpoint( $url ) {
 
 		/**
@@ -44,12 +53,15 @@ class WPCLI_Migration_Menus {
 
 		/**
 		 * Making sure we have a valid url
+		 *
 		 * @var string
 		 */
 		$headers = get_headers( $url );
 		if ( strpos( $headers[0], '200' ) > -1 ) {
 			WP_CLI::success( 'We have a valid menus JSON endpoint' );
+			// @codingStandardsIgnoreStart
 			$menus = wp_remote_get( esc_url( $url ) );
+			// @codingStandardsIgnoreEnd
 			$menus = json_decode( $menus['body'] );
 		} else {
 			WP_CLI::error( 'Something went wrong, please ensure you have https://github.com/dannyb195/WPCLI-Migrate-Script-Source-Site installed on the remote / source site' );
@@ -62,6 +74,11 @@ class WPCLI_Migration_Menus {
 
 	} // End $update_menus_endpoint
 
+	/**
+	 * Creating our initial menu
+	 *
+	 * @param  object $menus Menu object as returned by the JSON API.
+	 */
 	private function create_menus( $menus ) {
 
 		/**
@@ -75,21 +92,21 @@ class WPCLI_Migration_Menus {
 						'slug' => $menu->slug,
 					)
 				);
-
 				if ( ! is_wp_error( $menu_term ) ) {
 					WP_CLI::success( 'Created menu ' . $menu->name );
 				}
-
-				/**
-				 *
-				 */
 				$this->add_menu_items( $menu->menu_items, $menu_term );
-
-			}
+			} // End foreach $menu
 		} // End if().
 
 	} // End create_menus
 
+	/**
+	 * This method adds or updates our menu item
+	 *
+	 * @param array $menu_items Array of WP menu items.
+	 * @param array $menu_term  Array of menu items terms.
+	 */
 	private function add_menu_items( $menu_items, $menu_term ) {
 
 		/**
@@ -119,6 +136,8 @@ class WPCLI_Migration_Menus {
 				 */
 
 				/**
+				 * Updating our nav menu item here
+				 *
 				 * @link http://wordpress.stackexchange.com/questions/44736/programmatically-add-a-navigation-menu-and-menu-items
 				 *
 				 * Coding standard ignore is in place just for the time being
