@@ -179,7 +179,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 * Getting Menus after the post import
 			 */
 			if ( isset( $user_args['wp2wp'] ) && true === $user_args['wp2wp'] && isset( $user_args['menus'] ) && true === $user_args['menus'] ) {
-				require_once( 'inc/menu.php' );
+				require_once( 'inc/class-wpcli-migration-menu.php' );
 				new WPCLI_Migration_Menus( $user_args );
 			}
 		} else {
