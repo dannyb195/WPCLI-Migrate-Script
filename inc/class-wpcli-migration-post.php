@@ -47,6 +47,8 @@ class WPCLI_Migration_Post {
 		$this->skip_images = isset( $user_args['skip_images'] ) && true === $user_args['skip_images'] ? true : false;
 		$this->post_import( $json );
 
+		// WP_CLI::log( 'skip images? ' . $this->skip_images );
+
 	}
 
 	/**
@@ -164,6 +166,7 @@ class WPCLI_Migration_Post {
 						 * We have in-content images, migrating them here
 						 */
 						if ( ! empty( $matches[1] ) ) {
+							WP_CLI::log( 'matches: ' . print_r( $matches ) );
 							require_once( __DIR__ . '/../inc/class-wpcli-migration-attachment.php' ); // Loading our class that handles migrating media / attachments.
 
 							if ( true === $this->debug ) {
@@ -196,12 +199,20 @@ class WPCLI_Migration_Post {
 					 */
 					// WP_CLI::log( print_r($import_post->content->rendered, 1) );
 
+					if ( isset( $post_content->post_content ) ) {
+						$content = $post_content->post_content;
+					} else {
+						// WP_CLI::log( print_r($import_post, 1) );
+						$content = $import_post->content->rendered;
+					}
+
 					$migration_check = wp_insert_post(
 						array(
 							'post_author' => $new_user,
 							'post_date' => $import_post->date,
 							'post_date_gmt' => $import_post->date_gmt,
-							'post_content' => $import_post->content->rendered,
+							// 'post_content' => $import_post->content->rendered,
+							'post_content' => $content,
 							'post_title' => ! empty( $import_post->title->rendered ) ? $import_post->title->rendered : 'no title',
 							'post_excerpt' => $import_post->excerpt->rendered,
 							'post_type' => $import_post->type,
