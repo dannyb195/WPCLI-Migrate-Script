@@ -3,13 +3,14 @@
  * Class for handling moving attachment assets
  *
  * @package wpcli-migration-script
+ * @author Dan Beil
  */
 
 /**
  * Class for handling moving attachment assets
  *
- * @package default
- * @author
+ * @package wpcli-migration-script
+ * @author Dan Beil
  **/
 class WPCLI_Migration_Attachment {
 
@@ -135,6 +136,7 @@ class WPCLI_Migration_Attachment {
 		 * this situation arises when uploaded featured images
 		 */
 		if ( empty( $media ) ) {
+			WP_CLI::log( 'no media' );
 			return;
 		}
 
@@ -156,7 +158,7 @@ class WPCLI_Migration_Attachment {
 				 */
 
 				if ( true == $this->debug ) {
-					WP_CLI::log( 'uploading file: ' . basename( $media_file ) );
+					WP_CLI::log( WP_CLI::colorize( '%Guploading file:%n ' ) . basename( $media_file ) );
 				}
 
 				$uploadfile = $uploaddir['path'] . '/' . basename( $media_file );
@@ -211,9 +213,8 @@ class WPCLI_Migration_Attachment {
 	 */
 	public function upload_featured_image( $img_json_url ) {
 
-		if ( true == $this->debug ) {
-
-			error_log( 'upload featuered image is firing for: ' . $img_json_url );
+		if ( true === $this->debug ) {
+			WP_CLI::log( 'upload featuered image is firing for: ' . $img_json_url );
 		}
 
 		$img_url = wp_remote_get( $img_json_url );
@@ -228,10 +229,12 @@ class WPCLI_Migration_Attachment {
 
 			$uploadfile = $uploaddir['path'] . '/' . basename( $img_url );
 
+			// @codingStandardsIgnoreStart
 			$contents = file_get_contents( $img_url );
 			$savefile = fopen( $uploadfile, 'w' );
 			fwrite( $savefile, $contents );
 			fclose( $savefile );
+			// @codingStandardsIgnoreEnd
 
 			$wp_filetype = wp_check_filetype( basename( $img_url ), null );
 

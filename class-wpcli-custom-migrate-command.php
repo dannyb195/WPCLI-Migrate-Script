@@ -284,7 +284,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			$json = wp_remote_get( esc_url( $user_args['json_url'] ) );
 			// @codingStandardsIgnoreEnd
 			if ( is_wp_error( $json ) ) {
+				// @codingStandardsIgnoreStart
 				WP_CLI::error( 'WP_Error object returned ' . print_r( $json, 1 ) );
+				// @codingStandardsIgnoreEnd
 			} else {
 				/**
 				 * Setting up our JSON data
