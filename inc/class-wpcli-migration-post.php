@@ -292,6 +292,7 @@ class WPCLI_Migration_Post {
 					$local_user = WPCLI_Migration_User::local_user( $author, $this->debug );
 
 					if ( empty( $local_user && ! is_wp_error( $local_user ) ) ) {
+
 						WP_CLI::warning( 'no local user with origin id: ' . $author->id . ' we will create them' );
 
 						$email = WPCLI_Migration_Helper::email_check( $author );
