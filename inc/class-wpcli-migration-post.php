@@ -166,7 +166,6 @@ class WPCLI_Migration_Post {
 						 * We have in-content images, migrating them here
 						 */
 						if ( ! empty( $matches[1] ) ) {
-							WP_CLI::log( 'matches: ' . print_r( $matches ) );
 							require_once( __DIR__ . '/../inc/class-wpcli-migration-attachment.php' ); // Loading our class that handles migrating media / attachments.
 
 							if ( true === $this->debug ) {
@@ -197,12 +196,11 @@ class WPCLI_Migration_Post {
 					/**
 					 * Initial import is happening here
 					 */
-					// WP_CLI::log( print_r($import_post->content->rendered, 1) );
 
+					// Setting or updating our post content
 					if ( isset( $post_content->post_content ) ) {
 						$content = $post_content->post_content;
 					} else {
-						// WP_CLI::log( print_r($import_post, 1) );
 						$content = $import_post->content->rendered;
 					}
 
@@ -296,12 +294,14 @@ class WPCLI_Migration_Post {
 					if ( empty( $local_user && ! is_wp_error( $local_user ) ) ) {
 						WP_CLI::warning( 'no local user with origin id: ' . $author->id . ' we will create them' );
 
+						$email = WPCLI_Migration_Helper::email_check( $author );
+
 						$local_user = wp_insert_user(
 							array(
 								'user_login' => $author->name,
 								'user_name' => $author->name,
 								'user_pass' => wp_generate_password( 12, false ),
-								'user_email' => $author->user_email,
+								'user_email' => $email,
 							)
 						);
 
@@ -350,12 +350,6 @@ class WPCLI_Migration_Post {
 					 */
 					$diff = array_diff( (array) $local_post_check, $remote_post );
 
-					if ( 0 === count( $diff ) ) {
-						continue;
-					} else {
-						WP_CLI::log( 'something is different' );
-					}
-
 					/**
 					 * Array of term objects associated with local post
 					 */
@@ -373,6 +367,26 @@ class WPCLI_Migration_Post {
 					 * $status_check[0] is our local post ID
 					 */
 					$term_diff = WPCLI_Migration_Helper::term_diff_check( $status_check[0], $local_post_terms, $remote_post_terms );
+
+					/**
+					 * If we dont have a diff nothing has changed and we can skip the current object
+					 */
+					// if ( 0 === count( $diff ) && false === $term_diff ) {
+					if ( 0 === count( $diff ) ) {
+						WP_CLI::log( 'term diff: ' . $term_diff );
+						// WP_CLI::log( 'term diff 1: ' . print_r($local_post_terms, 1) );
+						// WP_CLI::log( 'term diff 2: ' . print_r($remote_post_terms, 1 ) );
+
+						if ( true === $this->debug ) {
+							WP_CLI::log( 'Nothing has changed with remote post: ' . $remote_post['post_title'] );
+						}
+						// continue;
+					} else {
+
+						WP_CLI::log( print_r( $local_post_check, 1 ) );
+						WP_CLI::log( print_r( $remote_post, 1 ) );
+						WP_CLI::log( 'something is different' );
+					}
 
 					if ( empty( $diff ) && false === $term_diff ) {
 						continue;

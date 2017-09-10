@@ -67,9 +67,9 @@ class WPCLI_Migration_Helper {
 			/**
 			 * We have the same term count but need to check if they are actually the same term
 			 */
-			foreach ( $local_post_terms as $term ) {
+			foreach ( $local_post_terms as $key => $term ) {
 				$local_term_meta_check = get_term_meta( $term->term_id, 'origin_id', true );
-				if ( intval( $local_term_meta_check ) !== intval( $remote_post_terms[0] ) ) {
+				if ( intval( $local_term_meta_check ) !== intval( $remote_post_terms[ $key ] ) ) {
 					$term_check = true; // We have the same term count though a different remote term.
 				}
 			} // End foreach local_post_terms
@@ -78,5 +78,16 @@ class WPCLI_Migration_Helper {
 		return $term_check;
 
 	} // End term_diff_check
+
+
+	public static function email_check( $author ) {
+		$email = '';
+
+		if ( isset( $author->user_email ) ) {
+			$email = $author->user_email;
+		}
+
+		return $email;
+	}
 
 } // END class

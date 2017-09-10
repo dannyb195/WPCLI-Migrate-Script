@@ -126,7 +126,9 @@ class WPCLI_Migration_User {
 			return;
 		}
 
-		$local_user = get_user_by( 'email', $author->user_email );
+		$email = WPCLI_Migration_Helper::email_check( $author );
+
+		$local_user = get_user_by( 'email', $email );
 
 		if ( is_wp_error( $local_user ) || empty( $local_user ) ) {
 			return;
