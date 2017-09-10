@@ -66,7 +66,7 @@ class WPCLI_Migration_Attachment {
 		/**
 		 * Checking that we actually have a valid asset to retrieve
 		 */
-		$file_check = @get_headers( $media_file );
+		$file_check = get_headers( $media_file );
 
 		if ( false === strpos( $file_check[0], '404' ) ) {
 
@@ -91,10 +91,10 @@ class WPCLI_Migration_Attachment {
 				),
 			) );
 
-			if ( true == $this->debug && ! empty( $media_check[0] ) ) {
-
+			if ( true === $this->debug && ! empty( $media_check[0] ) ) {
+				// @codingStandardsIgnoreStart
 				WP_CLI::log( 'media file already exists with id: ' . print_r( $media_check, true ) );
-
+				// @codingStandardsIgnoreEnd
 			}
 		} else {
 
@@ -121,13 +121,15 @@ class WPCLI_Migration_Attachment {
 		// http://wordpress.stackexchange.com/questions/50123/image-upload-from-url.
 		$uploaddir = wp_upload_dir();
 
-		if ( true == $this->debug ) {
+		if ( true === $this->debug ) {
+			// @codingStandardsIgnoreStart
 			WP_CLI::log( 'upload dir: ' . print_r( $uploaddir, true ) );
+			// @codingStandardsIgnoreEnd
 		}
 
 		$sub_dir = preg_replace( '#(^/)#' , '', $uploaddir['subdir'] );
 
-		if ( true == $this->debug ) {
+		if ( true === $this->debug ) {
 			WP_CLI::log( 'sub_dir: ' . $sub_dir );
 		}
 
@@ -142,7 +144,7 @@ class WPCLI_Migration_Attachment {
 
 		foreach ( $media as $media_file ) {
 
-			if ( true == $this->debug ) {
+			if ( true === $this->debug ) {
 				WP_CLI::log( 'Attachment meta value to check if it already exists: ' . $sub_dir . '/' . basename( $media_file ) );
 			}
 
@@ -157,16 +159,18 @@ class WPCLI_Migration_Attachment {
 				 * If our media file does not exist we create / import it here
 				 */
 
-				if ( true == $this->debug ) {
+				if ( true === $this->debug ) {
 					WP_CLI::log( WP_CLI::colorize( '%Guploading file:%n ' ) . basename( $media_file ) );
 				}
 
 				$uploadfile = $uploaddir['path'] . '/' . basename( $media_file );
 
+				// @codingStandardsIgnoreStart
 				$contents = file_get_contents( $media_file );
 				$savefile = fopen( $uploadfile, 'w' );
 				fwrite( $savefile, $contents );
 				fclose( $savefile );
+				// @codingStandardsIgnoreEnd
 
 				$wp_filetype = wp_check_filetype( basename( $media_file ), null );
 
@@ -186,15 +190,16 @@ class WPCLI_Migration_Attachment {
 
 				$img_url = wp_get_attachment_url( $imagenew->ID );
 
-				if ( true == $this->debug ) {
+				if ( true === $this->debug ) {
 					WP_CLI::log( 'source URL: ' . $media_file );
+					// @codingStandardsIgnoreStart
 					WP_CLI::log( 'We have a new image: ' . print_r( $imagenew, true ) );
 					WP_CLI::log( 'image full url: ' . print_r( $img_url, true ) );
+					// @codingStandardsIgnoreEnd
 				}
 
 				if ( ! empty( $this->post_content ) ) {
 					$this->post_content = preg_replace( '#' . $media_file . '#', $img_url, $this->post_content );
-
 				} else {
 					continue;
 				}
