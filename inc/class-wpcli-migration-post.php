@@ -306,7 +306,7 @@ class WPCLI_Migration_Post {
 						/**
 						 * Getting our local user via user meta
 						 */
-						$local_user = WPCLI_Migration_Helper::local_user( $author->id );
+						$local_user = WPCLI_Migration_User::local_user( $author->id );
 
 					} // End if empty local_user
 

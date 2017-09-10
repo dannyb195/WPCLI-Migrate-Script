@@ -1,10 +1,21 @@
 <?php
 /**
- * Place holder file for now
+ * WPCLI_Migration_User handles creating and updating post authors
  *
  * Note class-wpcli-migration-post.php ~line 150
+ *
+ * @package wpcli-migration-script
+ * @author Dan Beil
  */
 
+/**
+ * WPCLI_Migration_User handles creating and updating post authors
+ *
+ * Note class-wpcli-migration-post.php ~line 150
+ *
+ * @package wpcli-migration-script
+ * @author Dan Beil
+ */
 class WPCLI_Migration_User {
 
 	/**
@@ -14,10 +25,21 @@ class WPCLI_Migration_User {
 	 */
 	public $debug;
 
+	/**
+	 * Our construct
+	 *
+	 * @param boolean $debug True or false, testing is we are in debug mode.
+	 */
 	public function __construct( $debug ) {
 		$this->debug = $debug;
 	}
 
+	/**
+	 * Creating our user if they do no exist locally
+	 *
+	 * @param  object $import_post Remote post object.
+	 * @return object              Local user object
+	 */
 	public function check_create_user( $import_post ) {
 
 		/**
@@ -85,8 +107,6 @@ class WPCLI_Migration_User {
 				WP_CLI::log( print_r( $new_user, true ) . 'created' );
 				// @codingStandardsIgnoreEnd
 			}
-		} else {
-
 		} // End if().
 
 		return $new_user;
@@ -96,7 +116,8 @@ class WPCLI_Migration_User {
 	/**
 	 * Getting our local user via user meta
 	 *
-	 * @param  integer $author_id Local user ID
+	 * @param  integer $author    Local user ID.
+	 * @param  boolean $debug     True or false, testing if we're in debug mode.
 	 * @return object             WP_User object
 	 */
 	public static function local_user( $author = null, $debug = false ) {
