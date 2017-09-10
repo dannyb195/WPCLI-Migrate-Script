@@ -335,7 +335,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	 */
 	private function verify_url( $url ) {
 
-		$headers = @get_headers( filter_var( $url, FILTER_SANITIZE_URL ) );
+		$headers = get_headers( filter_var( $url, FILTER_SANITIZE_URL ) );
 
 		if ( true === $this->debug ) {
 			// @codingStandardsIgnoreStart

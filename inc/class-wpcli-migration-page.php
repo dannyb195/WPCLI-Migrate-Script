@@ -15,7 +15,7 @@
  * @package wpcli-migration-script
  * @author Dan Beil
  **/
-class WLCLI_Migration_Page {
+class WPCLI_Migration_Page {
 
 	/**
 	 * Our construct

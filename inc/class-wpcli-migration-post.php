@@ -77,7 +77,7 @@ class WPCLI_Migration_Post {
 
 				$i++;
 
-				if ( true == $this->debug ) {
+				if ( true === $this->debug ) {
 					// @codingStandardsIgnoreStart
 					WP_CLI::log( 'post: ' . print_r( $import_post, true ) );
 					// @codingStandardsIgnoreEnd
@@ -372,42 +372,20 @@ class WPCLI_Migration_Post {
 					 * If we dont have a diff nothing has changed and we can skip the current object
 					 */
 					if ( 0 === count( $diff ) && false === $term_diff ) {
-					// if ( 0 === count( $diff ) ) {
 						if ( true === $this->debug ) {
 							WP_CLI::log( 'Nothing has changed with remote post: ' . $remote_post['post_title'] );
 						}
 						continue;
 					} else {
 						/**
-						 * The remote post has changed, we will update it here
+						 * The remote post has changed, we will update the local one here
 						 */
-						// WP_CLI::log( 'Something is different: ' . $i . ' ' . print_r( $diff, 1 ) );
-						// if ( $local_post_check['post_author'] !== $remote_post['post_author'] ) {
-							// WP_CLI::log( 'Something is different local author : ' . $i . ' ' . print_r( $local_post_check['post_author'], 1 ) );
-							// WP_CLI::log( 'Something is different remote author: ' . $i . ' ' . print_r( $remote_post['post_author'], 1 ) );
-						// } else {
-							// if ( true === $this->debug ) {
-							// 	WP_CLI::log( 'authors are the same for: ' . $i );
-							// }
-						// }
-
-						// if ( $local_post_check['post_content'] !== $import_post->content->rendered ) {
-						// 	WP_CLI::log( 'content is different for: ' . $i );
-						// 	WP_CLI::log( 'content for local : ' . $i . md5( $local_post_check['post_content'] ) );
-						// 	WP_CLI::log( 'content for remote: ' . $i . md5( $import_post->content->rendered ) );
-						// }
-
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
 						if ( ! empty( $matches[1] ) ) {
 							require_once( __DIR__ . '/../inc/class-wpcli-migration-attachment.php' ); // Loading our class that handles migrating media / attachments.
 							$post_content = new WPCLI_Migration_Attachment( $matches[1], $import_post->content->rendered, $this->debug );
 						}
-
-						// WP_CLI::log( 'content is different for: ' . $i );
-						// WP_CLI::log( 'content for local : ' . $i . md5( $local_post_check['post_content'] ) );
-						// WP_CLI::log( 'content for remote: ' . $i . md5( $import_post->content->rendered ) );
-
 
 						/**
 						 * Updating posts if they already exist
@@ -437,7 +415,6 @@ class WPCLI_Migration_Post {
 							WP_CLI::log( 'migration check result for: ' . $status_check[0] . ' ' . $migration_check );
 							WP_CLI::log( 'Post ' . WP_CLI::colorize( '%G' . $import_post->title->rendered . '%n' ) . ' with ID ' . $status_check[0] . ' has been updated' );
 						}
-
 					}// End if().
 
 					/**

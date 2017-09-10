@@ -63,7 +63,7 @@ class WPCLI_Migration_Terms {
 			WP_CLI::warning( 'Bad request for post terms' );
 		}
 
-		if ( true == $this->debug ) {
+		if ( true === $this->debug ) {
 			WP_CLI::log( 'post id from term migration: ' . $this->post_id );
 		}
 
@@ -89,12 +89,12 @@ class WPCLI_Migration_Terms {
 			$term_check = term_exists( $term->slug, $term->taxonomy );
 
 			if ( empty( $term_check ) ) {
-				if ( true == $this->debug ) {
+				if ( true === $this->debug ) {
 					WP_CLI::log( 'we should create this term' );
 				}
 				$this->term_create( $term );
 			} else {
-				if ( true == $this->debug ) {
+				if ( true === $this->debug ) {
 					WP_CLI::log( 'term already exists' );
 				}
 				$this->add_term_to_post( $this->post_id, $term_check );
@@ -114,8 +114,10 @@ class WPCLI_Migration_Terms {
 		/**
 		 * Debug info for single terms
 		 */
-		if ( true == $this->debug ) {
-			error_log( 'term_create: ' . print_r( $term, true ) );
+		if ( true === $this->debug ) {
+			// @codingStandardsIgnoreStart
+			WP_CLI::log( 'term_create: ' . print_r( $term, true ) );
+			// @codingStandardsIgnoreEnd
 		}
 
 		$success_check = wp_insert_term(
