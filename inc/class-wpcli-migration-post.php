@@ -194,12 +194,14 @@ class WPCLI_Migration_Post {
 					/**
 					 * Initial import is happening here
 					 */
+					// WP_CLI::log( print_r($import_post->content->rendered, 1) );
+
 					$migration_check = wp_insert_post(
 						array(
 							'post_author' => $new_user,
 							'post_date' => $import_post->date,
 							'post_date_gmt' => $import_post->date_gmt,
-							'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,
+							'post_content' => $import_post->content->rendered,
 							'post_title' => ! empty( $import_post->title->rendered ) ? $import_post->title->rendered : 'no title',
 							'post_excerpt' => $import_post->excerpt->rendered,
 							'post_type' => $import_post->type,
@@ -337,15 +339,19 @@ class WPCLI_Migration_Post {
 					 */
 					$diff = array_diff( (array) $local_post_check, $remote_post );
 
+					if ( 0 === count( $diff ) ) {
+						continue;
+					} else {
+						WP_CLI::log( 'something is different' );
+					}
+
 					/**
 					 * Array of term objects associated with local post
 					 */
 					$local_post_terms = wp_get_post_terms( $status_check[0], 'category' );
-					// WP_CLI::log( 'local_post_terms for postID : ' .$status_check[0] . ' ' . print_r($local_post_terms, 1) );
 					/**
 					 * Array of term ids associated with the remote post
 					 */
-					// WP_CLI::log( 'remote post terms: ' . print_r($import_post->categories, 1) );
 					$remote_post_terms = $import_post->categories;
 
 					/**
@@ -369,14 +375,16 @@ class WPCLI_Migration_Post {
 							WP_CLI::log( 'Something is different local author : ' . $i . ' ' . print_r( $local_post_check['post_author'], 1 ) );
 							WP_CLI::log( 'Something is different remote author: ' . $i . ' ' . print_r( $remote_post['post_author'], 1 ) );
 						} else {
-							WP_CLI::log( 'authors are the same for: ' . $i );
+							if ( true === $this->debug ) {
+								WP_CLI::log( 'authors are the same for: ' . $i );
+							}
 						}
 
-						if ( $local_post_check['post_content'] !== $import_post->content->rendered ) {
-							WP_CLI::log( 'content is different for: ' . $i );
-							WP_CLI::log( 'content for local : ' . $i . md5( $local_post_check['post_content'] ) );
-							WP_CLI::log( 'content for remote: ' . $i . md5( $import_post->content->rendered ) );
-						}
+						// if ( $local_post_check['post_content'] !== $import_post->content->rendered ) {
+						// 	WP_CLI::log( 'content is different for: ' . $i );
+						// 	WP_CLI::log( 'content for local : ' . $i . md5( $local_post_check['post_content'] ) );
+						// 	WP_CLI::log( 'content for remote: ' . $i . md5( $import_post->content->rendered ) );
+						// }
 
 						preg_match_all( '#(https?://[-a-zA-Z./0-9_]+(jpg|gif|png|jpeg))#', $import_post->content->rendered, $matches );
 
@@ -384,6 +392,11 @@ class WPCLI_Migration_Post {
 							require_once( __DIR__ . '/../inc/class-wpcli-migration-attachment.php' ); // Loading our class that handles migrating media / attachments.
 							$post_content = new WPCLI_Migration_Attachment( $matches[1], $import_post->content->rendered, $this->debug );
 						}
+
+						// WP_CLI::log( 'content is different for: ' . $i );
+						// WP_CLI::log( 'content for local : ' . $i . md5( $local_post_check['post_content'] ) );
+						// WP_CLI::log( 'content for remote: ' . $i . md5( $import_post->content->rendered ) );
+
 
 						/**
 						 * Updating posts if they already exist
@@ -393,25 +406,27 @@ class WPCLI_Migration_Post {
 						$migration_check = wp_insert_post(
 							array(
 								'ID' => $status_check[0], // This is the existing post ID.
-							'post_author' => $local_user->ID,
-							'post_date' => $import_post->date,
-							'post_date_gmt' => $import_post->date_gmt,
-							'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,
-							'post_title' => $import_post->title->rendered,
-							'post_excerpt' => $import_post->excerpt->rendered,
-							'post_type' => $import_post->type,
-							'post_name' => '',
-							'post_modified' => $import_post->modified,
-							'post_status' => 'publish',
-							'meta_input' => array(
-								'content_origin' => $import_post->_links->self[0]->href,
-							 ),
+								'post_author' => $local_user->ID,
+								'post_date' => $import_post->date,
+								'post_date_gmt' => $import_post->date_gmt,
+								'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,
+								'post_title' => $import_post->title->rendered,
+								'post_excerpt' => $import_post->excerpt->rendered,
+								'post_type' => $import_post->type,
+								'post_name' => '',
+								'post_modified' => $import_post->modified,
+								'post_status' => 'publish',
+								'meta_input' => array(
+									'content_origin' => $import_post->_links->self[0]->href,
+								),
 							)
 						);
 
 						if ( false !== $migration_check ) {
+							WP_CLI::log( 'migration check result for: ' . $status_check[0] . ' ' . $migration_check );
 							WP_CLI::log( 'Post ' . WP_CLI::colorize( '%G' . $import_post->title->rendered . '%n' ) . ' with ID ' . $status_check[0] . ' has been updated' );
 						}
+
 					}// End if().
 
 					/**

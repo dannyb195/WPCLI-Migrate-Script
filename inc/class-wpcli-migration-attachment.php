@@ -138,7 +138,6 @@ class WPCLI_Migration_Attachment {
 		 * this situation arises when uploaded featured images
 		 */
 		if ( empty( $media ) ) {
-			WP_CLI::log( 'no media' );
 			return;
 		}
 
