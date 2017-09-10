@@ -371,39 +371,25 @@ class WPCLI_Migration_Post {
 					/**
 					 * If we dont have a diff nothing has changed and we can skip the current object
 					 */
-					// if ( 0 === count( $diff ) && false === $term_diff ) {
-					if ( 0 === count( $diff ) ) {
-						WP_CLI::log( 'term diff: ' . $term_diff );
-						// WP_CLI::log( 'term diff 1: ' . print_r($local_post_terms, 1) );
-						// WP_CLI::log( 'term diff 2: ' . print_r($remote_post_terms, 1 ) );
-
+					if ( 0 === count( $diff ) && false === $term_diff ) {
+					// if ( 0 === count( $diff ) ) {
 						if ( true === $this->debug ) {
 							WP_CLI::log( 'Nothing has changed with remote post: ' . $remote_post['post_title'] );
 						}
-						// continue;
-					} else {
-
-						WP_CLI::log( print_r( $local_post_check, 1 ) );
-						WP_CLI::log( print_r( $remote_post, 1 ) );
-						WP_CLI::log( 'something is different' );
-					}
-
-					if ( empty( $diff ) && false === $term_diff ) {
 						continue;
-						WP_CLI::log( 'nothing is different' );
 					} else {
 						/**
 						 * The remote post has changed, we will update it here
 						 */
 						// WP_CLI::log( 'Something is different: ' . $i . ' ' . print_r( $diff, 1 ) );
-						if ( $local_post_check['post_author'] !== $remote_post['post_author'] ) {
-							WP_CLI::log( 'Something is different local author : ' . $i . ' ' . print_r( $local_post_check['post_author'], 1 ) );
-							WP_CLI::log( 'Something is different remote author: ' . $i . ' ' . print_r( $remote_post['post_author'], 1 ) );
-						} else {
-							if ( true === $this->debug ) {
-								WP_CLI::log( 'authors are the same for: ' . $i );
-							}
-						}
+						// if ( $local_post_check['post_author'] !== $remote_post['post_author'] ) {
+							// WP_CLI::log( 'Something is different local author : ' . $i . ' ' . print_r( $local_post_check['post_author'], 1 ) );
+							// WP_CLI::log( 'Something is different remote author: ' . $i . ' ' . print_r( $remote_post['post_author'], 1 ) );
+						// } else {
+							// if ( true === $this->debug ) {
+							// 	WP_CLI::log( 'authors are the same for: ' . $i );
+							// }
+						// }
 
 						// if ( $local_post_check['post_content'] !== $import_post->content->rendered ) {
 						// 	WP_CLI::log( 'content is different for: ' . $i );
