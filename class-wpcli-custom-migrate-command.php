@@ -187,8 +187,19 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				WP_CLI::error( 'Either --json_file=<file> or --json_url=<url> must be defined' );
 			}
 		}
-
 	} // End __invoke
+
+	public function set_remote_post_total( $user_args ) {
+
+		// WP_CLI::log( 'user args: ' . print_r($user_args, 1) );
+
+		$headers = get_headers( $user_args['json_url'] );
+		// WP_CLI::log( 'header: ' . print_r($headers, 1) );
+		/**
+		 * @todo  need to regex out the post count integer
+		 */
+		return $headers[9];
+	}
 
 	/**
 	 * Base functionality for import process
@@ -252,6 +263,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 */
 
 		} elseif ( array_key_exists( 'json_url', $user_args ) ) {
+
 			/**
 			 * We are dealing with an external URL request which should return only JSON
 			 *
@@ -261,6 +273,10 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			if ( true === $this->debug ) {
 				WP_CLI::log( 'we have a json url' );
 			}
+
+			$total_count = $this->set_remote_post_total( $user_args );
+
+			WP_CLI::log( '$total_count ' . $total_count );
 
 			/**
 			 * Making sure we have a valid URL to hit
