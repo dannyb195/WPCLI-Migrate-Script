@@ -195,10 +195,34 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 		$headers = get_headers( $user_args['json_url'] );
 		// WP_CLI::log( 'header: ' . print_r($headers, 1) );
+
+		WP_CLI::log( print_r($headers) );
+
 		/**
-		 * @todo  need to regex out the post count integer
+		 * Expected $headers array
+		 * Array
+		 * (
+		 *     [0] => HTTP/1.1 200 OK
+		 *     [1] => Server: nginx
+		 *     [2] => Date: Sat, 16 Sep 2017 14:08:32 GMT
+		 *     [3] => Content-Type: application/json; charset=UTF-8
+		 *     [4] => Connection: close
+		 *     [5] => X-Robots-Tag: noindex
+		 *     [6] => X-Content-Type-Options: nosniff
+		 *     [7] => Access-Control-Expose-Headers: X-WP-Total, X-WP-TotalPages
+		 *     [8] => Access-Control-Allow-Headers: Authorization, Content-Type
+		 *     [9] => X-WP-Total: 200
+		 *     [10] => X-WP-TotalPages: 40
+		 *     [11] => Link: <http://test.me.dev/wp-json/wp/v2/posts?per_page=5&page=2>; rel="next"
+		 *     [12] => Allow: GET
+		 * )
 		 */
-		return $headers[9];
+		preg_match( '#([0-9])+#', $headers[9], $remote_post_count );
+
+		WP_CLI::log( 'remote post count: ' . print_r($matches, 1) );
+
+
+		return $remote_post_count[0];
 	}
 
 	/**
