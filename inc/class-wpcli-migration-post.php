@@ -75,6 +75,8 @@ class WPCLI_Migration_Post {
 
 			foreach ( $json as $import_post ) {
 
+				WP_CLI::warning( 'find me ' . print_r( json_decode( $import_post ), 1 ) );
+
 				$i++;
 
 				if ( true === $this->debug ) {
@@ -197,22 +199,37 @@ class WPCLI_Migration_Post {
 					 * Initial import is happening here
 					 */
 
+					$content = 'something';
+
 					// Setting or updating our post content
 					if ( isset( $post_content->post_content ) ) {
 						$content = $post_content->post_content;
+						WP_CLI::log( 'content 1: ' . $content );
 					} else {
 						$content = $import_post->content->rendered;
+						$import_post = json_decode( $import_post );
+						WP_CLI::log( 'content 2: ' . $content . print_r( $import_post, 1 ) );
 					}
+
+					// foreach ( $import_post as $post ) {
+					// 	if ( empty( $content ) ) {
+					// 		$content = $post->content->rendered;
+
+					// 		// $import_post = json_decode( $import_post );
+					// 		WP_CLI::warning( 'no content ' . print_r( $post->content->rendered, 1 ) );
+					// 	} else {
+					// 		// $content = '';
+					// 	}
+					// }
 
 					$migration_check = wp_insert_post(
 						array(
 							'post_author' => $new_user,
 							'post_date' => $import_post->date,
 							'post_date_gmt' => $import_post->date_gmt,
-							// 'post_content' => $import_post->content->rendered,
 							'post_content' => $content,
 							'post_title' => ! empty( $import_post->title->rendered ) ? $import_post->title->rendered : 'no title',
-							'post_excerpt' => $import_post->excerpt->rendered,
+							'post_excerpt' => ! empty( $import_post->excerpt->rendered ) ? $import_post->excerpt->rendered : '',
 							'post_type' => $import_post->type,
 							'post_name' => '',
 							'post_modified' => $import_post->modified,
@@ -393,13 +410,24 @@ class WPCLI_Migration_Post {
 						 *
 						 * @todo  need some type of check if the post has actually changed here
 						 */
+
+						if ( isset( $post_content->post_content ) ) {
+							$content = $post_content->post_content;
+						} else {
+							$content = $import_post->content->rendered;
+						}
+
+						if ( empty( $content ) ) {
+							WP_CLI::warning( 'no content 2' );
+						}
+
 						$migration_check = wp_insert_post(
 							array(
 								'ID' => $status_check[0], // This is the existing post ID.
 								'post_author' => $local_user->ID,
 								'post_date' => $import_post->date,
 								'post_date_gmt' => $import_post->date_gmt,
-								'post_content' => isset( $post_content->post_content ) ? $post_content->post_content : $import_post->content->rendered,
+								'post_content' => $content,
 								'post_title' => $import_post->title->rendered,
 								'post_excerpt' => $import_post->excerpt->rendered,
 								'post_type' => $import_post->type,

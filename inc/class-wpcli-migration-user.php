@@ -53,6 +53,10 @@ class WPCLI_Migration_User {
 		 * Author / User stuff here
 		 */
 
+		if ( ! is_object( $import_post->_links ) ) {
+			return;
+		}
+
 		if ( property_exists( $import_post->_links, 'author' ) ) {
 			// @codingStandardsIgnoreStart
 			$author = wp_remote_get( $import_post->_links->author[0]->href );
