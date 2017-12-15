@@ -95,6 +95,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			'skip_images', // Set to 'true' to skip importing images.
 			'offset', // offset as expected by WP_Query.
 			'menus', // If preset WP menus will be migrated, requires wp2wp=true.
+			'all', // Get all public post types
 		);
 
 		require_once( __DIR__ . '/inc/class-wpcli-migration-helper.php' );
@@ -119,6 +120,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				--skip_images   Set to \'true\' to skip importing images
 				--offset        Offset as expected by WP_Query
 				--menus         If preset WP menus will be migrated, requires wp2wp=true
+				--all=true|false // Set to true to get all public post types
 			' );
 		}
 
@@ -325,6 +327,43 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			 */
 			WP_CLI::log( 'Getting data from: ' . WP_CLI::Colorize( '%G' . filter_var( $user_args['json_url'], FILTER_SANITIZE_URL ) . '%n' ) );
 			// @codingStandardsIgnoreStart
+			//
+			//
+			if ( true === $user_args['all'] ) {
+				WP_CLI::log( 'yes get all of it' );
+				// http://test-me.localdev/wp-json/wp/v2/types
+				//
+				//
+
+				// WP_CLI::error( $user_args['json_url'] );
+
+				preg_match( '#https?:\/\/(.)+(v2)#', $user_args['json_url'], $post_types );
+
+				$base_url = $post_types[0] . '/types';
+
+				WP_CLI::warning( $base_url );
+
+				/**
+				 * We need to get the base URL and loop through all public post types
+				 */
+				$types = wp_remote_get( $base_url );
+				$types = $types['body'];
+				$types = json_decode( $types );
+
+				$types_array = array();
+
+				foreach ( $types as $type ) {
+					array_push($types_array, $type->rest_base);
+				}
+
+				// WP_CLI::error( print_r( $types_array ) );
+
+			}
+
+
+
+
+
 			$json = wp_remote_get( esc_url( $user_args['json_url'] ) );
 			// @codingStandardsIgnoreEnd
 			if ( is_wp_error( $json ) ) {
