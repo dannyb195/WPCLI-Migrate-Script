@@ -378,7 +378,11 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 				require_once( __DIR__ . '/inc/class-wpcli-migration-post.php' ); // Loading our class that handles migrating posts.
 
+
+
 				foreach( $json['body'] as $post_type ) {
+					// WP_CLI::log( 'json body ' . print_r($post_type, 1) );
+					// $post_type = json_encode( $post_type );
 					new WPCLI_Migration_Post( $post_type, $user_args );
 				}
 
