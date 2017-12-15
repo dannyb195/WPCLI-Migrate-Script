@@ -49,10 +49,7 @@ class WPCLI_Migration_Helper {
 		$term_check = false;
 
 		if ( ! isset( $post_id, $local_post_terms, $remote_post_terms ) ) {
-			/**
-			 * WP_CLI::error fires return; to stop execution
-			 */
-			WP_CLI::error( 'A value for term_diff_check is not set, bailing here' );
+			WP_CLI::warning( 'A value for term_diff_check is not set' );
 		}
 
 		/**

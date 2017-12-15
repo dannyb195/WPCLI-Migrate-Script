@@ -196,7 +196,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		$headers = get_headers( $user_args['json_url'] );
 		// WP_CLI::log( 'header: ' . print_r($headers, 1) );
 
-		WP_CLI::log( print_r($headers) );
+		// WP_CLI::log( print_r($headers) );
 
 		/**
 		 * Expected $headers array
@@ -219,7 +219,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		 */
 		preg_match( '#([0-9])+#', $headers[9], $remote_post_count );
 
-		WP_CLI::log( 'remote post count: ' . print_r($matches, 1) );
+		if ( true === $this->debug ) {
+			WP_CLI::log( 'remote post count: ' . print_r($matches, 1) );
+		}
 
 
 		return $remote_post_count[0];
@@ -300,7 +302,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 			$total_count = $this->set_remote_post_total( $user_args );
 
-			WP_CLI::log( '$total_count ' . $total_count );
+			if ( true === $this->debug ) {
+				WP_CLI::log( '$total_count ' . $total_count );
+			}
 
 			/**
 			 * Making sure we have a valid URL to hit
