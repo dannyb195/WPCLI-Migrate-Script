@@ -75,7 +75,9 @@ class WPCLI_Migration_Post {
 
 			foreach ( $json as $import_post ) {
 
-				WP_CLI::warning( 'find me ' . print_r( json_decode( $import_post ), 1 ) );
+				if ( true === $this->debug ) {
+					WP_CLI::warning( 'find me ' . print_r( json_decode( $import_post ), 1 ) );
+				}
 
 				$i++;
 
@@ -199,28 +201,28 @@ class WPCLI_Migration_Post {
 					 * Initial import is happening here
 					 */
 
-					$content = 'something';
+					// $content = 'something';
 
 					// Setting or updating our post content
-					if ( isset( $post_content->post_content ) ) {
-						$content = $post_content->post_content;
-						WP_CLI::log( 'content 1: ' . $content );
-					} else {
-						$content = $import_post->content->rendered;
-						$import_post = json_decode( $import_post );
-						WP_CLI::log( 'content 2: ' . $content . print_r( $import_post, 1 ) );
-					}
-
-					// foreach ( $import_post as $post ) {
-					// 	if ( empty( $content ) ) {
-					// 		$content = $post->content->rendered;
-
-					// 		// $import_post = json_decode( $import_post );
-					// 		WP_CLI::warning( 'no content ' . print_r( $post->content->rendered, 1 ) );
-					// 	} else {
-					// 		// $content = '';
-					// 	}
+					// if ( isset( $post_content->post_content ) ) {
+					// 	$content = $post_content->post_content;
+					// 	WP_CLI::log( 'content 1: ' . $content );
+					// } else {
+					// 	$content = $import_post->content->rendered;
+					// 	$import_post = json_decode( $import_post );
+					// 	WP_CLI::log( 'content 2: ' . $content . print_r( $import_post, 1 ) );
 					// }
+
+					foreach ( $import_post as $post ) {
+						if ( empty( $content ) ) {
+							$content = $post->content->rendered;
+
+							// $import_post = json_decode( $import_post );
+							WP_CLI::warning( 'no content ' . print_r( $post->content->rendered, 1 ) );
+						} else {
+							// $content = '';
+						}
+					}
 
 					$migration_check = wp_insert_post(
 						array(
