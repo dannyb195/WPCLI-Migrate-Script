@@ -198,7 +198,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		$headers = get_headers( $user_args['json_url'] );
 		// WP_CLI::log( 'header: ' . print_r($headers, 1) );
 
-		WP_CLI::log( print_r($headers, 1) );
+		// WP_CLI::log( print_r($headers, 1) );
 
 		/**
 		 * Expected $headers array
@@ -228,10 +228,10 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			$string_test = preg_match( '#(X-WP-Total\:)#', $header );
 
 			if ( true === (bool) $string_test ) {
-				WP_CLI::log( 'yup found it' );
-				WP_CLI::log( $key );
+				// WP_CLI::log( 'yup found it' );
+				// WP_CLI::log( $key );
 				preg_match( '#([0-9])+#', $header, $remote_post_count );
-				WP_CLI::log( print_r( $remote_post_count, 1 ) );
+				// WP_CLI::log( print_r( $remote_post_count, 1 ) );
 
 			}
 		}

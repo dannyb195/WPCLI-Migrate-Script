@@ -199,30 +199,16 @@ class WPCLI_Migration_Post {
 
 					/**
 					 * Initial import is happening here
+					 *
+					 * Setting or updating our post content
 					 */
-
-					// $content = 'something';
-
-					// Setting or updating our post content
-					// if ( isset( $post_content->post_content ) ) {
-					// 	$content = $post_content->post_content;
-					// 	WP_CLI::log( 'content 1: ' . $content );
-					// } else {
-					// 	$content = $import_post->content->rendered;
-					// 	$import_post = json_decode( $import_post );
-					// 	WP_CLI::log( 'content 2: ' . $content . print_r( $import_post, 1 ) );
-					// }
-
-					foreach ( $import_post as $post ) {
-						if ( empty( $content ) ) {
-							$content = $post->content->rendered;
-
-							// $import_post = json_decode( $import_post );
-							WP_CLI::warning( 'no content ' . print_r( $post->content->rendered, 1 ) );
-						} else {
-							// $content = '';
-						}
+					if ( isset( $post_content->post_content ) ) {
+						$content = $post_content->post_content;
+					} else {
+						$content = $import_post->content->rendered;
 					}
+
+					WP_CLI::log( print_r( $import_post, 1 ) );
 
 					$migration_check = wp_insert_post(
 						array(
