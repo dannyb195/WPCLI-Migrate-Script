@@ -344,7 +344,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			// @codingStandardsIgnoreStart
 			//
 			//
-			if ( true === $user_args['all'] ) {
+			if ( isset( $user_args['all'] ) && true === $user_args['all'] ) {
 				WP_CLI::log( 'yes get all of it' );
 				// http://test-me.localdev/wp-json/wp/v2/types
 

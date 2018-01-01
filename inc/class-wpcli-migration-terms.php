@@ -126,12 +126,13 @@ class WPCLI_Migration_Terms {
 			)
 		);
 
-		add_term_meta( $success_check['term_id'], 'origin_id', $term->id );
+		if ( ! is_wp_error( $success_check ) ) {
+			add_term_meta( $success_check['term_id'], 'origin_id', $term->id );
 
-		if ( is_array( $success_check ) ) {
-			$this->add_term_to_post( $this->post_id, $success_check );
+			if ( is_array( $success_check ) ) {
+				$this->add_term_to_post( $this->post_id, $success_check );
+			}
 		}
-
 	}
 
 	/**

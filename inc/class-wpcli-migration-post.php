@@ -208,7 +208,7 @@ class WPCLI_Migration_Post {
 						$content = $import_post->content->rendered;
 					}
 
-					WP_CLI::log( print_r( $import_post, 1 ) );
+					// WP_CLI::log( print_r( $import_post, 1 ) );
 
 					$migration_check = wp_insert_post(
 						array(
@@ -360,10 +360,14 @@ class WPCLI_Migration_Post {
 					 * Array of term objects associated with local post
 					 */
 					$local_post_terms = wp_get_post_terms( $status_check[0], 'category' );
+
 					/**
 					 * Array of term ids associated with the remote post
 					 */
-					$remote_post_terms = $import_post->categories;
+					$remote_post_terms = array();
+					if ( ! empty( $import_post->categories )  ) {
+						$remote_post_terms = $import_post->categories;
+					}
 
 					/**
 					 * Checking if the remote post has a different term count than our local post
