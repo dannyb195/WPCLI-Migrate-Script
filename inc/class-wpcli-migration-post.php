@@ -204,8 +204,10 @@ class WPCLI_Migration_Post {
 					 */
 					if ( isset( $post_content->post_content ) ) {
 						$content = $post_content->post_content;
+						// WP_CLI::log( 'with content: '. $new_user );
 					} else {
 						$content = $import_post->content->rendered;
+						// WP_CLI::log( 'without content: '. $new_user );
 					}
 
 					// WP_CLI::log( print_r( $import_post, 1 ) );
