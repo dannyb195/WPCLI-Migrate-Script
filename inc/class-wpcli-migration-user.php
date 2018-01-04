@@ -62,7 +62,7 @@ class WPCLI_Migration_User {
 		if ( property_exists( $import_post->_links, 'author' ) ) {
 			// @codingStandardsIgnoreStart
 			$author = wp_remote_get( $import_post->_links->author[0]->href );
-			WP_CLI::log( 'author ID: ' . print_r( $author['body'], 1 ) );
+			// WP_CLI::log( 'author ID: ' . print_r( $author['body'], 1 ) );
 			// if ( empty( $author ) ) {
 			// 	$author = get_user_by( 'email', $author['user_email'] );
 			// }
@@ -131,7 +131,7 @@ class WPCLI_Migration_User {
 		} // End if().
 		else {
 			// WP_CLI::log( 'we all ready have this user: ' . print_r( $this->user, 1 ) );
-			WP_CLI::log( 'we all ready have this user' );
+			// WP_CLI::log( 'we all ready have this user' );
 
 			$new_user = $this->user->data->ID;
 

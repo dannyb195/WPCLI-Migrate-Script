@@ -21,7 +21,7 @@
  * wp migrate --json_file=<path to local file>
  *
  * Standar WordPress to WordPress command:
- * wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10 --wp2wp=true
+ * wp migrate --json_url=http://test-me.localdev/wp-json/wp/v2/posts?per_page=10 --wp2wp
  *
  * Demo Posts:
  * https://demo.wp-api.org/wp-json/wp/v2/posts
