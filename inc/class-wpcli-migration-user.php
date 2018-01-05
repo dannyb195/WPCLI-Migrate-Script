@@ -49,6 +49,11 @@ class WPCLI_Migration_User {
 		 */
 		$new_user = '';
 
+		/**
+		 * Setting an empty user var for users that already exist
+		 *
+		 * @var string
+		 */
 		$user = '';
 
 		/**
@@ -62,10 +67,6 @@ class WPCLI_Migration_User {
 		if ( property_exists( $import_post->_links, 'author' ) ) {
 			// @codingStandardsIgnoreStart
 			$author = wp_remote_get( $import_post->_links->author[0]->href );
-			// WP_CLI::log( 'author ID: ' . print_r( $author['body'], 1 ) );
-			// if ( empty( $author ) ) {
-			// 	$author = get_user_by( 'email', $author['user_email'] );
-			// }
 			// @codingStandardsIgnoreEnd
 		} else {
 			$author = new WP_Error();
