@@ -131,11 +131,7 @@ class WPCLI_Migration_User {
 			}
 		} // End if().
 		else {
-			// WP_CLI::log( 'we all ready have this user: ' . print_r( $this->user, 1 ) );
-			// WP_CLI::log( 'we all ready have this user' );
-
 			$new_user = $this->user->data->ID;
-
 		}
 
 		return $new_user;
