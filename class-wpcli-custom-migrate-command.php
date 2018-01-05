@@ -193,12 +193,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 	public function set_remote_post_total( $user_args ) {
 
-		// WP_CLI::log( 'user args: ' . print_r($user_args, 1) );
-
 		$headers = get_headers( $user_args['json_url'] );
-		// WP_CLI::log( 'header: ' . print_r($headers, 1) );
-
-		// WP_CLI::log( print_r($headers, 1) );
 
 		/**
 		 * Expected $headers array
@@ -228,11 +223,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			$string_test = preg_match( '#(X-WP-Total\:)#', $header );
 
 			if ( true === (bool) $string_test ) {
-				// WP_CLI::log( 'yup found it' );
-				// WP_CLI::log( $key );
 				preg_match( '#([0-9])+#', $header, $remote_post_count );
-				// WP_CLI::log( print_r( $remote_post_count, 1 ) );
-
 			}
 		}
 
@@ -345,14 +336,9 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			//
 			//
 			if ( isset( $user_args['all'] ) && true === $user_args['all'] ) {
-				WP_CLI::log( 'yes get all of it' );
 				// http://test-me.localdev/wp-json/wp/v2/types
-
 				preg_match( '#https?:\/\/(.)+(v2)#', $user_args['json_url'], $post_types );
-
 				$base_url = $post_types[0];
-
-				WP_CLI::warning( $base_url );
 
 				/**
 				 * We need to get the base URL and loop through all public post types
@@ -370,42 +356,22 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 					array_push( $types_array, $type->rest_base );
 				}
 
-				// WP_CLI::error( print_r( $types_array ) );
-
 				$json = array();
 				$json['body'] = array();
 				foreach ( $types_array as $post_type ) {
 					$post_type_response = wp_remote_get( $base_url . '/' . $post_type );
 
-					// WP_CLI::warning( 'response URL: ' . $post_type_response );
-
 					$post_type_response = $post_type_response['body'];
-
-					// WP_CLI::warning( $post_type . print_r( $post_type_response ) );
 
 					$json['body'][ $post_type ] = array();
 					array_push( $json['body'][ $post_type ], $post_type_response );
 				}
 
-				// WP_CLI::log( 'stuff ' . print_r( $json, 1 ) );
-
-				// die();
-
 				require_once( __DIR__ . '/inc/class-wpcli-migration-post.php' ); // Loading our class that handles migrating posts.
 
-
-
 				foreach( $json['body'] as $post_type ) {
-					// WP_CLI::log( 'json body ' . print_r($post_type, 1) );
-					// $post_type = json_encode( $post_type );
 					new WPCLI_Migration_Post( $post_type, $user_args );
 				}
-
-				// $json['body'] = $post_type_response;
-
-
-
-				// WP_CLI::error( print_r( $types_array ) );
 
 			} else {
 
