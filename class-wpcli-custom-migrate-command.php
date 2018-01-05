@@ -21,7 +21,7 @@
  * wp migrate --json_file=<path to local file>
  *
  * Standar WordPress to WordPress command:
- * wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10 --wp2wp=true
+ * wp migrate --json_url=http://test-me.localdev/wp-json/wp/v2/posts?per_page=10 --wp2wp
  *
  * Demo Posts:
  * https://demo.wp-api.org/wp-json/wp/v2/posts
@@ -193,12 +193,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 	public function set_remote_post_total( $user_args ) {
 
-		// WP_CLI::log( 'user args: ' . print_r($user_args, 1) );
-
 		$headers = get_headers( $user_args['json_url'] );
-		// WP_CLI::log( 'header: ' . print_r($headers, 1) );
-
-		// WP_CLI::log( print_r($headers) );
 
 		/**
 		 * Expected $headers array
@@ -219,7 +214,18 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		 *     [12] => Allow: GET
 		 * )
 		 */
-		preg_match( '#([0-9])+#', $headers[9], $remote_post_count );
+
+		/**
+		 * Accounting for unknown array key for post cound in $headers
+		 */
+		foreach ( $headers as $key => $header ) {
+
+			$string_test = preg_match( '#(X-WP-Total\:)#', $header );
+
+			if ( true === (bool) $string_test ) {
+				preg_match( '#([0-9])+#', $header, $remote_post_count );
+			}
+		}
 
 		if ( true === $this->debug ) {
 			WP_CLI::log( 'remote post count: ' . print_r($matches, 1) );
@@ -329,84 +335,96 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			// @codingStandardsIgnoreStart
 			//
 			//
-			if ( true === $user_args['all'] ) {
-				WP_CLI::log( 'yes get all of it' );
+			if ( isset( $user_args['all'] ) && true === $user_args['all'] ) {
 				// http://test-me.localdev/wp-json/wp/v2/types
-				//
-				//
-
-				// WP_CLI::error( $user_args['json_url'] );
-
 				preg_match( '#https?:\/\/(.)+(v2)#', $user_args['json_url'], $post_types );
-
-				$base_url = $post_types[0] . '/types';
-
-				WP_CLI::warning( $base_url );
+				$base_url = $post_types[0];
 
 				/**
 				 * We need to get the base URL and loop through all public post types
 				 */
-				$types = wp_remote_get( $base_url );
+				$types = wp_remote_get( $base_url . '/types' );
 				$types = $types['body'];
 				$types = json_decode( $types );
 
 				$types_array = array();
 
+				/**
+				 * Pulling out public post types
+				 */
 				foreach ( $types as $type ) {
-					array_push($types_array, $type->rest_base);
+					array_push( $types_array, $type->rest_base );
 				}
 
-				// WP_CLI::error( print_r( $types_array ) );
+				$json = array();
+				$json['body'] = array();
+				foreach ( $types_array as $post_type ) {
+					$post_type_response = wp_remote_get( $base_url . '/' . $post_type );
 
-			}
+					$post_type_response = $post_type_response['body'];
 
-
-
-
-
-			$json = wp_remote_get( esc_url( $user_args['json_url'] ) );
-			// @codingStandardsIgnoreEnd
-			if ( is_wp_error( $json ) ) {
-				// @codingStandardsIgnoreStart
-				WP_CLI::error( 'WP_Error object returned ' . print_r( $json, 1 ) );
-				// @codingStandardsIgnoreEnd
-			} else {
-				/**
-				 * Setting up our JSON data
-				 */
-				$json = $json['body'];
-			}
-
-			// Turning json into array.
-			$json = json_decode( $json );
-
-			if ( false === $json ) {
-				WP_CLI::error( 'Invalid JSON string' );
-			} else {
-				WP_CLI::success( 'Valid JSON' );
-			}
-
-			if ( isset( $user_args['skip_images'] ) && true === $user_args['skip_images'] ) {
-				WP_CLI::warning( 'Skipping Images' );
-			}
-
-			/**
-			 * Dealing with WordPress to WordPress Migration
-			 */
-			if ( isset( $user_args['wp2wp'] ) && true === $user_args['wp2wp'] ) {
-
-				WP_CLI::log( 'we are dealing with WordPress to WordPress' );
+					$json['body'][ $post_type ] = array();
+					array_push( $json['body'][ $post_type ], $post_type_response );
+				}
 
 				require_once( __DIR__ . '/inc/class-wpcli-migration-post.php' ); // Loading our class that handles migrating posts.
-				new WPCLI_Migration_Post( $json, $user_args );
+
+				foreach( $json['body'] as $post_type ) {
+					new WPCLI_Migration_Post( $post_type, $user_args );
+				}
 
 			} else {
-				WP_CLI::warning( '--wp2wp is not set to true' );
-			}
 
-			/**
-			 * End where custom code would be written
-			 */
+				if ( ! isset( $user_args['all'] ) || false === ( bool ) $user_args['all'] ) {
+					WP_CLI::log( 'not getting all' );
+					$json = wp_remote_get( esc_url( $user_args['json_url'] ) );
+				}
+
+				// @codingStandardsIgnoreEnd
+				if ( is_wp_error( $json ) ) {
+					// @codingStandardsIgnoreStart
+					WP_CLI::error( 'WP_Error object returned ' . print_r( $json, 1 ) );
+					// @codingStandardsIgnoreEnd
+
+				} else {
+					/**
+					 * Setting up our JSON data
+					 */
+					$json = $json['body'];
+				}
+
+				// Turning json into array.
+				$json = json_decode( $json );
+
+				if ( false === $json ) {
+					WP_CLI::error( 'Invalid JSON string' );
+				} else {
+					WP_CLI::success( 'Valid JSON' );
+				}
+
+				if ( isset( $user_args['skip_images'] ) && true === $user_args['skip_images'] ) {
+					WP_CLI::warning( 'Skipping Images' );
+				}
+
+				/**
+				 * Dealing with WordPress to WordPress Migration
+				 */
+				if ( isset( $user_args['wp2wp'] ) && true === $user_args['wp2wp'] ) {
+
+					WP_CLI::log( 'we are dealing with WordPress to WordPress' );
+
+					require_once( __DIR__ . '/inc/class-wpcli-migration-post.php' ); // Loading our class that handles migrating posts.
+					new WPCLI_Migration_Post( $json, $user_args );
+
+				} else {
+					WP_CLI::warning( '--wp2wp is not set to true' );
+				}
+
+				/**
+				 * End where custom code would be written
+				 */
+
+			}
 		}
 
 	} // End import().

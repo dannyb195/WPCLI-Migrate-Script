@@ -50,8 +50,19 @@ class WPCLI_Migration_User {
 		$new_user = '';
 
 		/**
+		 * Setting an empty user var for users that already exist
+		 *
+		 * @var string
+		 */
+		$user = '';
+
+		/**
 		 * Author / User stuff here
 		 */
+
+		if ( ! is_object( $import_post->_links ) ) {
+			return;
+		}
 
 		if ( property_exists( $import_post->_links, 'author' ) ) {
 			// @codingStandardsIgnoreStart
@@ -64,20 +75,31 @@ class WPCLI_Migration_User {
 		if ( ! is_wp_error( $author ) ) {
 			$author = json_decode( $author['body'] );
 
-			if ( property_exists( $author, 'name' ) ) {
-				$user = get_user_by( 'email', $author->user_email );
-
+			if ( property_exists( $author, 'name' ) && property_exists( $author, 'user_email' ) ) {
+				$this->user = get_user_by( 'email', $author->user_email );
 			} else {
 				$author->name = null;
 			}
 		} else {
-			$user = false;
+			$this->user = '';
 		}
 
-		if ( false === $user ) {
+		if ( empty( $this->user ) ) {
 
 			if ( true === $this->debug ) {
 				WP_CLI::log( 'user ' . $author->name . ' does not exist we should create them' );
+			}
+
+			if ( ! isset( $author->name ) ) {
+				$author->name = $author->slug;
+			}
+
+			if ( ! isset( $author->user_email ) ) {
+				$author->user_email =  md5( $author->slug ) . '@12345.com';
+			}
+
+			if ( ! isset( $author->role ) ) {
+				$author->role = 'author';
 			}
 
 			if ( property_exists( $author , 'name' ) ) {
@@ -108,6 +130,9 @@ class WPCLI_Migration_User {
 				// @codingStandardsIgnoreEnd
 			}
 		} // End if().
+		else {
+			$new_user = $this->user->data->ID;
+		}
 
 		return $new_user;
 
