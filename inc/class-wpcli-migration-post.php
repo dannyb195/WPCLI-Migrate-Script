@@ -213,7 +213,7 @@ class WPCLI_Migration_Post {
 							'post_author' => $new_user,
 							'post_date' => $import_post->date,
 							'post_date_gmt' => $import_post->date_gmt,
-							'post_content' => $content,
+							'post_content' => $content ?: '',
 							'post_title' => ! empty( $import_post->title->rendered ) ? $import_post->title->rendered : 'no title',
 							'post_excerpt' => ! empty( $import_post->excerpt->rendered ) ? $import_post->excerpt->rendered : '',
 							'post_type' => $import_post->type,
