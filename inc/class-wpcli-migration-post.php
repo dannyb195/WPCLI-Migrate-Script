@@ -40,15 +40,12 @@ class WPCLI_Migration_Post {
 	 * @param string $json      JSON string of incoming data.
 	 * @param array  $user_args  array of $user_args as provided by WP CLI.
 	 */
-	public function __construct( $json = '', $user_args = '' ) {
+	public function __construct( $json = '', $user_args = '', $post_type = '' ) {
 
 		$this->json = $json;
 		$this->debug = isset( $user_args['migrate_debug'] ) && true === $user_args['migrate_debug'] ? true : false;
 		$this->skip_images = isset( $user_args['skip_images'] ) && true === $user_args['skip_images'] ? true : false;
-		$this->post_import( $json );
-
-		// WP_CLI::log( 'skip images? ' . $this->skip_images );
-
+		$this->post_import( $json, $user_args, $post_type );
 	}
 
 	/**
@@ -58,11 +55,15 @@ class WPCLI_Migration_Post {
 	 *
 	 * @param  string $json As provided by the WP JSON API /posts endpoint.
 	 */
-	private function post_import( $json ) {
+	private function post_import( $json, $user_args, $post_type ) {
 
 		$count = count( $json );
 
-		WP_CLI::log( 'importing ' . $count . ' posts' );
+		if ( ! isset( $user_args['all'] ) || false === $user_args['all'] ) {
+			WP_CLI::log( 'importing ' . $count . ' posts' );
+		} else {
+			WP_CLI::log( 'importing ' . $count . ' ' . $post_type );
+		}
 
 		/**
 		 * Https://wp-cli.org/docs/internal-api/wp-cli-utils-make-progress-bar/
