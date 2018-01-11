@@ -20,8 +20,12 @@
  * wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10
  * wp migrate --json_file=<path to local file>
  *
- * Standar WordPress to WordPress command:
+ * Standard WordPress to WordPress command:
  * wp migrate --json_url=http://test-me.localdev/wp-json/wp/v2/posts?per_page=10 --wp2wp
+ *
+ * Standard WordPress to Wordpress command which accounts for unknown remote CPTs.
+ * Note that this command _will not_ register CPTs
+ * wp migrate --json_url=http://test-me.localdev/wp-json/wp/v2/ --wp2wp --all --per_page=100
  *
  * Demo Posts:
  * https://demo.wp-api.org/wp-json/wp/v2/posts
@@ -96,6 +100,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 			'offset', // offset as expected by WP_Query.
 			'menus', // If preset WP menus will be migrated, requires wp2wp=true.
 			'all', // Get all public post types
+			'per_page', // Only used when --all is set;
+			'h', // general help CLI docs
 		);
 
 		require_once( __DIR__ . '/inc/class-wpcli-migration-helper.php' );
@@ -111,7 +117,7 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 	 */
 	public function __invoke( $args, $user_args ) {
 
-		if ( empty( $user_args ) ) {
+		if ( empty( $user_args ) || true === (bool) $user_args['h'] ) {
 			WP_CLI::error( 'You must supply arguments:
 				--json_file     A local JSON file location
 				--json_url      A JSON URL endpoint
@@ -121,6 +127,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 				--offset        Offset as expected by WP_Query
 				--menus         If preset WP menus will be migrated, requires wp2wp=true
 				--all           Set to true to get all public post types
+				--per_page      Only used when --all is set
+				--h             General CLI help docs
 			' );
 		}
 
@@ -136,6 +144,8 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 		 * --offset=<integer>
 		 * --menus=true|false
 		 * --all
+		 * --per_page
+		 * --h
 		 */
 		if ( true === $this->debug ) {
 			// @codingStandardsIgnoreStart
@@ -364,14 +374,18 @@ class WPCLI_Custom_Migrate_Command extends WP_CLI_Command {
 
 				}
 
-				// WP_CLI::log( print_r( $types_array, 1 ) );
+				if ( ! isset( $user_args['per_page'] ) ) {
+					WP_CLI::error( '--per_page=### must be set when using --all' );
+				}
 
 				$json = array();
 				foreach ( $types_array as $post_type ) {
-					$json = wp_remote_get( $base_url . '/' . $post_type );
 
+					$url = $base_url . '/' . $post_type;
+					$url = add_query_arg( 'per_page', absint( $user_args['per_page'] ), $url );
+
+					$json = wp_remote_get( $url );
 					$json = $json['body'];
-
 					$json = json_decode( $json );
 
 					require_once( __DIR__ . '/inc/class-wpcli-migration-post.php' ); // Loading our class that handles migrating posts.

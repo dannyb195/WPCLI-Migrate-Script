@@ -14,6 +14,8 @@ Additional platforms will require custom code / extending the currently written 
 - --offset=<int>, // Offset as understood by WordPress Core queries: --offset=<integer>
 - --menus=true|false // Set to true to migrate core menus, requires https://github.com/dannyb195/WPCLI-Migrate-Script-Source-Site to be install on the remote ( source ) site
 - --all=true|false // Set to true to get all public post types
+- --per_page      // Only used when --all is set
+- --h             // General CLI help docs
 
 ### Usage:
 `wp migrate --json_url=http://test.me.dev/wp-json/wp/v2/posts?per_page=10`
