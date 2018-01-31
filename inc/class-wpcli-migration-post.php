@@ -227,6 +227,7 @@ class WPCLI_Migration_Post {
 							'post_category' => array(),
 							'meta_input' => array(
 								'content_origin' => $import_post->_links->self[0]->href,
+								'content_origin_id' => $import_post->id,
 								'_thumbnail_id' => ! empty( $featured_image_id ) ? intval( $featured_image_id ) : '',
 							),
 						)
@@ -427,6 +428,7 @@ class WPCLI_Migration_Post {
 								'post_status' => 'publish',
 								'meta_input' => array(
 									'content_origin' => $import_post->_links->self[0]->href,
+									'content_origin_id' => $import_post->id,
 								),
 							)
 						);
